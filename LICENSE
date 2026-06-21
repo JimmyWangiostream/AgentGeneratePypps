@@ -19,3 +19,7 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+This project includes code from:
+- llm_wiki (https://github.com/nashsu/llm_wiki/blob/) licensed under MIT License
+- Understand-Anything  (https://github.com/Egonex-AI/Understand-Anything/blob) licensed under MIT License
