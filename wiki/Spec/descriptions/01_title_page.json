@@ -1,0 +1,14 @@
+{
+  "file": "01_title_page.md",
+  "title": "Title Page",
+  "description": "此章節為JEDEC標準JESD220G的標題頁，涵蓋通用快閃儲存(UFS)版本4.1的技術規範文件基本資訊。包含標準編號、版本資訊、發布日期(2024年12月)、版權聲明、以及文件目錄結構，提供UFS 4.1標準文件的整體框架和法律條款說明。",
+  "keywords": [
+    "UFS",
+    "JEDEC",
+    "JESD220G",
+    "Universal Flash Storage",
+    "technical specification",
+    "version 4.1"
+  ],
+  "page_range": "1-3"
+}

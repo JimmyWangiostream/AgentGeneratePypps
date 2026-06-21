@@ -1,0 +1,14 @@
+{
+  "file": "23_10712_nop_in_upiu.md",
+  "title": "10.7.12 NOP IN UPIU",
+  "description": "此章節詳細說明了UFS協議中NOP IN UPIU的格式和欄位定義，包括基本標頭結構、交易類型、標誌位元、任務標籤、回應欄位等具體規範。本章節可回答關於NOP IN UPIU封包格式、各欄位值設定規則，以及目標裝置如何回應NOP OUT UPIU的相關問題。",
+  "keywords": [
+    "NOP IN UPIU",
+    "Basic Header",
+    "Transaction Type",
+    "Task Tag",
+    "Response Field",
+    "UPIU Format"
+  ],
+  "page_range": "169-170"
+}

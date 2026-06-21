@@ -1,0 +1,14 @@
+{
+  "file": "12_1071_command_upiu.md",
+  "title": "10.7.1 COMMAND UPIU",
+  "description": "本章節詳細說明UFS協定中的COMMAND UPIU格式與規範，包括基本標頭結構、標誌定義、資料傳輸長度設定等內容。此章節可回答關於COMMAND UPIU的結構組成、標誌位元設定、資料傳輸方向控制，以及與SCSI指令服務請求相關的技術問題。",
+  "keywords": [
+    "COMMAND UPIU",
+    "UFS Protocol",
+    "SCSI command",
+    "data transfer",
+    "flags",
+    "CDB"
+  ],
+  "page_range": "102-104"
+}

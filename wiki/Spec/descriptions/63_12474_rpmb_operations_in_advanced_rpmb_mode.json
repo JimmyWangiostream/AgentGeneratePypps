@@ -1,0 +1,14 @@
+{
+  "file": "63_12474_rpmb_operations_in_advanced_rpmb_mode.md",
+  "title": "12.4.7.4 RPMB Operations in Advanced RPMB Mode",
+  "description": "本章節詳細說明在進階 RPMB 模式下的操作流程，包括身份驗證金鑰程式設計、讀取計數器值和經身份驗證的資料寫入等三種主要操作。涵蓋了使用 SECURITY PROTOCOL OUT/IN 命令的完整通訊協定，以及各種錯誤處理和 MAC 驗證機制。",
+  "keywords": [
+    "Advanced RPMB",
+    "authentication key",
+    "write counter",
+    "SECURITY PROTOCOL",
+    "MAC verification",
+    "data write"
+  ],
+  "page_range": "345-373"
+}

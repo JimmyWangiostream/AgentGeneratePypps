@@ -1,0 +1,14 @@
+{
+  "file": "49_11328_write_buffer_command.md",
+  "title": "11.3.28 WRITE BUFFER Command",
+  "description": "本章節說明WRITE BUFFER命令的詳細規格，涵蓋緩衝區記憶體測試、韌體更新和錯誤統計等功能。內容包含命令參數定義、模式欄位值、Field Firmware Update (FFU) 流程，以及資料傳輸和狀態回應的處理機制。",
+  "keywords": [
+    "WRITE BUFFER",
+    "Field Firmware Update",
+    "FFU",
+    "microcode download",
+    "buffer memory",
+    "UFS command"
+  ],
+  "page_range": "268-272"
+}

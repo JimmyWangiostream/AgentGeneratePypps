@@ -1,0 +1,675 @@
+from enum import Enum, IntEnum
+from Script.api.ufs_api.defines.bit_define import BIT
+
+from Script.api.ufs_api.defines.bit_define import BIT0, BIT1, BIT2, BIT3, BIT7
+
+
+########################### UFS Specs ###########################
+class VENDOR_CMD_GC_THRESHOLD(IntEnum):
+    GC_THRESHOLD_PARTITION = 0
+    GC_THRESHOLD_DATA_NORMAL = 1
+    GC_THRESHOLD_DATA_ACTIVE = 2
+    GC_THRESHOLD_PTE_NORMAL = 3
+    GC_THRESHOLD_PTE_ACTIVE = 4
+    
+class UPIUTransactionType(IntEnum):
+    NOP_OUT = 0x00  # xx00 0000
+    NOP_IN = 0x20   # xx10 0000
+    CMD = 0x01      # xx00 0001
+    RSP = 0x21      # xx10 0001
+    DOUT = 0x02     # xx00 0010
+    DIN = 0x22      # xx10 0010
+    TM_REQ = 0x04   # xx00 0100
+    TM_RSP = 0x24   # xx10 0100
+    QRY_REQ = 0x16  # xx01 0110
+    QRY_RSP = 0x36  # xx11 0110
+    RTT = 0x31      # xx11 0001
+    REJECT = 0x3F   # xx11 1111
+    SDK_CMD = 0xFF  # Non-spec
+
+class UPIUCmdFlag(IntEnum):
+    READ = 0x40     # 0100 0000
+    WRITE = 0x20    # 0010 0000
+    NO_DATA = 0x00  # 0000 0000
+
+class UPIURspFlag(IntEnum):
+    OVERFLOW = 0x40             # 0100 0000
+    UNDERFLOW = 0x20            # 0010 0000
+    DATA_OUT_MISMATCH = 0x10    # 0001 0000
+
+class UPIUResponse(IntEnum):
+    TARGET_SUCCESS = 0x00
+    TARGET_FAILURE = 0X01
+
+class TaskMgmtServiceResponse(IntEnum):
+    FUNC_COMPLETE = 0x00
+    FUNC_NOT_SUPPORTED = 0x04
+    FUNC_FAILED = 0x05
+    FUNC_SUCCEEDED = 0x08
+    INCORRECT_LOGICAL_UNIT_NUMBER = 0x09
+
+class QueryResponseCode(IntEnum):
+    SUCCESS = 0x00
+    PARAM_NOT_READABLE = 0xF6
+    PARAM_NOT_WRITEABLE = 0xF7
+    PARAM_ALREADY_WRITTEN = 0xF8
+    INVALID_LENGTH = 0xF9
+    INVALID_VALUE = 0xFA
+    INVALID_SELECTOR = 0xFB
+    INVALID_INDEX = 0xFC
+    INVALID_IDN = 0xFD
+    INVALID_OPCODE = 0xFE
+    GENERAL_FAILURE = 0xFF
+
+class WellKnownLUN(IntEnum):
+    REPORT_LUNS = 0x81
+    UFS_DEVICE = 0xD0
+    RPMB = 0xC4
+    BOOT = 0xB0
+    ALL_LUN = 0xFE
+    NULL_LUN = 0xFF
+
+class ScsiStatus(IntEnum):
+    GOOD = 0x00
+    CHECK_CONDITION = 0x02
+    CONDITION_MET = 0x04
+    BUSY = 0x08
+    RESERVATION_CONFLICT = 0x18
+    TASK_SET_FULL = 0x28
+    ACA_ACTIVE = 0x30
+    TASK_ABORTED = 0x40
+
+class SenseKey(IntEnum):
+    NO_SENSE = 0x00
+    RECOVERED_ERROR = 0x01
+    NOT_READY = 0x02
+    MEDIUM_ERROR = 0x03
+    HARDWARE_ERROR = 0x04
+    ILLEGAL_REQUEST = 0x05
+    UNIT_ATTENTION = 0x06
+    DATA_PROTECT = 0x07
+    BLANK_CHECK = 0x08
+    VENDOR_SPECIFIC = 0x09
+    COPY_ABORTED = 0x0A
+    ABORTED_COMMAND = 0x0B
+    VOLUME_OVERFLOW = 0x0D
+    MISCOMPARE = 0x0E
+
+class TaskManagementFunction(IntEnum):
+    ABORT_TASK = 0x1
+    ABORT_TASK_SET = 0x2
+    CLEAR_TASK_SET = 0x4
+    LU_RESET = 0x8
+    QUERY_TASK = 0x80
+    QUERY_TASK_SET = 0x81
+
+class QueryFunction(IntEnum):
+    STANDARD_READ_REQ = 0x01
+    STANDARD_WRITE_REQ = 0x81
+
+class QueryFunctionOpcode(IntEnum):
+    NOP = 0x00
+    READ_DESCRIPTOR = 0x01
+    WRITE_DESCRIPTOR = 0x02
+    READ_ATTRIBUTE = 0x03
+    WRITE_ATTRIBUTE = 0x04
+    READ_FLAG = 0x05
+    SET_FLAG = 0x06
+    CLEAR_FLAG = 0x07
+    TOGGLE_FLAG = 0x08
+
+class DescriptorIDN(IntEnum):
+    DEVICE = 0x00
+    CONFIGURATION = 0x01
+    UNIT = 0x02
+    # XCOPY = 0x03
+    INTERCONNECT = 0x04
+    STRING = 0x05
+    GEOMETRY = 0x07
+    POWER = 0x08
+    DEVICE_HEALTH = 0x09
+    FILE_BASED_OPTIMIZATION = 0x0A
+
+class FlagIDN(IntEnum):
+    DEVICE_INIT = 0x01
+    PERMANENT_WP_EN = 0x02
+    POWER_ON_WB_EN = 0x03
+    BG_OP_EN = 0x04
+    DEVICE_LIFESPAN_MODE_EN = 0x05
+    PURGE_EN = 0x06
+    REFRESH_EN = 0x07
+    PHY_RESOURCE_REMOVAL = 0x08
+    BUSY_RTC = 0x09
+    PERMANENTLY_DIS_FW_UPDATE = 0x0B
+    WRITEBOOSTER_EN = 0x0E
+    WRITEBOOSTER_BUFFER_FLUSH_EN = 0x0F
+    WRITEBOOSTER_BUFFER_FLUSH_DURING_HIBERNATE = 0x10
+
+class AttributeIDN(IntEnum):
+    BOOT_LUN_EN = 0x00
+    CURR_PWR_MODE = 0x02
+    ACTIVE_ICC_LVL = 0x03
+    OUT_OF_ORDER_DATA_EN = 0x04
+    BG_OP_STATUS = 0x05
+    PURGE_STATUS = 0x06
+    MAX_DATA_IN_SIZE = 0x07
+    MAX_DATA_OUT_SIZE = 0x08
+    DYN_CAP_NEEDED = 0x09
+    REF_CLK_FREQ = 0x0A
+    CONFIG_DESCR_LOCK = 0x0B
+    MAX_NUM_OF_RTT = 0x0C
+    EXC_EVENT_CONTROL = 0x0D
+    EXC_EVENT_STATUS = 0x0E
+    SECONDS_PASSED = 0x0F
+    CONTEXT_CONF = 0x10
+    DEVICE_FFU_STATUS = 0x14
+    PSA_STATE = 0x15
+    PSA_DATA_SIZE = 0x16
+    REF_CLK_GATING_WAIT_TIME = 0x17
+    DEVICE_CASE_ROUGH_TEMPERATURE = 0x18
+    DEVICE_TOO_HIGH_TEMP_BOUNDARY = 0x19
+    DEVICE_TOO_LOW_TEMP_BOUNDARY = 0x1A
+    THROTTLING_STATUS = 0x1B
+    WRITEBOOSTER_BUFFER_FLUSH_STATUS = 0x1C
+    AVAILABLE_WRITEBOOSTER_BUFFER_SIZE = 0x1D
+    WRITEBOOSTER_BUFFER_LIFETIME_EST = 0x1E
+    CURRENT_WRITEBOOSTER_BUFFER_SIZE = 0x1F
+    EXT_IID_EN = 0x2A
+    HOST_HINT_CACHE_SIZE = 0x2B
+    REFRESH_STATUS = 0x2C
+    REFRESH_FREQ = 0x2D
+    REFRESH_UNIT = 0x2E
+    REFRESH_METHOD = 0x2F
+    TIMESTAMP = 0x30
+    FBO_CONTROL = 0x31
+    FBO_EXECUTE_THRESHOLD = 0x32
+    FBO_PROGRESS_STATE = 0x33
+    DEFRAG_OPERATION = 0x35
+    HID_AVAILABLE_SIZE = 0x36
+    HID_SIZE = 0x37
+    HID_PROGRESS_RATIO = 0x38
+    HID_STATE = 0x39
+
+class RPMBRegion(IntEnum):
+    REGION_0 = 0x0001
+    REGION_1 = 0x0101
+    REGION_2 = 0x0201
+    REGION_3 = 0x0301
+
+class RPMBMsgType(IntEnum):
+    # Request Message Type
+    KEY_PROGRAM_REQ = 0x0001
+    WRITE_COUNTER_READ_REQ = 0x0002
+    DATA_WRITE_REQ = 0x0003
+    DATA_READ_REQ = 0x0004
+    RESULT_READ_REQ = 0x0005
+    SECURE_WRITE_PROTECT_CONFIG_BLK_WRITE_REQ = 0x0006
+    SECURE_WRITE_PROTECT_CONFIG_BLK_READ_REQ = 0x0007
+    RPMB_PURGE_ENABLE_REQ = 0x0008
+    RPMB_PURGE_STATUS_READ_REQ = 0x0009
+    # Response Message Type
+    KEY_PROGRAM_RSP = 0x0100
+    WRITE_COUNTER_READ_RSP = 0x0200
+    DATA_WRITE_RSP = 0x0300
+    DATA_READ_RSP = 0x0400
+    SECURE_WRITE_PROTECT_CONFIG_BLK_WRITE_RSP = 0x0600
+    SECURE_WRITE_PROTECT_CONFIG_BLK_READ_RSP = 0x0700
+    RPMB_PURGE_ENABLE_RSP = 0x0800
+    RPMB_PURGE_STATUS_READ_RPS = 0x0900
+
+class RPMBOperationResult(IntEnum):
+    RESULT_OK = 0x0000
+    GENERAL_FAILURE = 0x0001
+    AUTHENTICATION_FAILURE = 0x0002
+    COUNTER_FAILURE = 0x0003
+    ADDRESS_FAILURE = 0x0004
+    WRITE_FAILURE = 0x0005
+    READ_FAILURE = 0x0006
+    KEY_NOT_PROGRAMMED = 0x0007
+    SECURE_WRITE_PROTECT_CONFIG_BLK_ACCESS_FAILURE = 0x0008
+    INVALID_SECURE_WRITE_PROTECT_BLK_CONFIG_PARAM = 0x0009
+    SECURE_WRITE_PROTECT_NOT_APPLICABLE = 0x000A
+    UNSUPPORTED_REQUEST_TYPE = 0x000B
+    RPMB_PURGE_OPERATION_IN_PROGRESS = 0x000C
+    # Counter expired
+    RESULT_OK_COUNTER_EXPIRED = 0x0080
+    GENERAL_FAILURE_COUNTER_EXPIRED = 0x0081
+    AUTHENTICATION_FAILURE_COUNTER_EXPIRED = 0x0082
+    COUNTER_FAILURE_COUNTER_EXPIRED = 0x0083
+    ADDRESS_FAILURE_COUNTER_EXPIRED = 0x0084
+    WRITE_FAILURE_COUNTER_EXPIRED = 0x0085
+    READ_FAILURE_COUNTER_EXPIRED = 0x0086
+
+class ScsiCmd(IntEnum):
+    FORMAT_UNIT = 0x04
+    INQUIRY = 0x12
+    MODE_SELECT_10 = 0x55
+    MODE_SENSE_10 = 0x5A
+    PREFETCH_10 = 0x34
+    PREFETCH_16 = 0x90
+    READ_6 = 0x08
+    READ_10 = 0x28
+    READ_16 = 0x88
+    READ_BUFFER = 0x3C
+    READ_CAPACITY_10 = 0x25
+    READ_CAPACITY_16 = 0x9E
+    REPORT_LUNS = 0xA0
+    REQUEST_SENSE = 0x03
+    SECURITY_PROTOCOL_IN = 0xA2
+    SECURITY_PROTOCOL_OUT = 0xB5
+    SEND_DIAGNOSTIC = 0x1D
+    START_STOP_UNIT = 0x1B
+    SYNCHRONIZE_CACHE_10 = 0x35
+    SYNCHRONIZE_CACHE_16 = 0x91
+    TEST_UNIT_READY = 0x00
+    UNMAP = 0x42
+    VERIFY_10 = 0x2F
+    WRITE_6 = 0x0A
+    WRITE_10 = 0x2A
+    WRITE_16 = 0x8A
+    WRITE_BUFFER = 0x3B
+    HPB_READ = 0xF8
+    HPB_READ_BUFFER = 0xF9
+    HPB_WRITE_BUFFER = 0xFA
+
+class ConfDescContinue(IntEnum):
+    DISABLE = 0x00
+    ENABLE = 0x01
+
+class BootEnable(IntEnum):
+    BOOT_DISABLE = 0x00
+    BOOT_ENABLE = 0x01
+    PERMANENT_BOOT_ENABLE = 0x02
+
+class DescrAccessEn(IntEnum):
+    DISABLE = 0x00
+    ENABLE = 0x01
+
+class InitPowerMode(IntEnum):
+    SLEEP = 0x00
+    ACTIVE = 0x01
+
+class HighPriorityLUN(IntEnum):
+    ALL_LUN_SAME_PRIORITY = 0x7F
+class FboProgressState(IntEnum):
+    IDLE = 0x0
+    ON_GOING_FBO_OPERATION = 0x1
+    COMPLETE_FBO_ANALYSIS = 0x02
+    COMPLETE_FBO_OPTIMIZATION = 0x03
+    GENERAL_ERROR = 0xFF
+class SecureRemovalType(IntEnum):
+    BY_PHYSICAL_ERASE = 0x00
+    BY_OVERWRITE_ERASE = 0x01
+    BY_OVERWRITE_COMPLEMENT_RANDOM = 0x02
+    BY_VENDOR = 0x03
+class InitActiveICCLevel(IntEnum):
+    LVL_00 = 0x00
+    LVL_01 = 0x01
+    LVL_02 = 0x02
+    LVL_03 = 0x03
+    LVL_04 = 0x04
+    LVL_05 = 0x05
+    LVL_06 = 0x06
+    LVL_07 = 0x07
+    LVL_08 = 0x08
+    LVL_09 = 0x09
+    LVL_0A = 0x0A
+    LVL_0B = 0x0B
+    LVL_0C = 0x0C
+    LVL_0D = 0x0D
+    LVL_0E = 0x0E
+    LVL_0F = 0x0F
+
+class RPMBRegionEnable(IntEnum):
+    REGION_0_ENABLE = BIT(0)
+    REGION_1_ENABLE = BIT(1)
+    REGION_2_ENABLE = BIT(2)
+    REGION_3_ENABLE = BIT(3)
+    ADVANCED_RPMB_MODE = BIT(4)
+    RPMB_PURGE_ENABLE = BIT(5)
+
+class WriteBoosterBufferPreserveUserSpaceEn(IntEnum):
+    DISABLE = 0x00
+    ENABLE = 0x01
+
+class WriteBoosterBufferType(IntEnum):
+    DEDICATED = 0x00
+    SHARED = 0x01
+
+class LUNEnable(IntEnum):
+    DISABLE = 0
+    ENABLE = 1
+
+class BootLUNID(IntEnum):
+    NOT_BOOTABLE = 0x00
+    BOOT_LUN_A = 0x01
+    BOOT_LUN_B = 0x02
+
+class LUNWriteProtect(IntEnum):
+    NOT_WRITE_PROTECTED = 0x00
+    POWER_ON_WRITE_PROTECT = 0x01
+    PERMANENT_WRITE_PROTECT = 0x02
+
+class MemoryType(IntEnum):
+    NORMAL = 0x00
+    SYSTEM_CODE = 0x01
+    NON_PERSISTENT = 0x02
+    ENHANCED_1 = 0x03
+    ENHANCED_2 = 0x04
+    ENHANCED_3 = 0x05
+    ENHANCED_4 = 0x06
+    RPMB = 0x0F
+
+class DataReliability(IntEnum):
+    LUN_NOT_PROTECTED = 0x00
+    LUN_PROTECTED = 0x01
+
+class LogicalBlockSize(IntEnum):
+    SIZE_256B = 0x08
+    SIZE_4KB = 0x0C
+
+class ProvisioningType(IntEnum):
+    FULL_PROVISIONING = 0x00
+    THIN_PROVISIONING_DISCARD = 0x02
+    THIN_PROVISIONING_ERASE = 0x03
+
+class MaxNumberLUN(IntEnum):
+    AMOUNT_8 = 0x00
+    AMOUNT_32 = 0x01
+
+class DynamicCapacityResourcePolicy(IntEnum):
+    PER_LOGICAL_UNIT = 0x00
+    PER_MEMORY_TYPE = 0x01
+
+class SupportedOutOfOrderDataTransfer(IntEnum):
+    NOT_SUPPORT = 0x00
+    DATA_IN_AND_OUT = 0x01
+    DATA_IN_ONLY = 0x02
+    DATA_OUT_ONLY = 0x03
+
+class SupportedSecureRemovalType(IntEnum):
+    BY_PHYSICAL_ERASE = BIT(0)
+    BY_OVERWRITE_ERASE = BIT(1)
+    BY_OVERWRITE_COMPLEMENT_RANDOM = BIT(2)
+    BY_VENDOR = BIT(3)
+
+class SupportedMemoryType(IntEnum):
+    NORMAL = BIT(0)
+    SYSTEM_CODE = BIT(1)
+    NON_PERSISTENT = BIT(2)
+    ENHANCED_1 = BIT(3)
+    ENHANCED_2 = BIT(4)
+    ENHANCED_3 = BIT(5)
+    ENHANCED_4 = BIT(6)
+    RPMB = BIT(15)
+
+class SupportedWriteBoosterBufferUserSpaceType(IntEnum):
+    USER_SPACE_REDUCTION_ONLY = 0x00
+    PRESERVE_USER_SPACE_ONLY = 0x01
+    USER_SPACE_REDUCTION_AND_PRESERVE_USER_SPACE = 0x02
+
+class SupportedWriteBoosterBufferType(IntEnum):
+    DEDICATED_ONLY = 0x00
+    SHARED_ONLY = 0x01
+    DEDICATED_AND_SHARED = 0x02
+
+class FboControlType(IntEnum):
+    DEVICE_SHALL_STOP_FBO_ANALYSIS_AND_OPTIMIZATION_OPERATION = 0x00
+    START_FBO_ANALYSIS = 0x01
+    START_FBO_OPTIMIZATION = 0x02
+
+class PreEndOfLifeInfo(IntEnum):
+    NOT_DEFINED = 0x00
+    NORMAL = 0x01
+    WARNING = 0x02
+    CRITICAL = 0x03
+
+class WriteBufferMode(IntEnum):
+    NOT_USED = 0x00
+    VENDOR_SPECIFIC = 0x01
+    DATA = 0x02
+    FFU = 0x0E
+
+class ReadBufferMode(IntEnum):
+    NOT_USED = 0x00
+    VENDOR_SPECIFIC = 0x01
+    DATA = 0x02
+    ERROR_HISTORY = 0x1C
+    RESERVED = 0x1F
+    
+class PSAState(IntEnum):
+    OFF = 0x00
+    PRE_SOLDERING = 0x01
+    LOADING_COMPLETE = 0x02
+    SOLDERED = 0x03
+
+class WriteBoosterBufferFlushStatus(IntEnum):
+    IDLE = 0x00
+    IN_PROGRESS = 0x01
+    STOPPED = 0x02
+    COMPLETED = 0x03
+    GENERAL_FAILURE = 0x04
+
+class BKOPSStatus(IntEnum):
+    NOT_REQUIRED = 0x00
+    REQUIRED_NOT_CRITICAL = 0x01
+    REQUIRED_PERFORMANCE_IMPACT = 0x02
+    CRITICAL = 0x03
+
+class RefClk(IntEnum):
+    MHZ_19_2 = 0
+    MHZ_26_0 = 1
+    MHZ_38_4 = 2
+    MHZ_52_0 = 3
+
+    @property
+    def mhz(self) -> float:
+        ref_clk_map = {RefClk.MHZ_19_2: 19.2, RefClk.MHZ_26_0: 26.0, RefClk.MHZ_38_4: 38.4, RefClk.MHZ_52_0: 52.0}
+        return ref_clk_map[self]
+
+########################### UFS Specs end ###########################
+
+
+########################### Tester SDK ###########################
+
+class SdkCmd2ndByte(IntEnum):
+    PWR_CYCLE = 0x01
+    SWITCH_VOLTAGE = 0x02
+    SWITCH_REF_CLK = 0x03
+    SPD_CHG = 0x04
+    INIT_FLOW = 0x05
+    TRIG_GPIO = 0x06
+    HIBERNATE = 0x07
+    TEST_UNIT_READY = 0x08
+    PWR_CTRL = 0x09
+    RDY_DEV_INIT_FLAG = 0x0A
+    PUSH_NOP_OUT_POLL_NOP_IN = 0x0B
+    TM_DUMMY_RSP = 0xFE
+    PREFETCH_HPB_WR_BUF_DUMMY_RSP = 0xFD
+
+class CmdParamPatternMode(IntEnum):
+    HW_INCREASE = 0
+    HW_DECREASE = 1
+    HW_FIX = 2
+    HW_RANDOM = 3
+    PTN_ERASE = 0xFF
+
+class CompareMethod(IntEnum):
+    HW_COMPARE = 0
+    SW_COMPARE = 1
+
+class PowerCycleMode(IntEnum):
+    ALL_POWER_DOWN = 0
+    RSTN_RESET = 1
+    END_POINT_RESET = 2
+    LINK_START_UP = 3
+
+class SpdChgPowerMode(IntEnum):
+    FAST = 1
+    SLOW = 2
+    HIBERNATE = 3
+    FAST_AUTO = 4
+    SLOW_AUTO = 5
+
+class SpdChgGear(IntEnum):
+    GEAR_1 = 1
+    GEAR_2 = 2
+    GEAR_3 = 3
+    GEAR_4 = 4
+    GEAR_5 = 5
+    GEAR_6 = 6
+    GEAR_7 = 7
+
+class SpdChgLane(IntEnum):
+    LANE_1 = 1
+    LANE_2 = 2
+    LANE_3 = 3
+    LANE_4 = 4
+
+class SpdChgHsRate(IntEnum):
+    RATE_A = 0
+    RATE_B = 1
+
+class TimeResolution(IntEnum):
+    ms = 0
+    us = 1
+
+class SpeedChangeTiming(Enum):
+    NO_SPEED_CHANGE = 0
+    AFTER_LINK = 1
+    AFTER_INIT = 2
+    AFTER_LINK_AND_INIT = 3
+
+class Dcmd5SsuActive(IntEnum):
+    STAY_IN_ACTIVE = 0
+    STAY_IN_SLEEP = 1
+    EXIT_SLEEP = 2
+
+class LinkStartUpMode(IntEnum):
+    LS_RESET_MODE = 0
+    HS_RESET_MODE = 1
+
+########################### Tester SDK end ###########################
+
+class VendorCmd(IntEnum):
+    CTL_RESET_1_2 = 0x0
+    SET_ERASE_COUNT = 0x04
+    WRITE_HW_SETTING = 0x08
+    LOAD_FW_C_BIN = 0x09    # load C bin use
+    WRITE_MCONFIG = 0x09
+    WRITE_RETRY_TABLE = 0x0A
+    DIRECT_ERASE = 0x20
+    DIRECT_WRITE = 0x21 
+    WRITE_ATTRIBUTE_FLAG = 0x22
+    RPMB_KEY_CLEAR = 0x23
+    WRITE_READ_COUNTER_TABLE = 0x27        
+    WRITE_MEMORY = 0x2B
+    WRITE_XMEMORY = 0x2C
+    EXECUTE_PRAM = 0x2E     # Execute PRAM use
+    SRAM_TEST = 0x32
+    SET_CURRENT_TEMP_FOR_XTEMP = 0x33
+    RESET_CONFIG_DESCR_LOCK = 0x40
+    WRITE_WAFER_INFO = 0x41
+    SET_ASSERT_NUMBER = 0x4A    # Only Beta FW supprot this function , Force Device Set Assert = 0xDDCCBBAA
+    RPMB_DATA_KEY_WC_CLEAR = 0x4B   # Clear All RPMB Information inlclude RPMB Data data/Assert Info
+    INJECT_ERROR_BIT = 0x5B
+    WRITE_PARAMETER = 0x60
+    CHANGE_NAND_INTERFACE_SPEED = 0x66
+    SECURITY_VENDOR_WRITE = 0x7E
+    WRITE_FOR_READ = 0x7F
+    GET_RAND_NUM = 0x82
+    READ_MCONFIG = 0x83
+    READ_HW_SETTING = 0x84
+    READ_FLASH_SETTING = 0x85
+    READ_FLASH_STATUS2 = 0x87
+    L2P_READ = 0x88
+    GET_BLOCK_READ_CNT = 0x8D
+    GET_CIS_BLOCK_PAGE = 0x8F
+    GET_PACK_ADDR_RULE = 0x90
+    LOAD_PTE_TABLE = 0x91
+    LOAD_PMD_TABLE = 0x92
+    VERIFY_KEY = 0x99
+    DIRECT_READ = 0xA2
+    CHECK_VB_ECC = 0xA5
+    READ_MEMORY = 0xAB
+    READ_XMEMORY = 0xAC
+    READ_DEFRAG = 0xAF  # for KIC 8329 BICS8
+    GET_ERASE_COUNT = 0xB1
+    GET_BMU_MODE_AND_BUFFER_SIZE = 0xB8
+    GET_EVENT_INFO = 0xC1
+    GET_NPS_TEST_INFO = 0xC2
+    GET_BADBLK_EEASECNT_TABLE = 0xC7    # Don't ignore system block by FW (Not matching WL rule)
+    VENDOR_SET_POWER_CTRL = 0xC8    # Sim power mechenism used
+    GET_GENERAL_INFO = 0xC9
+    DUMP_VB_INFO = 0xCA
+    READ_RETRY_TABLE = 0xCB
+    GET_SMART_INFO = 0xCC
+    READ_PARAMETER = 0xD0
+    GET_OPEN_BLOCK_LWP_PCA = 0xD6
+    LOAD_RESULT_BLOCK_AND_BBT = 0xD9
+    GET_BLOCK_LIST = 0xDB
+    GET_FW_GEOMETRY = 0xDF
+    SET_GC_THRESHOLD = 0xDF
+    GET_CURRENT_TEMP_FOR_XTEMP = 0xE1
+    GET_MULTI_GEAR_STATUS = 0XE4    # for oppo
+    GET_DEVICE_INFO = 0xE5
+    TRIGGER_REFRESH_JOB = 0xEB
+    GET_SMART_INFO_0XF0 = 0xF0
+    SECURITY_VENDOR_READ = 0xFE
+
+class RPMBVendorType(IntEnum):
+    RESET_RPMB_KEY_COUNTER = 0x00
+    SET_RPMB_COUNTER = 0x01
+
+class VendorCmdRuleCdb2(IntEnum):
+    CMD_IN_DOUT = 0
+    CMD_IN_CDB = 1
+
+class VendorCmdRuleCdb3(IntEnum):
+    CMD_ATTRIBUTE = 0
+    CMD_FLAG = 1
+    CMD_OTHER = 2
+
+class FFUBinType(Enum):
+    FW_HW_BIN = "FFU_FW_HW"
+    FW_BIN = "FFU_FW"
+    HW_BIN = "FFU_HW"
+
+class FFUSvnType(Enum):
+    OLD_SVN_BIN = 0
+    CURRENT_SVN_BIN = 1
+    NEW_SVN_BIN = 2
+
+class FFUFeature(IntEnum):
+    FFU_SAMVE_SVN_BACKWARD_DIS = 0
+    FFU_SAME_SVN_EN = BIT0
+    FFU_BACKWARD_EN = BIT1
+    FFU_SAMVE_SVN_BACKWARD_EN = BIT1 | BIT0
+    FFU_KIC_SAMVE_SVN_BACKWARD_DIS = BIT2
+    FFU_KIC_SAME_SVN_EN = BIT0 | BIT2
+    FFU_KIC_BACKWARD_EN = BIT1 | BIT2
+    FFU_KIC_SAMVE_SVN_BACKWARD_EN = BIT1 | BIT0 | BIT2
+    FFU_KIC_CUSTOMER_REQUEST = BIT3 | BIT2
+    HW_PAGE_MARK = BIT7
+
+class FFUStatus(IntEnum):
+    NO_INFORMATION = 0
+    SUCCESSFUL_MICROCODE_UPDATE = 1
+    MICROCODE_CORRUPTION_UPDATE = 2
+    INTERNAL_ERROR = 3
+    MICROCODE_VERSION_MISMATCH = 4
+    GENERAL_ERROR = 0xFF
+
+class PurgeStatus(IntEnum):
+    PURGE_STS_IDLE = 0
+    PURGE_STS_IN_PROGRESS = 1
+    PURGE_STS_STOP_BY_HOST = 2
+    PURGE_STS_COMPLETE_SUCCESS = 3
+    PURGE_STS_FAIL_LUN_QUEUE_NOT_EMPTY = 4
+    PURGE_STS_GENERAL_FAIL = 5
+    
+class Vendor_CMD_Query_Func(IntEnum):
+    VENDOR_CMD_QUERY_DESCRIPTOR = ord('D')
+    VENDOR_CMD_QUERY_ATTRIBUTE = ord('A')
+    VENDOR_CMD_QUERY_FLAG = ord('F')
+    VENDOR_CMD_QUERY_SCSI = ord('S')

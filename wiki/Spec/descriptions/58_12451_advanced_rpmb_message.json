@@ -1,0 +1,14 @@
+{
+  "file": "58_12451_advanced_rpmb_message.md",
+  "title": "12.4.5.1 Advanced RPMB Message",
+  "description": "本章節詳細說明Advanced RPMB訊息的結構與實作方式，包含訊息格式、EHS欄位組織架構、以及Advanced RPMB Meta Information的詳細欄位定義。內容涵蓋訊息大小規格、MAC/KEY處理、以及各種欄位如Request/Response Message Type、Nonce、Write Counter等的配置方式。",
+  "keywords": [
+    "Advanced RPMB",
+    "EHS field",
+    "message structure",
+    "meta information",
+    "MAC/KEY",
+    "UPIU"
+  ],
+  "page_range": "314-315"
+}

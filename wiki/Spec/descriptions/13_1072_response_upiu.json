@@ -1,0 +1,14 @@
+{
+  "file": "13_1072_response_upiu.md",
+  "title": "10.7.2 RESPONSE UPIU",
+  "description": "此章節詳細描述 UFS 標準中的 RESPONSE UPIU 格式與功能，說明目標設備如何向啟動器回報指令執行結果。涵蓋 RESPONSE UPIU 的基本標頭結構、狀態碼、錯誤處理旗標、資料傳輸計數以及 SCSI 感測資料格式，可回答關於 UFS 指令回應機制、錯誤狀態回報和資料傳輸狀態的相關問題。",
+  "keywords": [
+    "RESPONSE UPIU",
+    "UFS protocol",
+    "SCSI status",
+    "error handling",
+    "sense data",
+    "data transfer"
+  ],
+  "page_range": "105-116"
+}

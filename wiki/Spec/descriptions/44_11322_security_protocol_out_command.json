@@ -1,0 +1,14 @@
+{
+  "file": "44_11322_security_protocol_out_command.md",
+  "title": "11.3.22 SECURITY PROTOCOL OUT Command",
+  "description": "此章節說明SECURITY PROTOCOL OUT命令的規格，包括命令格式、參數定義和資料傳輸機制。涵蓋了安全協議欄位、傳輸長度設定、以及命令執行的狀態回應處理，可回答有關UFS裝置安全協議命令實作的相關問題。",
+  "keywords": [
+    "SECURITY PROTOCOL OUT",
+    "UFS command",
+    "data transfer",
+    "JEDEC UFS",
+    "security protocol",
+    "command status response"
+  ],
+  "page_range": "250-251"
+}

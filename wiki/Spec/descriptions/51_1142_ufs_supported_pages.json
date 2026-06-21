@@ -1,0 +1,14 @@
+{
+  "file": "51_1142_ufs_supported_pages.md",
+  "title": "11.4.2 UFS Supported Pages",
+  "description": "本章節定義了UFS設備支援的模式頁面，包含控制模式頁面、讀寫錯誤復原模式頁面和快取模式頁面等規格。文件詳細說明各模式頁面的預設值、參數定義、欄位描述，以及重要產品資料(VPD)頁面的格式與實作要求。",
+  "keywords": [
+    "UFS",
+    "mode pages",
+    "control mode page",
+    "error recovery",
+    "caching",
+    "VPD pages"
+  ],
+  "page_range": "278-286"
+}

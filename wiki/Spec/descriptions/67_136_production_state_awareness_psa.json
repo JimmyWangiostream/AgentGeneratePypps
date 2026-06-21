@@ -1,0 +1,14 @@
+{
+  "file": "67_136_production_state_awareness_psa.md",
+  "title": "13.6 Production State Awareness (PSA)",
+  "description": "本章節詳細說明UFS裝置的生產狀態感知(PSA)功能，該功能讓UFS裝置能根據其生產狀態調整內部操作行為。章節涵蓋PSA流程的完整操作步驟，包括預載資料的管理、狀態轉換機制，以及從裝置焊接前到焊接後的狀態管理，並提供詳細的流程圖和狀態機圖說明。",
+  "keywords": [
+    "Production State Awareness",
+    "PSA",
+    "UFS device",
+    "soldering",
+    "pre-loading",
+    "state machine"
+  ],
+  "page_range": "438-441"
+}

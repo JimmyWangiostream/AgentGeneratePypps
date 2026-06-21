@@ -1,0 +1,14 @@
+{
+  "file": "35_1139_read_capacity_16_command.md",
+  "title": "11.3.9 READ CAPACITY (16) Command",
+  "description": "本章節詳細說明UFS規範中READ CAPACITY (16)命令的實作，包括命令結構、參數資料格式和狀態回應。該章節解釋如何查詢邏輯單元容量、區塊大小、精簡配置參數等儲存裝置特性，以及相關的錯誤處理機制。",
+  "keywords": [
+    "READ CAPACITY",
+    "UFS command",
+    "logical unit capacity",
+    "block size",
+    "thin provisioning",
+    "parameter data"
+  ],
+  "page_range": "221-225"
+}

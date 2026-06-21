@@ -1,0 +1,14 @@
+{
+  "file": "27_1099_query_function_transport_protocol_services.md",
+  "title": "10.9.9 Query Function Transport Protocol Services",
+  "description": "本章節說明UFS查詢功能傳輸協定服務，定義了用於讀取和設定UFS裝置層級暫存器與參數的查詢功能（非SCSI標準的一部分）。涵蓋四種主要的傳輸協定服務：發送查詢請求、接收查詢請求、查詢功能執行回應，以及接收查詢功能執行確認，包括其參數定義和訊息流程。",
+  "keywords": [
+    "UFS",
+    "Query Function",
+    "Transport Protocol Services",
+    "Device Manager",
+    "JEDEC Standard",
+    "SCSI"
+  ],
+  "page_range": "200-202"
+}

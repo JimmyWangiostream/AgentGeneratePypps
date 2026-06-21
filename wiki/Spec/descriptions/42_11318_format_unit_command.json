@@ -1,0 +1,14 @@
+{
+  "file": "42_11318_format_unit_command.md",
+  "title": "11.3.18 FORMAT UNIT Command",
+  "description": "本章節詳細說明FORMAT UNIT命令的規格和操作流程，包括命令的CDB格式、參數設定、資料傳輸方式以及狀態回應機制。此章節可回答關於儲存裝置格式化操作、邏輯區塊映射、缺陷管理以及命令執行狀態處理的相關問題。",
+  "keywords": [
+    "FORMAT UNIT",
+    "logical blocks",
+    "medium formatting",
+    "defect management",
+    "UPIU",
+    "status response"
+  ],
+  "page_range": "243-244"
+}

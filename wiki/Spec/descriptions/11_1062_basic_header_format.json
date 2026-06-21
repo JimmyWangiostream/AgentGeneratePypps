@@ -1,0 +1,14 @@
+{
+  "file": "11_1062_basic_header_format.md",
+  "title": "10.6.2 Basic Header Format",
+  "description": "本章節詳細說明UPIU（UFS Protocol Information Unit）基本標頭格式的完整規格，包含交易類型、標誌位元、LUN、任務標籤、發起者ID、命令集類型等各個欄位的定義和編碼方式。此章節可回答關於UPIU標頭結構、欄位意義、資料封包格式、擴充標頭段落(EHS)和資料段落配置等技術問題。",
+  "keywords": [
+    "UPIU",
+    "header format",
+    "transaction type",
+    "task tag",
+    "initiator ID",
+    "data segment"
+  ],
+  "page_range": "94-101"
+}

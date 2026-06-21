@@ -1,0 +1,14 @@
+[
+  {
+    "timestamp": "2026-03-28 22:52:07",
+    "pdf": "input\\UFS 4.1JESD220G.PDF",
+    "output": "C:\\Users\\ASUS\\Desktop\\claude project\\Doc_to_Markdown\\output\\UFS 4.1JESD220G",
+    "stats": {
+      "pdf_name": "UFS 4.1JESD220G",
+      "total_pages": 542,
+      "marker_ok": 542,
+      "vision_redo": 541,
+      "vision_image_desc": 225
+    }
+  }
+]

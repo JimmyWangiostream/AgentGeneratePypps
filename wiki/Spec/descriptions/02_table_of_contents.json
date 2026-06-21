@@ -1,0 +1,14 @@
+{
+  "file": "02_table_of_contents.md",
+  "title": "Table of Contents",
+  "description": "本章節提供JEDEC標準220G通用快閃記憶體存儲(UFS) 4.1版本技術規範的完整目錄索引。涵蓋UFS架構概述、電氣特性、重置與電源管理、MIPI PHY和UniPro層、UTP傳輸協定層、SCSI指令集、安全特性、功能描述以及描述符定義等核心主題的頁碼對照。此目錄可協助快速定位UFS 4.1標準中特定技術細節、協定層級、指令規範和實作要求的相關章節。",
+  "keywords": [
+    "UFS",
+    "JEDEC",
+    "table of contents",
+    "universal flash storage",
+    "technical specification",
+    "protocol layers"
+  ],
+  "page_range": "4-22"
+}

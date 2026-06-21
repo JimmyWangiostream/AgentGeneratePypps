@@ -1,0 +1,14 @@
+{
+  "file": "32_1136_read_10_command.md",
+  "title": "11.3.6 READ (10) Command",
+  "description": "此章節詳細說明UFS儲存裝置的READ (10)命令規格，包括命令描述區塊(CDB)的結構定義、各個參數欄位的功能說明，以及資料傳輸流程和狀態回應機制。涵蓋邏輯區塊位址、傳輸長度、快取控制參數(DPO/FUA)、群組編號等關鍵概念，適用於回答UFS讀取命令實作、參數配置和錯誤處理相關問題。",
+  "keywords": [
+    "READ command",
+    "UFS",
+    "CDB",
+    "logical block address",
+    "data transfer",
+    "UPIU"
+  ],
+  "page_range": "214-215"
+}

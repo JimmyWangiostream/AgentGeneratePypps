@@ -1,0 +1,14 @@
+{
+  "file": "71_annex_b_informative_reference_clock_measurement_procedure.md",
+  "title": "Annex B (Informative) Reference Clock Measurement Procedure",
+  "description": "此章節描述UFS標準中參考時鐘量測程序的技術規範，包含隨機抖動(Random Jitter)和確定性抖動(Deterministic Jitter)的量測方法。涵蓋了不同參考時鐘頻率的最大抖動限制、測試設備需求、測試程序步驟，以及HS-LSS模式下參考時鐘自動檢測的實作範例，可解答UFS系統時鐘品質驗證相關問題。",
+  "keywords": [
+    "reference clock",
+    "jitter measurement",
+    "random jitter",
+    "deterministic jitter",
+    "DSO",
+    "UFS testing"
+  ],
+  "page_range": "521-524"
+}

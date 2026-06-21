@@ -1,0 +1,14 @@
+{
+  "file": "55_12236_bsecureremovaltype_parameter.md",
+  "title": "12.2.3.6 bSecureRemovalType Parameter",
+  "description": "本章節說明UFS裝置中bSecureRemovalType參數的定義與資料保護機制，包括清除操作時的不同安全移除方式(如覆寫、擦除等)，以及邏輯單元層級的寫入保護模式。同時介紹了RPMB(重放保護記憶體區塊)的實作方式，提供經過驗證和重放保護的資料存取功能。",
+  "keywords": [
+    "bSecureRemovalType",
+    "data protection",
+    "write protection",
+    "RPMB",
+    "secure removal",
+    "purge operation"
+  ],
+  "page_range": "296-298"
+}

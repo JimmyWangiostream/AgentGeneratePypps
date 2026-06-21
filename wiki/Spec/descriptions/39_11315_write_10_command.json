@@ -1,0 +1,14 @@
+{
+  "file": "39_11315_write_10_command.md",
+  "title": "11.3.15 WRITE (10) Command",
+  "description": "本章詳細說明UFS規格中的WRITE (10)命令，包括命令格式、參數定義和資料傳輸流程。涵蓋命令描述塊(CDB)的各個欄位說明、DPO/FUA等控制參數、邏輯區塊位址和傳輸長度設定，以及GROUP NUMBER用於標識系統資料特性和Context ID的功能。",
+  "keywords": [
+    "WRITE command",
+    "UFS",
+    "logical blocks",
+    "data transfer",
+    "CDB parameters",
+    "GROUP NUMBER"
+  ],
+  "page_range": "235-237"
+}

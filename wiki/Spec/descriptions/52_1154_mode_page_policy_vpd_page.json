@@ -1,0 +1,14 @@
+{
+  "file": "52_1154_mode_page_policy_vpd_page.md",
+  "title": "11.5.4 Mode Page Policy VPD Page",
+  "description": "本章節說明模式頁面策略VPD頁面，詳細描述如何指示邏輯單元支援的每個模式頁面所採用的策略。內容包括模式頁面策略描述符的結構、多邏輯單元共享(MLUS)位元的功能，以及不同模式頁面策略代碼的定義。",
+  "keywords": [
+    "Mode Page Policy",
+    "VPD Page",
+    "MLUS",
+    "Policy Descriptor",
+    "Logical Unit",
+    "SCSI"
+  ],
+  "page_range": "287-289"
+}

@@ -1,0 +1,15 @@
+{
+  "file": "33_1137_read_16_command.md",
+  "title": "11.3.7 READ (16) Command",
+  "description": "本章節詳細說明UFS儲存裝置中READ (16)命令的技術規格，包括命令描述符區塊(CDB)的位元組結構、各參數欄位的定義與功能。涵蓋資料傳輸流程、狀態回應處理，以及各種錯誤條件的處理方式，適用於需要了解UFS讀取操作實作細節的開發者。",
+  "keywords": [
+    "READ command",
+    "UFS",
+    "CDB",
+    "LOGICAL BLOCK ADDRESS",
+    "TRANSFER LENGTH",
+    "UPIU",
+    "status response"
+  ],
+  "page_range": "216-217"
+}

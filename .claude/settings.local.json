@@ -1,0 +1,26 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git -C \"D:/GME_AI/Claude/understandanything/Script\" rev-parse HEAD)",
+      "Bash(pnpm install *)",
+      "PowerShell(npm install *)",
+      "PowerShell(npm *)",
+      "PowerShell(pnpm install *)",
+      "PowerShell(pnpm *)",
+      "PowerShell(New-Item *)",
+      "PowerShell(node \"C:\\\\Users\\\\WeiKai\\\\.claude\\\\plugins\\\\cache\\\\superpowers-dev\\\\understand-anything\\\\1.1.100\\\\skills\\\\understand\\\\scan-project.mjs\" \"D:\\\\GME_AI\\\\Claude\\\\understandanything\\\\Script\" \"D:\\\\GME_AI\\\\Claude\\\\understandanything\\\\Script\\\\.understand-anything\\\\tmp\\\\ua-scan-files.json\" 2>&1)",
+      "PowerShell(node \"C:\\\\Users\\\\WeiKai\\\\.claude\\\\plugins\\\\cache\\\\understand-anything\\\\understand-anything\\\\2.8.1\\\\skills\\\\understand\\\\scan-project.mjs\" \"D:\\\\GME_AI\\\\Claude\\\\understandanything\\\\Script\" \"D:\\\\GME_AI\\\\Claude\\\\understandanything\\\\Script\\\\.understand-anything\\\\tmp\\\\ua-scan-files.json\" 2>&1)",
+      "PowerShell($json = Get-Content \"D:\\\\GME_AI\\\\Claude\\\\understandanything\\\\Script\\\\.understand-anything\\\\tmp\\\\ua-scan-files.json\" -Raw | ConvertFrom-Json; Write-Host \"totalFiles: $\\($json.totalFiles\\)\"; Write-Host \"filteredByIgnore: $\\($json.filteredByIgnore\\)\"; Write-Host \"estimatedComplexity: $\\($json.estimatedComplexity\\)\"; Write-Host \"byCategory:\"; $json.stats.byCategory.PSObject.Properties | ForEach-Object { Write-Host \"  $\\($_.Name\\): $\\($_.Value\\)\" }; Write-Host \"byLanguage:\"; $json.stats.byLanguage.PSObject.Properties | ForEach-Object { Write-Host \"  $\\($_.Name\\): $\\($_.Value\\)\" })",
+      "PowerShell(Out-File *)",
+      "PowerShell(node \"C:\\\\Users\\\\WeiKai\\\\.claude\\\\plugins\\\\cache\\\\understand-anything\\\\understand-anything\\\\2.8.1\\\\skills\\\\understand\\\\extract-import-map.mjs\" \"D:\\\\GME_AI\\\\Claude\\\\understandanything\\\\Script\\\\.understand-anything\\\\tmp\\\\ua-import-map-input.json\" \"D:\\\\GME_AI\\\\Claude\\\\understandanything\\\\Script\\\\.understand-anything\\\\tmp\\\\ua-import-map-output.json\" 2>&1)",
+      "PowerShell($scanData = Get-Content \"D:\\\\GME_AI\\\\Claude\\\\understandanything\\\\Script\\\\.understand-anything\\\\tmp\\\\ua-scan-files.json\" -Raw | ConvertFrom-Json; $inputObj = [PSCustomObject]@{ projectRoot = \"D:\\\\GME_AI\\\\Claude\\\\understandanything\\\\Script\"; files = $scanData.files }; $jsonStr = $inputObj | ConvertTo-Json -Depth 10; [System.IO.File]::WriteAllText\\(\"D:\\\\GME_AI\\\\Claude\\\\understandanything\\\\Script\\\\.understand-anything\\\\tmp\\\\ua-import-map-input.json\", $jsonStr, [System.Text.UTF8Encoding]::new\\($false\\)\\); Write-Host \"Written without BOM\")",
+      "PowerShell($importData = Get-Content \"D:\\\\GME_AI\\\\Claude\\\\understandanything\\\\Script\\\\.understand-anything\\\\tmp\\\\ua-import-map-output.json\" -Raw | ConvertFrom-Json; Write-Host \"scriptCompleted: $\\($importData.scriptCompleted\\)\"; Write-Host \"stats.filesScanned: $\\($importData.stats.filesScanned\\)\"; Write-Host \"stats.filesWithImports: $\\($importData.stats.filesWithImports\\)\"; Write-Host \"stats.totalEdges: $\\($importData.stats.totalEdges\\)\"; Write-Host \"importMap keys count: $\\($importData.importMap.PSObject.Properties.Count\\)\")",
+      "Bash(Get-ChildItem \"D:\\\\GME_AI\\\\Claude\\\\understandanything\\\\Script\\\\.understand-anything\\\\intermediate\\\\batch-*.json\")",
+      "Bash(Measure-Object)",
+      "Bash(Select-Object -ExpandProperty Count)",
+      "Bash(python *)",
+      "Read(//d/GME_AI/Claude/llm_wiki_repo//**)",
+      "Read(//d/GME_AI/Claude/llm_wiki_repo/**)"
+    ]
+  }
+}

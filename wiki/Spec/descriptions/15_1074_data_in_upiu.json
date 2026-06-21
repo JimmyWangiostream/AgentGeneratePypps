@@ -1,0 +1,14 @@
+{
+  "file": "15_1074_data_in_upiu.md",
+  "title": "10.7.4 DATA IN UPIU",
+  "description": "本章節詳細說明UFS協議中DATA IN UPIU的結構和功能，包括基本標頭格式、各欄位定義（如資料緩衝區偏移、資料傳輸計數、提示控制等）以及資料從目標裝置到啟動器裝置的傳輸機制。該章節涵蓋順序和非順序資料傳輸、重傳機制、以及SCSI讀取命令的特殊要求，可回答關於UFS資料輸入傳輸協議實作的相關問題。",
+  "keywords": [
+    "DATA IN UPIU",
+    "UFS protocol",
+    "data transfer",
+    "UPIU header",
+    "retransmission",
+    "SCSI READ"
+  ],
+  "page_range": "121-126"
+}

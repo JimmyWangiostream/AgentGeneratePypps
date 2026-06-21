@@ -1,0 +1,14 @@
+{
+  "file": "38_11314_write_6_command.md",
+  "title": "11.3.14 WRITE (6) Command",
+  "description": "本章節詳細說明了UFS儲存裝置中WRITE (6)命令的技術規格，包含命令格式、參數定義、資料傳輸流程及狀態回應機制。涵蓋邏輯區塊位址設定、傳輸長度參數、UPIU封包處理方式，以及各種錯誤狀態的處理規範，適用於需要了解UFS寫入操作實作細節的技術問題。",
+  "keywords": [
+    "WRITE command",
+    "UFS",
+    "logical block address",
+    "data transfer",
+    "UPIU",
+    "status response"
+  ],
+  "page_range": "233-234"
+}

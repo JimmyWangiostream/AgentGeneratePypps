@@ -1,0 +1,14 @@
+{
+  "file": "60_12471_request_type_message_delivery.md",
+  "title": "12.4.7.1 Request Type Message Delivery",
+  "description": "本章節詳細說明RPMB（Replay Protected Memory Block）操作中的請求類型訊息傳遞機制，包括如何使用SECURITY PROTOCOL OUT命令來傳送各種RPMB請求訊息。涵蓋不同RPMB訊息類型的資料傳輸長度規格、一般RPMB與進階RPMB的差異，以及完整的訊息傳遞流程和通訊協定細節。",
+  "keywords": [
+    "RPMB",
+    "SECURITY PROTOCOL OUT",
+    "message delivery",
+    "data transfer",
+    "authentication",
+    "UFS"
+  ],
+  "page_range": "321-322"
+}

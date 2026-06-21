@@ -1,0 +1,498 @@
+You are a UFS pattern generator. Generate ONE executable
+Python UFS test pattern from the step plan below.
+
+STRUCTURE — follow pattern/pattern_template.py EXACTLY:
+- Subclass `UFSTC` (from the template) and implement `pre_process()` and
+  `post_process()`.
+- Each plan step becomes a method named step1, step2, ... (process() auto-runs
+  them in number order). Keep the given `method` name for each step.
+- Carry phase data_flow across steps as `self.<var>` attributes (a phase's
+  `outputs` become self attributes that later phases' `inputs` read).
+- A loop phase becomes a step method containing `for _ in range(loop_count):`
+  with the for_each set iterated inside.
+- Use the real imports the template uses: `import Script`, `from Script import api`,
+  `from Script.lib import sdk_lib as lib`, `from Script.pattern.pattern_logger import logger`,
+  `import Script.api.cmd_seq as ExecuteCMD`.
+
+GROUNDING — do NOT invent APIs. For each step, find the real function/idiom by
+searching the actual code under `Script/` (api/, lib/, pattern/) and the
+knowledge graph index at `.understand-anything/knowledge-graph.json`. If you
+cannot ground a call, emit a clear `# TODO human-confirm` with what is missing.
+
+CONTROL FLOW — emit loop counts, for_each sets, and phase order EXACTLY as the
+IR/step plan specifies.
+
+Output ONLY the Python source for the pattern file.
+
+
+Template to follow: pattern/pattern_template.py
+
+Pattern: PF002_0098 — PF002_0098 Boot Stress Test
+
+Description: 驗證 Boot LU 在反覆 Reset + Reboot 壓力下的資料完整性
+
+## Step Plan (topological, phase-aware)
+
+[
+  {
+    "seq": 1,
+    "method": "step1",
+    "phase_id": "phase_0",
+    "phase_name": "Boot LU 配置與啟用",
+    "phase_type": "sequential",
+    "loop_type": null,
+    "loop_count": null,
+    "phase_inputs": [],
+    "phase_outputs": [
+      "boot_lun_id",
+      "boot_lun_enabled"
+    ],
+    "step": {
+      "step_id": "step_0_1",
+      "name": "確認裝置就緒",
+      "scsi_cmd": "TEST UNIT READY",
+      "opcode": "0x00",
+      "expected": "GOOD Status"
+    }
+  },
+  {
+    "seq": 2,
+    "method": "step2",
+    "phase_id": "phase_0",
+    "phase_name": "Boot LU 配置與啟用",
+    "phase_type": "sequential",
+    "loop_type": null,
+    "loop_count": null,
+    "phase_inputs": [],
+    "phase_outputs": [
+      "boot_lun_id",
+      "boot_lun_enabled"
+    ],
+    "step": {
+      "step_id": "step_0_2",
+      "name": "讀取 Device Descriptor 確認 Boot 支援",
+      "ufs_query": "READ DESCRIPTOR",
+      "query_opcode": "0x07",
+      "idn": "0x00 (Device Descriptor)",
+      "expected": "QUERY RESPONSE Success"
+    }
+  },
+  {
+    "seq": 3,
+    "method": "step3",
+    "phase_id": "phase_0",
+    "phase_name": "Boot LU 配置與啟用",
+    "phase_type": "sequential",
+    "loop_type": null,
+    "loop_count": null,
+    "phase_inputs": [],
+    "phase_outputs": [
+      "boot_lun_id",
+      "boot_lun_enabled"
+    ],
+    "step": {
+      "step_id": "step_0_3",
+      "name": "讀取 bBootLunEn 目前狀態",
+      "ufs_query": "READ ATTRIBUTE",
+      "query_opcode": "0x03",
+      "idn": "0x00 (bBootLunEn)",
+      "expected": "QUERY RESPONSE Success"
+    }
+  },
+  {
+    "seq": 4,
+    "method": "step4",
+    "phase_id": "phase_0",
+    "phase_name": "Boot LU 配置與啟用",
+    "phase_type": "sequential",
+    "loop_type": null,
+    "loop_count": null,
+    "phase_inputs": [],
+    "phase_outputs": [
+      "boot_lun_id",
+      "boot_lun_enabled"
+    ],
+    "step": {
+      "step_id": "step_0_4",
+      "name": "啟用 Boot LU",
+      "ufs_query": "WRITE ATTRIBUTE",
+      "query_opcode": "0x04",
+      "idn": "0x00 (bBootLunEn)",
+      "expected": "QUERY RESPONSE Success"
+    }
+  },
+  {
+    "seq": 5,
+    "method": "step5",
+    "phase_id": "phase_0",
+    "phase_name": "Boot LU 配置與啟用",
+    "phase_type": "sequential",
+    "loop_type": null,
+    "loop_count": null,
+    "phase_inputs": [],
+    "phase_outputs": [
+      "boot_lun_id",
+      "boot_lun_enabled"
+    ],
+    "step": {
+      "step_id": "step_0_5",
+      "name": "確認 Boot LU 已啟用",
+      "ufs_query": "READ ATTRIBUTE",
+      "query_opcode": "0x03",
+      "idn": "0x00 (bBootLunEn)",
+      "expected": "bBootLunEn != 0x00",
+      "fail_condition": "bBootLunEn == 0x00",
+      "on_fail": "abort"
+    }
+  },
+  {
+    "seq": 6,
+    "method": "step6",
+    "phase_id": "phase_0",
+    "phase_name": "Boot LU 配置與啟用",
+    "phase_type": "sequential",
+    "loop_type": null,
+    "loop_count": null,
+    "phase_inputs": [],
+    "phase_outputs": [
+      "boot_lun_id",
+      "boot_lun_enabled"
+    ],
+    "step": {
+      "step_id": "step_0_6",
+      "name": "取得 Boot LU 之 LUN Number",
+      "ufs_query": "READ DESCRIPTOR",
+      "query_opcode": "0x07",
+      "idn": "0x02 (Unit Descriptor)",
+      "expected": "QUERY RESPONSE Success, 回傳 bBootLunID"
+    }
+  },
+  {
+    "seq": 7,
+    "method": "step7",
+    "phase_id": "phase_1",
+    "phase_name": "寫入 Boot LU 測試資料",
+    "phase_type": "sequential",
+    "loop_type": null,
+    "loop_count": null,
+    "phase_inputs": [
+      "boot_lun_id"
+    ],
+    "phase_outputs": [
+      "boot_lun_id",
+      "write_pattern",
+      "write_lba_range"
+    ],
+    "step": {
+      "step_id": "step_1_1",
+      "name": "寫入測試 Pattern 至 Boot LU",
+      "scsi_cmd": "WRITE(10)",
+      "opcode": "0x2A",
+      "expected": "GOOD Status"
+    }
+  },
+  {
+    "seq": 8,
+    "method": "step8",
+    "phase_id": "phase_1",
+    "phase_name": "寫入 Boot LU 測試資料",
+    "phase_type": "sequential",
+    "loop_type": null,
+    "loop_count": null,
+    "phase_inputs": [
+      "boot_lun_id"
+    ],
+    "phase_outputs": [
+      "boot_lun_id",
+      "write_pattern",
+      "write_lba_range"
+    ],
+    "step": {
+      "step_id": "step_1_2",
+      "name": "讀取比對確認寫入成功",
+      "scsi_cmd": "READ(10)",
+      "opcode": "0x28",
+      "expected": "GOOD Status, Data Match",
+      "fail_condition": "Data Mismatch",
+      "on_fail": "abort"
+    }
+  },
+  {
+    "seq": 9,
+    "method": "step9",
+    "phase_id": "loop_stress",
+    "phase_name": "Reset + Reboot Stress Loop",
+    "phase_type": "loop",
+    "loop_type": "count",
+    "loop_count": 100,
+    "phase_inputs": [
+      "boot_lun_id",
+      "write_pattern",
+      "write_lba_range"
+    ],
+    "phase_outputs": [],
+    "step": {
+      "step_id": "step_L_1",
+      "name": "Random Reset",
+      "type": "for_each",
+      "iterate_over": [
+        "HW_RESET",
+        "RST_N",
+        "ENDPOINT_RESET",
+        "UNIPRO_RESET"
+      ],
+      "expected": "Device 完成 Link Startup, fDeviceInit == 1"
+    }
+  },
+  {
+    "seq": 10,
+    "method": "step10",
+    "phase_id": "loop_stress",
+    "phase_name": "Reset + Reboot Stress Loop",
+    "phase_type": "loop",
+    "loop_type": "count",
+    "loop_count": 100,
+    "phase_inputs": [
+      "boot_lun_id",
+      "write_pattern",
+      "write_lba_range"
+    ],
+    "phase_outputs": [],
+    "step": {
+      "step_id": "step_L_2",
+      "name": "確認 Device 就緒",
+      "scsi_cmd": "TEST UNIT READY",
+      "opcode": "0x00",
+      "expected": "GOOD Status"
+    }
+  },
+  {
+    "seq": 11,
+    "method": "step11",
+    "phase_id": "loop_stress",
+    "phase_name": "Reset + Reboot Stress Loop",
+    "phase_type": "loop",
+    "loop_type": "count",
+    "loop_count": 100,
+    "phase_inputs": [
+      "boot_lun_id",
+      "write_pattern",
+      "write_lba_range"
+    ],
+    "phase_outputs": [],
+    "step": {
+      "step_id": "step_L_3",
+      "name": "確認 LUN 進入 Active State",
+      "scsi_cmd": "START STOP UNIT",
+      "opcode": "0x1B",
+      "expected": "GOOD Status"
+    }
+  },
+  {
+    "seq": 12,
+    "method": "step12",
+    "phase_id": "loop_stress",
+    "phase_name": "Reset + Reboot Stress Loop",
+    "phase_type": "loop",
+    "loop_type": "count",
+    "loop_count": 100,
+    "phase_inputs": [
+      "boot_lun_id",
+      "write_pattern",
+      "write_lba_range"
+    ],
+    "phase_outputs": [],
+    "step": {
+      "step_id": "step_L_4",
+      "name": "Read Compare Boot Data",
+      "scsi_cmd": "READ(10)",
+      "opcode": "0x28",
+      "expected": "GOOD Status, Data Match",
+      "fail_condition": "Data Mismatch",
+      "on_fail": "abort"
+    }
+  }
+]
+
+## Full IR
+
+{
+  "pattern_id": "PF002_0098",
+  "title": "PF002_0098 Boot Stress Test",
+  "description": "驗證 Boot LU 在反覆 Reset + Reboot 壓力下的資料完整性",
+  "tags": [
+    "boot-lun",
+    "reset",
+    "stress",
+    "ufs"
+  ],
+  "phases": [
+    {
+      "phase_id": "phase_0",
+      "name": "Boot LU 配置與啟用",
+      "type": "sequential",
+      "steps": [
+        {
+          "step_id": "step_0_1",
+          "name": "確認裝置就緒",
+          "scsi_cmd": "TEST UNIT READY",
+          "opcode": "0x00",
+          "expected": "GOOD Status"
+        },
+        {
+          "step_id": "step_0_2",
+          "name": "讀取 Device Descriptor 確認 Boot 支援",
+          "ufs_query": "READ DESCRIPTOR",
+          "query_opcode": "0x07",
+          "idn": "0x00 (Device Descriptor)",
+          "expected": "QUERY RESPONSE Success"
+        },
+        {
+          "step_id": "step_0_3",
+          "name": "讀取 bBootLunEn 目前狀態",
+          "ufs_query": "READ ATTRIBUTE",
+          "query_opcode": "0x03",
+          "idn": "0x00 (bBootLunEn)",
+          "expected": "QUERY RESPONSE Success"
+        },
+        {
+          "step_id": "step_0_4",
+          "name": "啟用 Boot LU",
+          "ufs_query": "WRITE ATTRIBUTE",
+          "query_opcode": "0x04",
+          "idn": "0x00 (bBootLunEn)",
+          "expected": "QUERY RESPONSE Success"
+        },
+        {
+          "step_id": "step_0_5",
+          "name": "確認 Boot LU 已啟用",
+          "ufs_query": "READ ATTRIBUTE",
+          "query_opcode": "0x03",
+          "idn": "0x00 (bBootLunEn)",
+          "expected": "bBootLunEn != 0x00",
+          "fail_condition": "bBootLunEn == 0x00",
+          "on_fail": "abort"
+        },
+        {
+          "step_id": "step_0_6",
+          "name": "取得 Boot LU 之 LUN Number",
+          "ufs_query": "READ DESCRIPTOR",
+          "query_opcode": "0x07",
+          "idn": "0x02 (Unit Descriptor)",
+          "expected": "QUERY RESPONSE Success, 回傳 bBootLunID"
+        }
+      ],
+      "outputs": [
+        "boot_lun_id",
+        "boot_lun_enabled"
+      ]
+    },
+    {
+      "phase_id": "phase_1",
+      "name": "寫入 Boot LU 測試資料",
+      "type": "sequential",
+      "steps": [
+        {
+          "step_id": "step_1_1",
+          "name": "寫入測試 Pattern 至 Boot LU",
+          "scsi_cmd": "WRITE(10)",
+          "opcode": "0x2A",
+          "expected": "GOOD Status"
+        },
+        {
+          "step_id": "step_1_2",
+          "name": "讀取比對確認寫入成功",
+          "scsi_cmd": "READ(10)",
+          "opcode": "0x28",
+          "expected": "GOOD Status, Data Match",
+          "fail_condition": "Data Mismatch",
+          "on_fail": "abort"
+        }
+      ],
+      "inputs": [
+        "boot_lun_id"
+      ],
+      "outputs": [
+        "boot_lun_id",
+        "write_pattern",
+        "write_lba_range"
+      ]
+    },
+    {
+      "phase_id": "loop_stress",
+      "name": "Reset + Reboot Stress Loop",
+      "type": "loop",
+      "loop_type": "count",
+      "loop_count": 100,
+      "steps": [
+        {
+          "step_id": "step_L_1",
+          "name": "Random Reset",
+          "type": "for_each",
+          "iterate_over": [
+            "HW_RESET",
+            "RST_N",
+            "ENDPOINT_RESET",
+            "UNIPRO_RESET"
+          ],
+          "expected": "Device 完成 Link Startup, fDeviceInit == 1"
+        },
+        {
+          "step_id": "step_L_2",
+          "name": "確認 Device 就緒",
+          "scsi_cmd": "TEST UNIT READY",
+          "opcode": "0x00",
+          "expected": "GOOD Status"
+        },
+        {
+          "step_id": "step_L_3",
+          "name": "確認 LUN 進入 Active State",
+          "scsi_cmd": "START STOP UNIT",
+          "opcode": "0x1B",
+          "expected": "GOOD Status"
+        },
+        {
+          "step_id": "step_L_4",
+          "name": "Read Compare Boot Data",
+          "scsi_cmd": "READ(10)",
+          "opcode": "0x28",
+          "expected": "GOOD Status, Data Match",
+          "fail_condition": "Data Mismatch",
+          "on_fail": "abort"
+        }
+      ],
+      "inputs": [
+        "boot_lun_id",
+        "write_pattern",
+        "write_lba_range"
+      ]
+    }
+  ],
+  "dependency_graph": {
+    "nodes": [
+      "phase_0",
+      "phase_1",
+      "loop_stress"
+    ],
+    "edges": [
+      {
+        "from": "phase_0",
+        "to": "phase_1",
+        "type": "sequential",
+        "data_flow": [
+          "boot_lun_id"
+        ]
+      },
+      {
+        "from": "phase_1",
+        "to": "loop_stress",
+        "type": "sequential",
+        "data_flow": [
+          "boot_lun_id",
+          "write_pattern",
+          "write_lba_range"
+        ]
+      }
+    ]
+  }
+}

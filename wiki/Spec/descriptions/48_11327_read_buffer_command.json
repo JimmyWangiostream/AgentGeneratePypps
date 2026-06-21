@@ -1,0 +1,14 @@
+{
+  "file": "48_11327_read_buffer_command.md",
+  "title": "11.3.27 READ BUFFER Command",
+  "description": "本章節說明 READ BUFFER 命令的詳細規格，該命令用於測試邏輯單元緩衝記憶體、測試服務傳遞子系統完整性、下載微碼以及檢索錯誤歷史記錄和統計資訊。涵蓋命令格式、模式欄位值（包含資料模式和錯誤歷史模式）、錯誤歷史目錄結構，以及命令狀態回應的處理方式。",
+  "keywords": [
+    "READ BUFFER command",
+    "buffer memory testing",
+    "error history",
+    "microcode download",
+    "UFS storage",
+    "JEDEC standard"
+  ],
+  "page_range": "262-267"
+}

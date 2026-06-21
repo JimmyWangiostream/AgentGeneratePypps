@@ -1,0 +1,14 @@
+{
+  "file": "50_1141_mode_page_overview.md",
+  "title": "11.4.1 Mode Page Overview",
+  "description": "本章節描述UFS裝置中模式頁面(Mode Pages)的概述，包括MODE SELECT和MODE SENSE命令所使用的模式頁面結構。涵蓋模式頁面/子頁面代碼的分配、模式參數清單格式、模式參數標頭的詳細規格，以及Page_0和子頁面兩種不同的模式頁面格式定義。",
+  "keywords": [
+    "mode pages",
+    "MODE SELECT",
+    "MODE SENSE",
+    "page codes",
+    "subpage format",
+    "mode parameter header"
+  ],
+  "page_range": "273-277"
+}

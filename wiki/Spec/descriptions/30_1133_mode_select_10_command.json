@@ -1,0 +1,14 @@
+{
+  "file": "30_1133_mode_select_10_command.md",
+  "title": "11.3.3 MODE SELECT (10) Command",
+  "description": "本章節詳述UFS裝置中MODE SELECT (10)命令的操作機制，包括命令參數設定、資料傳輸流程以及模式頁面管理。內容涵蓋命令CDB結構、PF和SP位元的功能說明，以及透過RTT UPIU進行資料傳輸的程序，可回答關於UFS裝置參數配置和模式選擇命令實作的相關問題。",
+  "keywords": [
+    "MODE SELECT",
+    "UFS command",
+    "mode pages",
+    "SCSI parameters",
+    "data transfer",
+    "UPIU"
+  ],
+  "page_range": "208-209"
+}

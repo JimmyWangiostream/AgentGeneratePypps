@@ -1,0 +1,14 @@
+{
+  "file": "16_1075_ready_to_transfer_upiu.md",
+  "title": "10.7.5 READY TO TRANSFER UPIU",
+  "description": "本章節描述READY TO TRANSFER UPIU的詳細規格，這是目標設備在準備接收資料區塊時發出的協定封包，特別用於需要資料輸出傳輸的SCSI命令（如寫入命令）。章節涵蓋UPIU的基本標頭格式、各欄位定義、資料緩衝區偏移量、傳輸計數、提示控制機制，以及順序和重傳的資料傳輸範例。",
+  "keywords": [
+    "READY TO TRANSFER UPIU",
+    "data out transfer",
+    "SCSI write command",
+    "data buffer offset",
+    "hint control",
+    "retransmission"
+  ],
+  "page_range": "127-132"
+}

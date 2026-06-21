@@ -1,0 +1,14 @@
+{
+  "file": "57_12437_rpmb_operation_result.md",
+  "title": "12.4.3.7 RPMB Operation Result",
+  "description": "本章節說明RPMB（Replay Protected Memory Block）操作結果的結構和編碼定義，包括結果欄位的兩位元組組成、寫入計數器狀態指示以及各種操作狀態碼。涵蓋了從操作成功到各種失敗情況（如認證失敗、計數器失敗、地址失敗等）的完整結果代碼定義，並提供了正常RPMB模式下訊息資料框架的實作結構。",
+  "keywords": [
+    "RPMB",
+    "operation result",
+    "result codes",
+    "write counter",
+    "authentication failure",
+    "message data frame"
+  ],
+  "page_range": "311-313"
+}

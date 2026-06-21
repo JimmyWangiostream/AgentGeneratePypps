@@ -1,0 +1,49 @@
+﻿{
+    "pattern":  "LLM Wiki",
+    "version":  "2.0",
+    "conflict_rules":  [
+                           {
+                               "rule":  "Spec vs CustomerReq",
+                               "action":  "CustomerReq wins, Spec deleted"
+                           },
+                           {
+                               "rule":  "UserPrompt vs ModelDefault",
+                               "action":  "UserPrompt wins, ModelDefault deleted"
+                           },
+                           {
+                               "rule":  "All others",
+                               "action":  "Keep both, log in conflicts.md"
+                           }
+                       ],
+    "knowledge_sources":  {
+                              "Script":  {
+                                             "role":  "Implementation examples",
+                                             "priority":  3
+                                         },
+                              "ModelDefault":  {
+                                                   "role":  "Auto-generated defaults",
+                                                   "priority":  5
+                                               },
+                              "ProNoun":  {
+                                              "role":  "Terminology",
+                                              "priority":  4
+                                          },
+                              "CustomerReq":  {
+                                                  "role":  "Customer requirements",
+                                                  "priority":  1
+                                              },
+                              "UserPrompt":  {
+                                                 "role":  "Test engineer guidance",
+                                                 "priority":  2
+                                             },
+                              "Spec":  {
+                                           "role":  "Technical baseline",
+                                           "priority":  6
+                                       }
+                          },
+    "initialized_at":  "2026-06-21T09:30:13.2284261+08:00",
+    "stats":  {
+                  "total_conflicts":  0,
+                  "total_pages":  0
+              }
+}

@@ -1,0 +1,14 @@
+{
+  "file": "10_1023_unipro.md",
+  "title": "10.2.3 UniPro",
+  "description": "本章節詳細說明了 UFS（Universal Flash Storage）協議中的 UniPro 傳輸層實作，包括 UPIU（UFS Protocol Information Units）封包格式、資料分組機制、以及各種交易類型的定義。涵蓋了命令執行階段、資料流控制、以及 SCSI 命令在 UniPro 網路上的傳輸方式，可回答關於 UFS 協議結構、封包大小限制、交易碼定義等技術問題。",
+  "keywords": [
+    "UniPro",
+    "UPIU",
+    "UFS Protocol",
+    "data pacing",
+    "transaction codes",
+    "SCSI commands"
+  ],
+  "page_range": "90-93"
+}

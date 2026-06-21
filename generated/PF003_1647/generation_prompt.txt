@@ -1,0 +1,903 @@
+You are a UFS pattern generator. Generate ONE executable
+Python UFS test pattern from the step plan below.
+
+STRUCTURE — follow pattern/pattern_template.py EXACTLY:
+- The VERY FIRST line of the file MUST be `import package_root` (path bootstrap;
+  it must precede every other import).
+- Subclass `UFSTC` (from the template) and implement `pre_process()` and
+  `post_process()`.
+- Each plan step becomes a method named step1, step2, ... (process() auto-runs
+  them in number order). Keep the given `method` name for each step.
+- Carry phase data_flow across steps as `self.<var>` attributes (a phase's
+  `outputs` become self attributes that later phases' `inputs` read).
+- A loop phase becomes a step method containing `for _ in range(loop_count):`
+  with the for_each set iterated inside.
+- Use the real imports the template uses: `import Script`, `from Script import api`,
+  `from Script.lib import sdk_lib as lib`, `from Script.pattern.pattern_logger import logger`,
+  `import Script.api.cmd_seq as ExecuteCMD`.
+
+GROUNDING — do NOT invent APIs. For EACH step you MUST consult BOTH sources:
+  • understand-anything (code): the real function/idiom. Search the actual code
+    under api/, lib/, pattern/ and the graph index `.understand-anything/
+    knowledge-graph.json`. Search by DOMAIN KEYWORD — do NOT assume a naming
+    prefix (e.g. command classes may be `StartStopUnit` OR `CmdSeqTestUnitReady`).
+    Prefer real usages in `pattern/` as ground truth for the calling idiom.
+  • llm-wiki (spec/constraints): valid values, preconditions, fail conditions.
+    Use `python wiki_query.py "<term>"` or read `wiki/entities|sources/*.md`.
+If you cannot ground a call, emit `# TODO human-confirm` with what is missing.
+
+PROVENANCE — every grounded fact MUST be traceable to its source:
+- Inline: tag each grounded element with `# src[code]: <file>:<line>` or
+  `# src[wiki]: <wiki file>` next to where it is used.
+- Sidecar: also write `provenance.json` into the run dir. Shape:
+    { "<method>": {
+        "code": [{"claim": "...", "ref": "api/...py:NN"}],
+        "wiki": [{"claim": "...", "ref": "wiki/entities/x.md"}]   // or "none relevant found"
+    }, ... }
+  Record BOTH sources for every step. If a source yielded nothing, write the
+  string "none relevant found" (NOT an empty list) so "didn't check" is
+  distinguishable from "checked, nothing there".
+
+CONTROL FLOW — emit loop counts, for_each sets, and phase order EXACTLY as the
+IR/step plan specifies.
+
+Output ONLY the Python source for the pattern file (then write provenance.json).
+
+
+Template to follow: pattern/pattern_template.py
+
+Pattern: PF003_1647 — PF003_1647_NonFUA_SyncCache_L1_PPP-Normalized-TestFlow
+
+Description: PF003_1647 Non-FUA Sync Cache L1 PPP Test — 混合 WriteBooster MIX mode (SLC L2)
+
+## Step Plan (topological, phase-aware)
+
+[
+  {
+    "seq": 1,
+    "method": "step1",
+    "phase_id": "phase_0",
+    "phase_name": "初始化與 WriteBooster 配置",
+    "phase_type": "sequential",
+    "loop_type": null,
+    "loop_count": null,
+    "phase_inputs": [],
+    "phase_outputs": [
+      "total_lba",
+      "wb_max_units"
+    ],
+    "step": {
+      "step_id": "step_0_1",
+      "name": "裝置相容性檢查",
+      "scsi_cmd": null,
+      "ufs_query": null,
+      "opcode": null,
+      "query_opcode": null,
+      "idn": null,
+      "expected": "",
+      "fail_condition": null,
+      "on_fail": null,
+      "raw_content": "**目的**: 確認 IC / NAND 組合為支援的配置。\n\n| Check | Expected Value |\n|-------|---------------|\n| IC | 8329 |\n| NAND | BICS8 |\n\n**若不支援**: Pattern 判定為 `NOT SUPPORTED`，終止測試。\n\n**備註**: PS8363 KIC 不支援 MIX mode，跳過 WB fill flow。\n\n---"
+    }
+  },
+  {
+    "seq": 2,
+    "method": "step2",
+    "phase_id": "phase_0",
+    "phase_name": "初始化與 WriteBooster 配置",
+    "phase_type": "sequential",
+    "loop_type": null,
+    "loop_count": null,
+    "phase_inputs": [],
+    "phase_outputs": [
+      "total_lba",
+      "wb_max_units"
+    ],
+    "step": {
+      "step_id": "step_0_2",
+      "name": "確認裝置就緒",
+      "scsi_cmd": "TEST UNIT READY (00h)",
+      "ufs_query": null,
+      "opcode": "0x00",
+      "query_opcode": null,
+      "idn": null,
+      "expected": "`GOOD Status`",
+      "fail_condition": null,
+      "on_fail": null,
+      "raw_content": "**SCSI CMD**: `TEST UNIT READY (00h)`\n\n| Field | Value |\n|-------|-------|\n| Opcode | 0x00 |\n\n**Expected**: `GOOD Status`。\n\n**UFS SPEC Reference**: JESD220H Section 10.7.2\n\n---"
+    }
+  },
+  {
+    "seq": 3,
+    "method": "step3",
+    "phase_id": "phase_0",
+    "phase_name": "初始化與 WriteBooster 配置",
+    "phase_type": "sequential",
+    "loop_type": null,
+    "loop_count": null,
+    "phase_inputs": [],
+    "phase_outputs": [
+      "total_lba",
+      "wb_max_units"
+    ],
+    "step": {
+      "step_id": "step_0_3",
+      "name": "配置 WriteBooster Buffer（Configuration Descriptor）",
+      "scsi_cmd": null,
+      "ufs_query": "WRITE DESCRIPTOR (Configuration Descriptor)",
+      "opcode": null,
+      "query_opcode": "0x08 (WRITE DESCRIPTOR)",
+      "idn": "0x01 (Configuration Descriptor)",
+      "expected": "`QUERY RESPONSE Success`",
+      "fail_condition": null,
+      "on_fail": null,
+      "raw_content": "**UFS QUERY**: `WRITE DESCRIPTOR (Configuration Descriptor)`\n\n**目的**: 透過 Configuration Descriptor 設定 WriteBooster 為 Shared Type + MAX buffer size。\n`dLUNumWriteBoosterBufferAllocUnits` (IDN 0x17) 為唯讀 Attribute，不可用 WRITE ATTRIBUTE 寫入。\n\n| Field | Value |\n|-------|-------|\n| Query Opcode | 0x08 (WRITE DESCRIPTOR) |\n| IDN | 0x01 (Configuration Descriptor) |\n| Index | 0x00 |\n| Selector | 0x00 |\n| bWriteBoosterBufferType | 0x01 (Shared Buffer Type) |\n| dLUNumWriteBoosterBufferAllocUnits | MAX (取自 Device Descriptor) |\n\n**Expected**: `QUERY RESPONSE Success`。\n\n**UFS SPEC Reference**: JESD220H Section 14.1.4.5 (Configuration Descriptor), Section 14.3.1 (dLUNumWriteBoosterBufferAllocUnits 為 R/O)\n\n---"
+    }
+  },
+  {
+    "seq": 4,
+    "method": "step4",
+    "phase_id": "phase_0",
+    "phase_name": "初始化與 WriteBooster 配置",
+    "phase_type": "sequential",
+    "loop_type": null,
+    "loop_count": null,
+    "phase_inputs": [],
+    "phase_outputs": [
+      "total_lba",
+      "wb_max_units"
+    ],
+    "step": {
+      "step_id": "step_0_4",
+      "name": "Erase All Card",
+      "scsi_cmd": "UNMAP (42h)",
+      "ufs_query": "SET FLAG (fPurgeEnable, IDN 0x06)",
+      "opcode": null,
+      "query_opcode": null,
+      "idn": null,
+      "expected": "Purge 完成，`bPurgeStatus == 0x00`",
+      "fail_condition": "NOT (Purge 完成，`bPurgeStatus == 0x00`)",
+      "on_fail": "abort",
+      "raw_content": "**SCSI CMD**: `UNMAP (42h)` + **UFS QUERY**: `SET FLAG (fPurgeEnable, IDN 0x06)`\n\n| Field | Value |\n|-------|-------|\n| UNMAP Opcode | 0x42 |\n| UNMAP LUN | All LUNs |\n| UNMAP LBA Range | 0 ~ MAX_LBA |\n| SET FLAG Opcode | 0x02 |\n| SET FLAG IDN | 0x06 (fPurgeEnable) |\n| SET FLAG Value | 0x01 (Set) |\n\n**Expected**: Purge 完成，`bPurgeStatus == 0x00`。\n\n**UFS SPEC Reference**: JESD220H Section 13.4.11 (PURGE)\n\n---"
+    }
+  },
+  {
+    "seq": 5,
+    "method": "step5",
+    "phase_id": "phase_0",
+    "phase_name": "初始化與 WriteBooster 配置",
+    "phase_type": "sequential",
+    "loop_type": null,
+    "loop_count": null,
+    "phase_inputs": [],
+    "phase_outputs": [
+      "total_lba",
+      "wb_max_units"
+    ],
+    "step": {
+      "step_id": "step_0_5",
+      "name": "取得 LUN 容量",
+      "scsi_cmd": "READ CAPACITY(10) (25h)",
+      "ufs_query": null,
+      "opcode": "0x25",
+      "query_opcode": null,
+      "idn": null,
+      "expected": "`GOOD Status`，取得 `TOTAL_LBA` 與 Block Size",
+      "fail_condition": null,
+      "on_fail": null,
+      "raw_content": "**SCSI CMD**: `READ CAPACITY(10) (25h)`\n\n| Field | Value |\n|-------|-------|\n| Opcode | 0x25 |\n| LUN | All LUNs |\n\n**Expected**: `GOOD Status`，取得 `TOTAL_LBA` 與 Block Size。\n\n**UFS SPEC Reference**: JESD220H Section 10.7.2\n\n---"
+    }
+  },
+  {
+    "seq": 6,
+    "method": "step6",
+    "phase_id": "phase_1",
+    "phase_name": "WB Enable + Fill Buffer",
+    "phase_type": "sequential",
+    "loop_type": null,
+    "loop_count": null,
+    "phase_inputs": [
+      "total_lba",
+      "wb_max_units"
+    ],
+    "phase_outputs": [],
+    "step": {
+      "step_id": "step_1_1",
+      "name": "啟用 WriteBooster",
+      "scsi_cmd": null,
+      "ufs_query": "SET FLAG (fWriteBoosterEn)",
+      "opcode": null,
+      "query_opcode": "0x02 (SET FLAG)",
+      "idn": "0x0E (fWriteBoosterEn)",
+      "expected": "`QUERY RESPONSE Success`",
+      "fail_condition": null,
+      "on_fail": null,
+      "raw_content": "**UFS QUERY**: `SET FLAG (fWriteBoosterEn)`\n\n| Field | Value |\n|-------|-------|\n| Query Opcode | 0x02 (SET FLAG) |\n| IDN | 0x0E (fWriteBoosterEn) |\n| Value | 0x01 (Set) |\n\n**Expected**: `QUERY RESPONSE Success`。\n\n**UFS SPEC Reference**: JESD220H Section 14.2 (Flags), Section 13.4.18 (WriteBooster)\n\n---"
+    }
+  },
+  {
+    "seq": 7,
+    "method": "step7",
+    "phase_id": "phase_1",
+    "phase_name": "WB Enable + Fill Buffer",
+    "phase_type": "sequential",
+    "loop_type": null,
+    "loop_count": null,
+    "phase_inputs": [
+      "total_lba",
+      "wb_max_units"
+    ],
+    "phase_outputs": [],
+    "step": {
+      "step_id": "step_1_2",
+      "name": "Sequential Write Fill WB Buffer（FUA=1）",
+      "scsi_cmd": "WRITE(10) (2Ah)",
+      "ufs_query": null,
+      "opcode": "0x2A",
+      "query_opcode": null,
+      "idn": null,
+      "expected": "`GOOD Status`（全部 chunks 寫入成功）",
+      "fail_condition": null,
+      "on_fail": null,
+      "raw_content": "**SCSI CMD**: `WRITE(10) (2Ah)`\n\n**目的**: 以 FUA=1 對 LUN0 從 LBA=0 開始循序寫入，填滿 WB Buffer（MIX mode = SLC L2）。\n\n| Field | Value |\n|-------|-------|\n| Opcode | 0x2A |\n| LUN | 0 (LUN0) |\n| Logical Block Address | 0x00000000 |\n| Transfer Length | per chunk = 1GB (2097152 blocks @ 512B) |\n| FUA bit | 1 (Force Unit Access) |\n| Total Length | dLUNumWriteBoosterBufferAllocUnits (WB Buffer Total) |\n\n**Expected**: `GOOD Status`（全部 chunks 寫入成功）。\n\n**UFS SPEC Reference**: JESD220H Section 13.4.18 (WriteBooster), SBC-4 5.43 (FUA)\n\n---"
+    }
+  },
+  {
+    "seq": 8,
+    "method": "step8",
+    "phase_id": "phase_1",
+    "phase_name": "WB Enable + Fill Buffer",
+    "phase_type": "sequential",
+    "loop_type": null,
+    "loop_count": null,
+    "phase_inputs": [
+      "total_lba",
+      "wb_max_units"
+    ],
+    "phase_outputs": [],
+    "step": {
+      "step_id": "step_1_3",
+      "name": "停用 WriteBooster",
+      "scsi_cmd": null,
+      "ufs_query": "CLEAR FLAG (fWriteBoosterEn)",
+      "opcode": null,
+      "query_opcode": "0x05 (CLEAR FLAG)",
+      "idn": "0x0E (fWriteBoosterEn)",
+      "expected": "`QUERY RESPONSE Success`",
+      "fail_condition": null,
+      "on_fail": null,
+      "raw_content": "**UFS QUERY**: `CLEAR FLAG (fWriteBoosterEn)`\n\n| Field | Value |\n|-------|-------|\n| Query Opcode | 0x05 (CLEAR FLAG) |\n| IDN | 0x0E (fWriteBoosterEn) |\n\n**Expected**: `QUERY RESPONSE Success`。\n\n**UFS SPEC Reference**: JESD220H Section 14.2 (Flags)\n\n---"
+    }
+  },
+  {
+    "seq": 9,
+    "method": "step9",
+    "phase_id": "loop_6",
+    "phase_name": "Burn-in",
+    "phase_type": "loop",
+    "loop_type": "condition",
+    "loop_count": null,
+    "phase_inputs": [
+      "total_lba"
+    ],
+    "phase_outputs": [
+      "write_records"
+    ],
+    "step": {
+      "step_id": "step_2_1",
+      "name": "Random Big Chunk Write to L2（Non-FUA, FUA=0）",
+      "scsi_cmd": "WRITE(10) (2Ah)",
+      "ufs_query": null,
+      "opcode": "0x2A",
+      "query_opcode": null,
+      "idn": null,
+      "expected": "`GOOD Status`",
+      "fail_condition": null,
+      "on_fail": null,
+      "raw_content": "**SCSI CMD**: `WRITE(10) (2Ah)`\n\n**目的**: Chunk size ≥ TLC L2 threshold，確保資料寫入 TLC L2（big chunk mode）。\n\n| Field | Value |\n|-------|-------|\n| Opcode | 0x2A |\n| LUN | All LUNs |\n| Logical Block Address | Random (total_WB_size ~ TOTAL_LBA) |\n| Transfer Length | Random (TLC_L2_THRESHOLD ~ TLC_L2_THRESHOLD + 5) (units) |\n| FUA bit | 0 (Non-FUA) |\n\n**Expected**: `GOOD Status`。\n\n**UFS SPEC Reference**: JESD220H Section 10.7.2, SBC-4 5.43\n\n---"
+    }
+  },
+  {
+    "seq": 10,
+    "method": "step10",
+    "phase_id": "loop_6",
+    "phase_name": "Burn-in",
+    "phase_type": "loop",
+    "loop_type": "condition",
+    "loop_count": null,
+    "phase_inputs": [
+      "total_lba"
+    ],
+    "phase_outputs": [
+      "write_records"
+    ],
+    "step": {
+      "step_id": "step_2_2",
+      "name": "Random Small Chunk Write to L1（Non-FUA, FUA=0）",
+      "scsi_cmd": "WRITE(10) (2Ah)",
+      "ufs_query": null,
+      "opcode": "0x2A",
+      "query_opcode": null,
+      "idn": null,
+      "expected": "`GOOD Status`",
+      "fail_condition": null,
+      "on_fail": null,
+      "raw_content": "**SCSI CMD**: `WRITE(10) (2Ah)`\n\n**目的**: Chunk size < TLC L2 threshold，確保資料寫入 TLC L1（small chunk mode）。\n\n| Field | Value |\n|-------|-------|\n| Opcode | 0x2A |\n| LUN | All LUNs |\n| Logical Block Address | Random (total_WB_size ~ TOTAL_LBA) |\n| Transfer Length | Random (1 ~ TLC_L2_THRESHOLD - 1) (units) |\n| FUA bit | 0 (Non-FUA) |\n\n**Expected**: `GOOD Status`。\n\n**UFS SPEC Reference**: JESD220H Section 10.7.2, SBC-4 5.43\n\n---\n\n### Phase 3 — Random Flush + Read Compare"
+    }
+  },
+  {
+    "seq": 11,
+    "method": "step11",
+    "phase_id": "loop_6",
+    "phase_name": "Burn-in",
+    "phase_type": "loop",
+    "loop_type": "condition",
+    "loop_count": null,
+    "phase_inputs": [
+      "total_lba"
+    ],
+    "phase_outputs": [
+      "write_records"
+    ],
+    "step": {
+      "step_id": "step_3_1",
+      "name": "Random Flush",
+      "scsi_cmd": null,
+      "ufs_query": null,
+      "opcode": null,
+      "query_opcode": null,
+      "idn": null,
+      "expected": "依所選機制完成 Flush",
+      "fail_condition": null,
+      "on_fail": null,
+      "raw_content": "**目的**: 隨機選取一種 Flush 機制，確保 Non-FUA 寫入的資料從 cache 落 NAND。\n\n**Flush 類型**（隨機選一）:\n\n| # | Flush Method | Mechanism |\n|:---|:---|:---|\n| 1 | Sync Cache | `SYNCHRONIZE CACHE(10) (35h)` |\n| 2 | Sleep / Awake | `START STOP UNIT` → Sleep → Start |\n| 3 | Power Down / Active | `START STOP UNIT` → Power Down → Active |\n| 4 | Reset + Power Down/Active | HW_RESET / RST_n / EndPoint / UniPro Reset → Power cycle |\n| 5 | Auto Standby | Idle 10s + Hibernate entry + current < 2mA |\n\n**Expected**: 依所選機制完成 Flush。\n\n**UFS SPEC Reference**: JESD220H Section 10.2.5 (Power Conditions), Section 10.4 (Reset)\n\n---"
+    }
+  },
+  {
+    "seq": 12,
+    "method": "step12",
+    "phase_id": "loop_6",
+    "phase_name": "Burn-in",
+    "phase_type": "loop",
+    "loop_type": "condition",
+    "loop_count": null,
+    "phase_inputs": [
+      "total_lba"
+    ],
+    "phase_outputs": [
+      "write_records"
+    ],
+    "step": {
+      "step_id": "step_3_2",
+      "name": "Read Compare（Step 2.1 + 2.2 資料）",
+      "scsi_cmd": "READ(10) (28h)",
+      "ufs_query": null,
+      "opcode": "0x28",
+      "query_opcode": null,
+      "idn": null,
+      "expected": "`GOOD Status` + `Data Match`",
+      "fail_condition": "NOT (`GOOD Status` + `Data Match`)",
+      "on_fail": "abort",
+      "raw_content": "**SCSI CMD**: `READ(10) (28h)`\n\n| Field | Value |\n|-------|-------|\n| Opcode | 0x28 |\n| LUN | Step 2.1/2.2 使用之 LUN |\n| Logical Block Address | Step 2.1/2.2 寫入之 LBA |\n| Transfer Length | Step 2.1/2.2 寫入之大小 |\n\n**Expected**: `GOOD Status` + `Data Match`。\n\n**UFS SPEC Reference**: JESD220H Section 10.7.2, SBC-4 5.18\n\n---"
+    }
+  },
+  {
+    "seq": 13,
+    "method": "step13",
+    "phase_id": "loop_6",
+    "phase_name": "Burn-in",
+    "phase_type": "loop",
+    "loop_type": "condition",
+    "loop_count": null,
+    "phase_inputs": [
+      "total_lba"
+    ],
+    "phase_outputs": [
+      "write_records"
+    ],
+    "step": {
+      "step_id": "step_3_3",
+      "name": "Random Power / Reset Case",
+      "scsi_cmd": null,
+      "ufs_query": null,
+      "opcode": null,
+      "query_opcode": null,
+      "idn": null,
+      "expected": "Device 恢復就緒，`fDeviceInit == 1`",
+      "fail_condition": null,
+      "on_fail": null,
+      "raw_content": "**目的**: 隨機選取一種 Power Transition 或 Reset，模擬異常中斷情境。\n\n**Case 類型**（隨機選一）:\n\n| # | Case | 說明 |\n|:---|:---|:---|\n| 1 | SPOR | Sudden Power-Off Recovery |\n| 2 | Sleep / Awake | Power Condition transition |\n| 3 | Reset + Power Down/Active | HW_RESET / RST_n / EndPoint / UniPro → Power cycle |\n| 4 | Hibernate Enter / Exit | Hibernate state transition |\n| 5 | Auto Standby | Idle 10s + HIB + current < 2mA |\n| 6 | Power Down / Active | Simple power cycle |\n\n**Expected**: Device 恢復就緒，`fDeviceInit == 1`。\n\n**UFS SPEC Reference**: JESD220H Section 10.2.5 (Power Conditions), Section 10.4 (Reset), Section 13.4.12 (SPOR)\n\n---"
+    }
+  },
+  {
+    "seq": 14,
+    "method": "step14",
+    "phase_id": "loop_6",
+    "phase_name": "Burn-in",
+    "phase_type": "loop",
+    "loop_type": "condition",
+    "loop_count": null,
+    "phase_inputs": [
+      "total_lba"
+    ],
+    "phase_outputs": [
+      "write_records"
+    ],
+    "step": {
+      "step_id": "step_3_4",
+      "name": "Read Compare（Step 2.1 + 2.2 資料，Post Power Case）",
+      "scsi_cmd": "READ(10) (28h)",
+      "ufs_query": null,
+      "opcode": "0x28",
+      "query_opcode": null,
+      "idn": null,
+      "expected": "`GOOD Status` + `Data Match`",
+      "fail_condition": "NOT (`GOOD Status` + `Data Match`)",
+      "on_fail": "abort",
+      "raw_content": "**SCSI CMD**: `READ(10) (28h)`\n\n| Field | Value |\n|-------|-------|\n| Opcode | 0x28 |\n| LUN | Step 2.1/2.2 使用之 LUN |\n| Logical Block Address | Step 2.1/2.2 寫入之 LBA |\n| Transfer Length | Step 2.1/2.2 寫入之大小 |\n\n**Expected**: `GOOD Status` + `Data Match`。\n\n**UFS SPEC Reference**: JESD220H Section 10.7.2\n\n---\n\n### Phase 4 — Random Multi-CMD Write + Flush + Compare"
+    }
+  },
+  {
+    "seq": 15,
+    "method": "step15",
+    "phase_id": "loop_6",
+    "phase_name": "Burn-in",
+    "phase_type": "loop",
+    "loop_type": "condition",
+    "loop_count": null,
+    "phase_inputs": [
+      "total_lba"
+    ],
+    "phase_outputs": [
+      "write_records"
+    ],
+    "step": {
+      "step_id": "step_4_1",
+      "name": "Random Multi-CMD Write（Non-FUA, FUA=0）",
+      "scsi_cmd": "WRITE(10) (2Ah)",
+      "ufs_query": null,
+      "opcode": "0x2A",
+      "query_opcode": null,
+      "idn": null,
+      "expected": "`GOOD Status`（所有 N 個命令）",
+      "fail_condition": null,
+      "on_fail": null,
+      "raw_content": "**SCSI CMD**: `WRITE(10) (2Ah)` × N (N = Random 20~33)\n\n**目的**: 隨機數量（20~33）的 Non-FUA Write，模擬混合 L1/L2 大量寫入。\n\n| Field | Value |\n|-------|-------|\n| Opcode | 0x2A |\n| LUN | All LUNs |\n| Logical Block Address | Random (total_WB_size ~ TOTAL_LBA) |\n| Transfer Length | Random (1 ~ TLC_L2_THRESHOLD + 5) (units) |\n| FUA bit | 0 (Non-FUA) |\n| Command Count (N) | Random (20 ~ 33) |\n\n**Expected**: `GOOD Status`（所有 N 個命令）。\n\n**UFS SPEC Reference**: JESD220H Section 10.7.2, SBC-4 5.43\n\n---"
+    }
+  },
+  {
+    "seq": 16,
+    "method": "step16",
+    "phase_id": "loop_6",
+    "phase_name": "Burn-in",
+    "phase_type": "loop",
+    "loop_type": "condition",
+    "loop_count": null,
+    "phase_inputs": [
+      "total_lba"
+    ],
+    "phase_outputs": [
+      "write_records"
+    ],
+    "step": {
+      "step_id": "step_4_2",
+      "name": "Random Flush",
+      "scsi_cmd": null,
+      "ufs_query": null,
+      "opcode": null,
+      "query_opcode": null,
+      "idn": null,
+      "expected": "Flush 完成",
+      "fail_condition": null,
+      "on_fail": null,
+      "raw_content": "**目的**: 隨機選取一種 Flush 機制（同 Step 3.1）。\n\n**Flush 類型**: 隨機選一（Sync Cache / Sleep/Awake / Power Down / Reset / Auto Standby）\n\n**Expected**: Flush 完成。\n\n**UFS SPEC Reference**: JESD220H Section 10.2.5, Section 10.4\n\n---"
+    }
+  },
+  {
+    "seq": 17,
+    "method": "step17",
+    "phase_id": "loop_6",
+    "phase_name": "Burn-in",
+    "phase_type": "loop",
+    "loop_type": "condition",
+    "loop_count": null,
+    "phase_inputs": [
+      "total_lba"
+    ],
+    "phase_outputs": [
+      "write_records"
+    ],
+    "step": {
+      "step_id": "step_4_3",
+      "name": "Read Compare（Step 4.1 資料）",
+      "scsi_cmd": "READ(10) (28h)",
+      "ufs_query": null,
+      "opcode": "0x28",
+      "query_opcode": null,
+      "idn": null,
+      "expected": "`GOOD Status` + `Data Match`",
+      "fail_condition": "NOT (`GOOD Status` + `Data Match`)",
+      "on_fail": "abort",
+      "raw_content": "**SCSI CMD**: `READ(10) (28h)`\n\n| Field | Value |\n|-------|-------|\n| Opcode | 0x28 |\n| LUN | Step 4.1 使用之 LUN |\n| Logical Block Address | Step 4.1 寫入之 LBA |\n| Transfer Length | Step 4.1 寫入之大小 |\n\n**Expected**: `GOOD Status` + `Data Match`。\n\n**UFS SPEC Reference**: JESD220H Section 10.7.2\n\n---"
+    }
+  },
+  {
+    "seq": 18,
+    "method": "step18",
+    "phase_id": "phase_F",
+    "phase_name": "Final Read Compare All",
+    "phase_type": "sequential",
+    "loop_type": null,
+    "loop_count": null,
+    "phase_inputs": [
+      "total_lba",
+      "write_records"
+    ],
+    "phase_outputs": [],
+    "step": {
+      "step_id": "step_F_1",
+      "name": "全卡 Read Compare",
+      "scsi_cmd": "READ(10) (28h)",
+      "ufs_query": null,
+      "opcode": "0x28",
+      "query_opcode": null,
+      "idn": null,
+      "expected": "`GOOD Status` + `Data Match All Card`",
+      "fail_condition": "NOT (`GOOD Status` + `Data Match All Card`)",
+      "on_fail": "abort",
+      "raw_content": "**SCSI CMD**: `READ(10) (28h)`\n\n| Field | Value |\n|-------|-------|\n| Opcode | 0x28 |\n| LUN | All LUNs |\n| Logical Block Address | 0x00000000 |\n| Transfer Length | TOTAL_LBA + 1 |\n\n**Expected**: `GOOD Status` + `Data Match All Card`。\n\n**UFS SPEC Reference**: JESD220H Section 10.7.2\n\n---"
+    }
+  }
+]
+
+## Full IR
+
+{
+  "pattern_id": "PF003_1647",
+  "title": "PF003_1647_NonFUA_SyncCache_L1_PPP-Normalized-TestFlow",
+  "description": "PF003_1647 Non-FUA Sync Cache L1 PPP Test — 混合 WriteBooster MIX mode (SLC L2)",
+  "tags": [
+    "test-flow",
+    "ufs",
+    "pf003_1647",
+    "scsi-cmd",
+    "non-fua",
+    "sync-cache",
+    "write-booster",
+    "l1-ppp",
+    "flush"
+  ],
+  "phases": [
+    {
+      "phase_id": "phase_0",
+      "name": "初始化與 WriteBooster 配置",
+      "type": "sequential",
+      "loop_type": null,
+      "loop_count": null,
+      "loop_condition": null,
+      "steps": [
+        {
+          "step_id": "step_0_1",
+          "name": "裝置相容性檢查",
+          "scsi_cmd": null,
+          "ufs_query": null,
+          "opcode": null,
+          "query_opcode": null,
+          "idn": null,
+          "expected": "",
+          "fail_condition": null,
+          "on_fail": null,
+          "raw_content": "**目的**: 確認 IC / NAND 組合為支援的配置。\n\n| Check | Expected Value |\n|-------|---------------|\n| IC | 8329 |\n| NAND | BICS8 |\n\n**若不支援**: Pattern 判定為 `NOT SUPPORTED`，終止測試。\n\n**備註**: PS8363 KIC 不支援 MIX mode，跳過 WB fill flow。\n\n---"
+        },
+        {
+          "step_id": "step_0_2",
+          "name": "確認裝置就緒",
+          "scsi_cmd": "TEST UNIT READY (00h)",
+          "ufs_query": null,
+          "opcode": "0x00",
+          "query_opcode": null,
+          "idn": null,
+          "expected": "`GOOD Status`",
+          "fail_condition": null,
+          "on_fail": null,
+          "raw_content": "**SCSI CMD**: `TEST UNIT READY (00h)`\n\n| Field | Value |\n|-------|-------|\n| Opcode | 0x00 |\n\n**Expected**: `GOOD Status`。\n\n**UFS SPEC Reference**: JESD220H Section 10.7.2\n\n---"
+        },
+        {
+          "step_id": "step_0_3",
+          "name": "配置 WriteBooster Buffer（Configuration Descriptor）",
+          "scsi_cmd": null,
+          "ufs_query": "WRITE DESCRIPTOR (Configuration Descriptor)",
+          "opcode": null,
+          "query_opcode": "0x08 (WRITE DESCRIPTOR)",
+          "idn": "0x01 (Configuration Descriptor)",
+          "expected": "`QUERY RESPONSE Success`",
+          "fail_condition": null,
+          "on_fail": null,
+          "raw_content": "**UFS QUERY**: `WRITE DESCRIPTOR (Configuration Descriptor)`\n\n**目的**: 透過 Configuration Descriptor 設定 WriteBooster 為 Shared Type + MAX buffer size。\n`dLUNumWriteBoosterBufferAllocUnits` (IDN 0x17) 為唯讀 Attribute，不可用 WRITE ATTRIBUTE 寫入。\n\n| Field | Value |\n|-------|-------|\n| Query Opcode | 0x08 (WRITE DESCRIPTOR) |\n| IDN | 0x01 (Configuration Descriptor) |\n| Index | 0x00 |\n| Selector | 0x00 |\n| bWriteBoosterBufferType | 0x01 (Shared Buffer Type) |\n| dLUNumWriteBoosterBufferAllocUnits | MAX (取自 Device Descriptor) |\n\n**Expected**: `QUERY RESPONSE Success`。\n\n**UFS SPEC Reference**: JESD220H Section 14.1.4.5 (Configuration Descriptor), Section 14.3.1 (dLUNumWriteBoosterBufferAllocUnits 為 R/O)\n\n---"
+        },
+        {
+          "step_id": "step_0_4",
+          "name": "Erase All Card",
+          "scsi_cmd": "UNMAP (42h)",
+          "ufs_query": "SET FLAG (fPurgeEnable, IDN 0x06)",
+          "opcode": null,
+          "query_opcode": null,
+          "idn": null,
+          "expected": "Purge 完成，`bPurgeStatus == 0x00`",
+          "fail_condition": "NOT (Purge 完成，`bPurgeStatus == 0x00`)",
+          "on_fail": "abort",
+          "raw_content": "**SCSI CMD**: `UNMAP (42h)` + **UFS QUERY**: `SET FLAG (fPurgeEnable, IDN 0x06)`\n\n| Field | Value |\n|-------|-------|\n| UNMAP Opcode | 0x42 |\n| UNMAP LUN | All LUNs |\n| UNMAP LBA Range | 0 ~ MAX_LBA |\n| SET FLAG Opcode | 0x02 |\n| SET FLAG IDN | 0x06 (fPurgeEnable) |\n| SET FLAG Value | 0x01 (Set) |\n\n**Expected**: Purge 完成，`bPurgeStatus == 0x00`。\n\n**UFS SPEC Reference**: JESD220H Section 13.4.11 (PURGE)\n\n---"
+        },
+        {
+          "step_id": "step_0_5",
+          "name": "取得 LUN 容量",
+          "scsi_cmd": "READ CAPACITY(10) (25h)",
+          "ufs_query": null,
+          "opcode": "0x25",
+          "query_opcode": null,
+          "idn": null,
+          "expected": "`GOOD Status`，取得 `TOTAL_LBA` 與 Block Size",
+          "fail_condition": null,
+          "on_fail": null,
+          "raw_content": "**SCSI CMD**: `READ CAPACITY(10) (25h)`\n\n| Field | Value |\n|-------|-------|\n| Opcode | 0x25 |\n| LUN | All LUNs |\n\n**Expected**: `GOOD Status`，取得 `TOTAL_LBA` 與 Block Size。\n\n**UFS SPEC Reference**: JESD220H Section 10.7.2\n\n---"
+        }
+      ],
+      "inputs": [],
+      "outputs": [
+        "total_lba",
+        "wb_max_units"
+      ]
+    },
+    {
+      "phase_id": "phase_1",
+      "name": "WB Enable + Fill Buffer",
+      "type": "sequential",
+      "loop_type": null,
+      "loop_count": null,
+      "loop_condition": null,
+      "steps": [
+        {
+          "step_id": "step_1_1",
+          "name": "啟用 WriteBooster",
+          "scsi_cmd": null,
+          "ufs_query": "SET FLAG (fWriteBoosterEn)",
+          "opcode": null,
+          "query_opcode": "0x02 (SET FLAG)",
+          "idn": "0x0E (fWriteBoosterEn)",
+          "expected": "`QUERY RESPONSE Success`",
+          "fail_condition": null,
+          "on_fail": null,
+          "raw_content": "**UFS QUERY**: `SET FLAG (fWriteBoosterEn)`\n\n| Field | Value |\n|-------|-------|\n| Query Opcode | 0x02 (SET FLAG) |\n| IDN | 0x0E (fWriteBoosterEn) |\n| Value | 0x01 (Set) |\n\n**Expected**: `QUERY RESPONSE Success`。\n\n**UFS SPEC Reference**: JESD220H Section 14.2 (Flags), Section 13.4.18 (WriteBooster)\n\n---"
+        },
+        {
+          "step_id": "step_1_2",
+          "name": "Sequential Write Fill WB Buffer（FUA=1）",
+          "scsi_cmd": "WRITE(10) (2Ah)",
+          "ufs_query": null,
+          "opcode": "0x2A",
+          "query_opcode": null,
+          "idn": null,
+          "expected": "`GOOD Status`（全部 chunks 寫入成功）",
+          "fail_condition": null,
+          "on_fail": null,
+          "raw_content": "**SCSI CMD**: `WRITE(10) (2Ah)`\n\n**目的**: 以 FUA=1 對 LUN0 從 LBA=0 開始循序寫入，填滿 WB Buffer（MIX mode = SLC L2）。\n\n| Field | Value |\n|-------|-------|\n| Opcode | 0x2A |\n| LUN | 0 (LUN0) |\n| Logical Block Address | 0x00000000 |\n| Transfer Length | per chunk = 1GB (2097152 blocks @ 512B) |\n| FUA bit | 1 (Force Unit Access) |\n| Total Length | dLUNumWriteBoosterBufferAllocUnits (WB Buffer Total) |\n\n**Expected**: `GOOD Status`（全部 chunks 寫入成功）。\n\n**UFS SPEC Reference**: JESD220H Section 13.4.18 (WriteBooster), SBC-4 5.43 (FUA)\n\n---"
+        },
+        {
+          "step_id": "step_1_3",
+          "name": "停用 WriteBooster",
+          "scsi_cmd": null,
+          "ufs_query": "CLEAR FLAG (fWriteBoosterEn)",
+          "opcode": null,
+          "query_opcode": "0x05 (CLEAR FLAG)",
+          "idn": "0x0E (fWriteBoosterEn)",
+          "expected": "`QUERY RESPONSE Success`",
+          "fail_condition": null,
+          "on_fail": null,
+          "raw_content": "**UFS QUERY**: `CLEAR FLAG (fWriteBoosterEn)`\n\n| Field | Value |\n|-------|-------|\n| Query Opcode | 0x05 (CLEAR FLAG) |\n| IDN | 0x0E (fWriteBoosterEn) |\n\n**Expected**: `QUERY RESPONSE Success`。\n\n**UFS SPEC Reference**: JESD220H Section 14.2 (Flags)\n\n---"
+        }
+      ],
+      "inputs": [
+        "total_lba",
+        "wb_max_units"
+      ],
+      "outputs": []
+    },
+    {
+      "phase_id": "loop_6",
+      "name": "Burn-in",
+      "type": "loop",
+      "loop_type": "condition",
+      "loop_count": null,
+      "loop_condition": null,
+      "steps": [
+        {
+          "step_id": "step_2_1",
+          "name": "Random Big Chunk Write to L2（Non-FUA, FUA=0）",
+          "scsi_cmd": "WRITE(10) (2Ah)",
+          "ufs_query": null,
+          "opcode": "0x2A",
+          "query_opcode": null,
+          "idn": null,
+          "expected": "`GOOD Status`",
+          "fail_condition": null,
+          "on_fail": null,
+          "raw_content": "**SCSI CMD**: `WRITE(10) (2Ah)`\n\n**目的**: Chunk size ≥ TLC L2 threshold，確保資料寫入 TLC L2（big chunk mode）。\n\n| Field | Value |\n|-------|-------|\n| Opcode | 0x2A |\n| LUN | All LUNs |\n| Logical Block Address | Random (total_WB_size ~ TOTAL_LBA) |\n| Transfer Length | Random (TLC_L2_THRESHOLD ~ TLC_L2_THRESHOLD + 5) (units) |\n| FUA bit | 0 (Non-FUA) |\n\n**Expected**: `GOOD Status`。\n\n**UFS SPEC Reference**: JESD220H Section 10.7.2, SBC-4 5.43\n\n---"
+        },
+        {
+          "step_id": "step_2_2",
+          "name": "Random Small Chunk Write to L1（Non-FUA, FUA=0）",
+          "scsi_cmd": "WRITE(10) (2Ah)",
+          "ufs_query": null,
+          "opcode": "0x2A",
+          "query_opcode": null,
+          "idn": null,
+          "expected": "`GOOD Status`",
+          "fail_condition": null,
+          "on_fail": null,
+          "raw_content": "**SCSI CMD**: `WRITE(10) (2Ah)`\n\n**目的**: Chunk size < TLC L2 threshold，確保資料寫入 TLC L1（small chunk mode）。\n\n| Field | Value |\n|-------|-------|\n| Opcode | 0x2A |\n| LUN | All LUNs |\n| Logical Block Address | Random (total_WB_size ~ TOTAL_LBA) |\n| Transfer Length | Random (1 ~ TLC_L2_THRESHOLD - 1) (units) |\n| FUA bit | 0 (Non-FUA) |\n\n**Expected**: `GOOD Status`。\n\n**UFS SPEC Reference**: JESD220H Section 10.7.2, SBC-4 5.43\n\n---\n\n### Phase 3 — Random Flush + Read Compare"
+        },
+        {
+          "step_id": "step_3_1",
+          "name": "Random Flush",
+          "scsi_cmd": null,
+          "ufs_query": null,
+          "opcode": null,
+          "query_opcode": null,
+          "idn": null,
+          "expected": "依所選機制完成 Flush",
+          "fail_condition": null,
+          "on_fail": null,
+          "raw_content": "**目的**: 隨機選取一種 Flush 機制，確保 Non-FUA 寫入的資料從 cache 落 NAND。\n\n**Flush 類型**（隨機選一）:\n\n| # | Flush Method | Mechanism |\n|:---|:---|:---|\n| 1 | Sync Cache | `SYNCHRONIZE CACHE(10) (35h)` |\n| 2 | Sleep / Awake | `START STOP UNIT` → Sleep → Start |\n| 3 | Power Down / Active | `START STOP UNIT` → Power Down → Active |\n| 4 | Reset + Power Down/Active | HW_RESET / RST_n / EndPoint / UniPro Reset → Power cycle |\n| 5 | Auto Standby | Idle 10s + Hibernate entry + current < 2mA |\n\n**Expected**: 依所選機制完成 Flush。\n\n**UFS SPEC Reference**: JESD220H Section 10.2.5 (Power Conditions), Section 10.4 (Reset)\n\n---"
+        },
+        {
+          "step_id": "step_3_2",
+          "name": "Read Compare（Step 2.1 + 2.2 資料）",
+          "scsi_cmd": "READ(10) (28h)",
+          "ufs_query": null,
+          "opcode": "0x28",
+          "query_opcode": null,
+          "idn": null,
+          "expected": "`GOOD Status` + `Data Match`",
+          "fail_condition": "NOT (`GOOD Status` + `Data Match`)",
+          "on_fail": "abort",
+          "raw_content": "**SCSI CMD**: `READ(10) (28h)`\n\n| Field | Value |\n|-------|-------|\n| Opcode | 0x28 |\n| LUN | Step 2.1/2.2 使用之 LUN |\n| Logical Block Address | Step 2.1/2.2 寫入之 LBA |\n| Transfer Length | Step 2.1/2.2 寫入之大小 |\n\n**Expected**: `GOOD Status` + `Data Match`。\n\n**UFS SPEC Reference**: JESD220H Section 10.7.2, SBC-4 5.18\n\n---"
+        },
+        {
+          "step_id": "step_3_3",
+          "name": "Random Power / Reset Case",
+          "scsi_cmd": null,
+          "ufs_query": null,
+          "opcode": null,
+          "query_opcode": null,
+          "idn": null,
+          "expected": "Device 恢復就緒，`fDeviceInit == 1`",
+          "fail_condition": null,
+          "on_fail": null,
+          "raw_content": "**目的**: 隨機選取一種 Power Transition 或 Reset，模擬異常中斷情境。\n\n**Case 類型**（隨機選一）:\n\n| # | Case | 說明 |\n|:---|:---|:---|\n| 1 | SPOR | Sudden Power-Off Recovery |\n| 2 | Sleep / Awake | Power Condition transition |\n| 3 | Reset + Power Down/Active | HW_RESET / RST_n / EndPoint / UniPro → Power cycle |\n| 4 | Hibernate Enter / Exit | Hibernate state transition |\n| 5 | Auto Standby | Idle 10s + HIB + current < 2mA |\n| 6 | Power Down / Active | Simple power cycle |\n\n**Expected**: Device 恢復就緒，`fDeviceInit == 1`。\n\n**UFS SPEC Reference**: JESD220H Section 10.2.5 (Power Conditions), Section 10.4 (Reset), Section 13.4.12 (SPOR)\n\n---"
+        },
+        {
+          "step_id": "step_3_4",
+          "name": "Read Compare（Step 2.1 + 2.2 資料，Post Power Case）",
+          "scsi_cmd": "READ(10) (28h)",
+          "ufs_query": null,
+          "opcode": "0x28",
+          "query_opcode": null,
+          "idn": null,
+          "expected": "`GOOD Status` + `Data Match`",
+          "fail_condition": "NOT (`GOOD Status` + `Data Match`)",
+          "on_fail": "abort",
+          "raw_content": "**SCSI CMD**: `READ(10) (28h)`\n\n| Field | Value |\n|-------|-------|\n| Opcode | 0x28 |\n| LUN | Step 2.1/2.2 使用之 LUN |\n| Logical Block Address | Step 2.1/2.2 寫入之 LBA |\n| Transfer Length | Step 2.1/2.2 寫入之大小 |\n\n**Expected**: `GOOD Status` + `Data Match`。\n\n**UFS SPEC Reference**: JESD220H Section 10.7.2\n\n---\n\n### Phase 4 — Random Multi-CMD Write + Flush + Compare"
+        },
+        {
+          "step_id": "step_4_1",
+          "name": "Random Multi-CMD Write（Non-FUA, FUA=0）",
+          "scsi_cmd": "WRITE(10) (2Ah)",
+          "ufs_query": null,
+          "opcode": "0x2A",
+          "query_opcode": null,
+          "idn": null,
+          "expected": "`GOOD Status`（所有 N 個命令）",
+          "fail_condition": null,
+          "on_fail": null,
+          "raw_content": "**SCSI CMD**: `WRITE(10) (2Ah)` × N (N = Random 20~33)\n\n**目的**: 隨機數量（20~33）的 Non-FUA Write，模擬混合 L1/L2 大量寫入。\n\n| Field | Value |\n|-------|-------|\n| Opcode | 0x2A |\n| LUN | All LUNs |\n| Logical Block Address | Random (total_WB_size ~ TOTAL_LBA) |\n| Transfer Length | Random (1 ~ TLC_L2_THRESHOLD + 5) (units) |\n| FUA bit | 0 (Non-FUA) |\n| Command Count (N) | Random (20 ~ 33) |\n\n**Expected**: `GOOD Status`（所有 N 個命令）。\n\n**UFS SPEC Reference**: JESD220H Section 10.7.2, SBC-4 5.43\n\n---"
+        },
+        {
+          "step_id": "step_4_2",
+          "name": "Random Flush",
+          "scsi_cmd": null,
+          "ufs_query": null,
+          "opcode": null,
+          "query_opcode": null,
+          "idn": null,
+          "expected": "Flush 完成",
+          "fail_condition": null,
+          "on_fail": null,
+          "raw_content": "**目的**: 隨機選取一種 Flush 機制（同 Step 3.1）。\n\n**Flush 類型**: 隨機選一（Sync Cache / Sleep/Awake / Power Down / Reset / Auto Standby）\n\n**Expected**: Flush 完成。\n\n**UFS SPEC Reference**: JESD220H Section 10.2.5, Section 10.4\n\n---"
+        },
+        {
+          "step_id": "step_4_3",
+          "name": "Read Compare（Step 4.1 資料）",
+          "scsi_cmd": "READ(10) (28h)",
+          "ufs_query": null,
+          "opcode": "0x28",
+          "query_opcode": null,
+          "idn": null,
+          "expected": "`GOOD Status` + `Data Match`",
+          "fail_condition": "NOT (`GOOD Status` + `Data Match`)",
+          "on_fail": "abort",
+          "raw_content": "**SCSI CMD**: `READ(10) (28h)`\n\n| Field | Value |\n|-------|-------|\n| Opcode | 0x28 |\n| LUN | Step 4.1 使用之 LUN |\n| Logical Block Address | Step 4.1 寫入之 LBA |\n| Transfer Length | Step 4.1 寫入之大小 |\n\n**Expected**: `GOOD Status` + `Data Match`。\n\n**UFS SPEC Reference**: JESD220H Section 10.7.2\n\n---"
+        }
+      ],
+      "inputs": [
+        "total_lba"
+      ],
+      "outputs": [
+        "write_records"
+      ]
+    },
+    {
+      "phase_id": "phase_F",
+      "name": "Final Read Compare All",
+      "type": "sequential",
+      "loop_type": null,
+      "loop_count": null,
+      "loop_condition": null,
+      "steps": [
+        {
+          "step_id": "step_F_1",
+          "name": "全卡 Read Compare",
+          "scsi_cmd": "READ(10) (28h)",
+          "ufs_query": null,
+          "opcode": "0x28",
+          "query_opcode": null,
+          "idn": null,
+          "expected": "`GOOD Status` + `Data Match All Card`",
+          "fail_condition": "NOT (`GOOD Status` + `Data Match All Card`)",
+          "on_fail": "abort",
+          "raw_content": "**SCSI CMD**: `READ(10) (28h)`\n\n| Field | Value |\n|-------|-------|\n| Opcode | 0x28 |\n| LUN | All LUNs |\n| Logical Block Address | 0x00000000 |\n| Transfer Length | TOTAL_LBA + 1 |\n\n**Expected**: `GOOD Status` + `Data Match All Card`。\n\n**UFS SPEC Reference**: JESD220H Section 10.7.2\n\n---"
+        }
+      ],
+      "inputs": [
+        "total_lba",
+        "write_records"
+      ],
+      "outputs": []
+    }
+  ],
+  "dependency_graph": {
+    "nodes": [
+      "phase_0",
+      "phase_1",
+      "loop_6",
+      "phase_F"
+    ],
+    "edges": [
+      {
+        "from": "phase_0",
+        "to": "phase_1",
+        "type": "sequential",
+        "data_flow": [
+          "total_lba",
+          "wb_max_units"
+        ]
+      },
+      {
+        "from": "phase_1",
+        "to": "loop_6",
+        "type": "sequential",
+        "data_flow": [
+          "total_lba"
+        ]
+      },
+      {
+        "from": "loop_6",
+        "to": "phase_F",
+        "type": "sequential",
+        "data_flow": [
+          "total_lba",
+          "write_records"
+        ]
+      }
+    ]
+  }
+}

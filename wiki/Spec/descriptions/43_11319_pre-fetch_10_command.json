@@ -1,0 +1,14 @@
+{
+  "file": "43_11319_pre-fetch_10_command.md",
+  "title": "11.3.19 PRE-FETCH (10) Command",
+  "description": "本章節詳細說明了PRE-FETCH (10)和PRE-FETCH (16)命令的規格，包括命令結構、參數定義、資料傳輸和狀態回應機制。此章節還涵蓋了SECURITY PROTOCOL IN命令的實作細節，可回答關於UFS裝置中預取操作和安全協定處理的技術問題。",
+  "keywords": [
+    "PRE-FETCH",
+    "SECURITY PROTOCOL IN",
+    "UFS commands",
+    "logical block address",
+    "cache management",
+    "JEDEC UFS"
+  ],
+  "page_range": "245-249"
+}

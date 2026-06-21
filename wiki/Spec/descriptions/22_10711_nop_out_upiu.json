@@ -1,0 +1,14 @@
+{
+  "file": "22_10711_nop_out_upiu.md",
+  "title": "10.7.11 NOP OUT UPIU",
+  "description": "此章節說明NOP OUT UPIU的格式和用途，這是一種用於檢測發起設備與目標設備之間連接狀態的協定單元。章節詳細描述了NOP OUT UPIU的結構表格、基本標頭格式，以及各個欄位（如Task Tag、Transaction Type、Flags、Data Segment Length）的具體規範和數值要求。",
+  "keywords": [
+    "NOP OUT UPIU",
+    "connection check",
+    "basic header",
+    "task tag",
+    "transaction type",
+    "JEDEC standard"
+  ],
+  "page_range": "167-168"
+}

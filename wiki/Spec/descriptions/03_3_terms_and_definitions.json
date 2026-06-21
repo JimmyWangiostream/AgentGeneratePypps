@@ -1,0 +1,14 @@
+{
+  "file": "03_3_terms_and_definitions.md",
+  "title": "3 Terms and Definitions",
+  "description": "此章節定義了UFS (Universal Flash Storage)標準中的核心術語、縮寫和命名約定。涵蓋SCSI相關概念（如應用客戶端、設備伺服器、邏輯單元）、資料結構（如命令描述符區塊、協議資訊單元）、以及技術規範中使用的關鍵字（如強制性、可選、保留等）的精確定義。",
+  "keywords": [
+    "UFS",
+    "SCSI",
+    "terminology",
+    "definitions",
+    "acronyms",
+    "technical specifications"
+  ],
+  "page_range": "23-26"
+}

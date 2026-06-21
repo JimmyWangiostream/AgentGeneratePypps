@@ -1,0 +1,14 @@
+{
+  "file": "05_5_ufs_architecture_overview.md",
+  "title": "5 UFS Architecture Overview",
+  "description": "本章節介紹通用快閃記憶體儲存(UFS)架構的整體概覽，包含三層式通訊架構：應用層(UAP)、傳輸協定層(UTP)和互連層(UIC)。內容涵蓋各層的功能、服務存取點、設備管理器、任務管理器，以及基於MIPI UniPro和M-PHY的底層實作。本章節能回答UFS系統架構組成、各層間通訊機制、設備啟動流程，以及與SCSI命令集整合等相關問題。",
+  "keywords": [
+    "UFS Architecture",
+    "UTP",
+    "UIC",
+    "MIPI UniPro",
+    "SCSI",
+    "Service Access Points"
+  ],
+  "page_range": "29-39"
+}

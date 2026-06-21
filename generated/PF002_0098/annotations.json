@@ -1,0 +1,52 @@
+{
+  "phases": [
+    {
+      "phase_id": "phase_0",
+      "inputs": [],
+      "outputs": [
+        "boot_lun_id",
+        "boot_lun_enabled"
+      ]
+    },
+    {
+      "phase_id": "phase_1",
+      "inputs": [
+        "boot_lun_id"
+      ],
+      "outputs": [
+        "boot_lun_id",
+        "write_pattern",
+        "write_lba_range"
+      ]
+    },
+    {
+      "phase_id": "loop_stress",
+      "inputs": [
+        "boot_lun_id",
+        "write_pattern",
+        "write_lba_range"
+      ],
+      "outputs": []
+    }
+  ],
+  "edges": [
+    {
+      "from": "phase_0",
+      "to": "phase_1",
+      "type": "sequential",
+      "data_flow": [
+        "boot_lun_id"
+      ]
+    },
+    {
+      "from": "phase_1",
+      "to": "loop_stress",
+      "type": "sequential",
+      "data_flow": [
+        "boot_lun_id",
+        "write_pattern",
+        "write_lba_range"
+      ]
+    }
+  ]
+}

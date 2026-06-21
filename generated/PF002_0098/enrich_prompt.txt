@@ -1,0 +1,315 @@
+You are a UFS test architecture expert. Given a UFS test
+pattern skeleton and relevant UFS spec excerpts, identify:
+1. What data variables each phase produces as outputs
+2. What data variables each phase needs as inputs
+3. The data_flow on each sequential edge between phases
+
+Rules:
+- Variables are snake_case (e.g. boot_lun_id, max_lba, write_pattern)
+- Only include variables explicitly passed between phases
+- Respond with ONLY valid JSON of this exact shape:
+{
+  "phases": [{"phase_id": "...", "inputs": [...], "outputs": [...]}],
+  "edges": [{"from": "...", "to": "...", "type": "sequential", "data_flow": [...]}]
+}
+
+Pattern: PF002_0098 — PF002_0098_Boot_Stress-Normalized-TestFlow
+
+## Conflict-Resolved Overrides (CustomerReq>Spec, UserPrompt>ModelDefault)
+---
+type: conflict-log
+updated: 2026-06-21
+sources: [spec, script, customerreq, userprompt, modeldefault, pronoun]
+total_conflicts: 2
+---
+
+# Conflict Log
+
+This file records all detected conflicts between the six source documents. Each conflict identifies the two sources in tension, the applicable rule, the resolution decision, and the wiki pages affected.
+
+---
+
+## Conflict Resolution Rules
+
+| Rule | Sources | Winner | Action |
+|------|---------|--------|--------|
+| Rule 1 | CustomerReq vs Spec | CustomerReq WINS | Spec value DELETED; CustomerReq value KEPT |
+| Rule 2 | UserPrompt vs ModelDefault | UserPrompt WINS | ModelDefault value DELETED; UserPrompt value KEPT |
+| Default | Any other pair | KEEP BOTH | Both values retained; annotated for downstream consumers |
+
+---
+
+## Conflict #1 — WriteBooster LUN Restriction
+
+**Rule**: Rule 1 (CustomerReq vs Spec → CustomerReq WINS)
+
+### Source A: Spec (`wiki/sources/spec.md`)
+
+The UFS 4.1 Specification places no restriction on which LUNs may receive WriteBooster-related Attribute/Flag operations. Section 2.3 (WriteBooster) defines fWriteBoosterEn, fWriteBoosterBufferFlushEn, bWriteBoosterBufferType, etc. without any constraint on LUN number
+
+## Phase Skeleton
+
+### phase_0: Boot LU 配置與啟用 (type=sequential)
+  - step_0_1: 確認裝置就緒 [TEST UNIT READY (00h)]
+    expected: `GOOD Status`
+  - step_0_2: 讀取 Device Descriptor（確認 Boot 支援） [READ DESCRIPTOR (Device Descriptor)]
+    expected: `QUERY RESPONSE Success`，回傳完整 Device Descriptor，確認 `bBootEnable` 欄位存在
+  - step_0_3: 讀取 bBootLunEn 目前狀態 [READ ATTRIBUTE (bBootLunEn)]
+    expected: `QUERY RESPONSE Success`
+  - step_0_4: 啟用 Boot LU [WRITE ATTRIBUTE (bBootLunEn)]
+    expected: `QUERY RESPONSE Success`
+  - step_0_5: 確認 Boot LU 已啟用 [READ ATTRIBUTE (bBootLunEn)]
+    expected: `QUERY RESPONSE Success`，`bBootLunEn != 0x00`（至少一個 Boot LU 已啟用）
+  - step_0_6: 取得 Boot LU 之 LUN Number [READ DESCRIPTOR (Unit Descriptor)]
+    expected: `QUERY RESPONSE Success`，回傳 `bBootLunID` 欄位值（對應 LUN number）
+
+  ## Relevant Wiki (31 ingested pages)
+  ### UFS Attributes
+---
+type: entity
+title: "UFS Attributes"
+tags: [attributes, query, idn, power-mode, psa, writebooster]
+sources: [spec]
+created: 2026-06-21
+updated: 2026-06-21
+---
+
+# UFS Attributes
+
+Attributes are multi-byte device parameters, accessed via QUERY REQUEST UPIU (OPCODE 03h READ ATTRIBUTE / 04h WRITE ATTRIBUTE). The value field is 64-bit big-endian right-justified in the QUERY RESPONSE.
+
+## Query OPCODEs
+
+| OPCODE | Value | Description |
+|--------|-------|-------------|
+| READ ATTRIBUTE | 03h | Read current attribute value |
+| WRITE ATTRIBUTE | 04h | Write new attribute value |
+
+The IDN, INDEX, and SELECTOR fields address each attribute. Most attributes use INDEX=0 and SELECTOR=0; exceptions include wContextConf (INDEX=LUN, SELECTOR=ContextID).
+
+## Attribute Table
+
+| IDN | Name | Access | Size
+  ### Configuration Descriptor (IDN 01h)
+---
+type: entity
+title: "Configuration Descriptor (IDN 01h)"
+tags: [descriptor, configuration, query, ufs, lun]
+sources: [spec]
+created: 2026-06-21
+updated: 2026-06-21
+aliases: [Configuration Descriptor, IDN 01h, Config Descriptor, bDescriptorIDN 01h]
+---
+
+# Configuration Descriptor (IDN 01h)
+
+The Configuration Descriptor defines how the UFS device is partitioned into Logical Units. It is writable before `bConfigDescrLock` is set, and contains per-LU provisioning parameters for up to 8 LUs per configuration block.
+
+- **IDN**: 01h
+- **INDEX**: 00h–03h (each index covers 8 LUs; total up to 32 LUs)
+- **Access**: Read (OPCODE=01h) / Write (OPCODE=02h) — write allowed only when `bConfigDescrLock = 0`
+
+## Configuration Descriptor Structure
+
+A Configuration Descriptor (one INDEX) consists of:
+1. 
+  ### Device Descriptor (IDN 00h)
+---
+type: entity
+title: "Device Descriptor (IDN 00h)"
+tags: [descriptor, device, query, ufs]
+sources: [spec]
+created: 2026-06-21
+updated: 2026-06-21
+aliases: [Device Descriptor, IDN 00h, bDescriptorIDN 00h]
+---
+
+# Device Descriptor (IDN 00h)
+
+The Device Descriptor is the top-level descriptor of a UFS device. It identifies the manufacturer, product, spec version, LU count, and device capabilities. It is read-only and accessed via QUERY REQUEST with OPCODE=01h (READ DESCRIPTOR).
+
+- **IDN**: 00h
+- **bLength**: 59h (89 bytes for UFS 4.1)
+- **Access**: Read only (OPCODE=01h); host queries INDEX=00h, SELECTOR=00h
+
+## Field Table
+
+| Offset | Field | Value / Notes |
+|--------|-------|---------------|
+| 00h | bLength | 59h |
+| 01h | bDescriptorIDN | 00h |
+| 02h | bDevice | Device class |
+| 03h | bD
+
+### phase_1: 寫入 Boot LU 測試資料 (type=sequential)
+  - step_1_1: 寫入測試資料至 Boot LU [WRITE(10) (2Ah)]
+    expected: `GOOD Status`
+  - step_1_2: 讀取比對確認寫入 [READ(10) (28h)]
+    expected: `GOOD Status` + `Data Match`
+
+  ## Relevant Wiki (27 ingested pages)
+  ### UFS Attributes
+---
+type: entity
+title: "UFS Attributes"
+tags: [attributes, query, idn, power-mode, psa, writebooster]
+sources: [spec]
+created: 2026-06-21
+updated: 2026-06-21
+---
+
+# UFS Attributes
+
+Attributes are multi-byte device parameters, accessed via QUERY REQUEST UPIU (OPCODE 03h READ ATTRIBUTE / 04h WRITE ATTRIBUTE). The value field is 64-bit big-endian right-justified in the QUERY RESPONSE.
+
+## Query OPCODEs
+
+| OPCODE | Value | Description |
+|--------|-------|-------------|
+| READ ATTRIBUTE | 03h | Read current attribute value |
+| WRITE ATTRIBUTE | 04h | Write new attribute value |
+
+The IDN, INDEX, and SELECTOR fields address each attribute. Most attributes use INDEX=0 and SELECTOR=0; exceptions include wContextConf (INDEX=LUN, SELECTOR=ContextID).
+
+## Attribute Table
+
+| IDN | Name | Access | Size
+  ### Configuration Descriptor (IDN 01h)
+---
+type: entity
+title: "Configuration Descriptor (IDN 01h)"
+tags: [descriptor, configuration, query, ufs, lun]
+sources: [spec]
+created: 2026-06-21
+updated: 2026-06-21
+aliases: [Configuration Descriptor, IDN 01h, Config Descriptor, bDescriptorIDN 01h]
+---
+
+# Configuration Descriptor (IDN 01h)
+
+The Configuration Descriptor defines how the UFS device is partitioned into Logical Units. It is writable before `bConfigDescrLock` is set, and contains per-LU provisioning parameters for up to 8 LUs per configuration block.
+
+- **IDN**: 01h
+- **INDEX**: 00h–03h (each index covers 8 LUs; total up to 32 LUs)
+- **Access**: Read (OPCODE=01h) / Write (OPCODE=02h) — write allowed only when `bConfigDescrLock = 0`
+
+## Configuration Descriptor Structure
+
+A Configuration Descriptor (one INDEX) consists of:
+1. 
+  ### Device Descriptor (IDN 00h)
+---
+type: entity
+title: "Device Descriptor (IDN 00h)"
+tags: [descriptor, device, query, ufs]
+sources: [spec]
+created: 2026-06-21
+updated: 2026-06-21
+aliases: [Device Descriptor, IDN 00h, bDescriptorIDN 00h]
+---
+
+# Device Descriptor (IDN 00h)
+
+The Device Descriptor is the top-level descriptor of a UFS device. It identifies the manufacturer, product, spec version, LU count, and device capabilities. It is read-only and accessed via QUERY REQUEST with OPCODE=01h (READ DESCRIPTOR).
+
+- **IDN**: 00h
+- **bLength**: 59h (89 bytes for UFS 4.1)
+- **Access**: Read only (OPCODE=01h); host queries INDEX=00h, SELECTOR=00h
+
+## Field Table
+
+| Offset | Field | Value / Notes |
+|--------|-------|---------------|
+| 00h | bLength | 59h |
+| 01h | bDescriptorIDN | 00h |
+| 02h | bDevice | Device class |
+| 03h | bD
+
+### loop_5: Reset + Reboot Stress (100 次) (type=loop)
+  loop_count: 100
+  - step_L_1: Random Reset [—]
+    expected: Device 完成 Link Startup，`fDeviceInit == 1`
+  - step_L_2: 確認 Device 就緒 [TEST UNIT READY (00h)]
+    expected: `GOOD Status`
+  - step_L_3: 確認 LUN 進入 Active State [START STOP UNIT (1Bh)]
+    expected: `GOOD Status`，Boot LU 可進行 READ/WRITE
+  - step_L_4: Read Compare Boot Data [READ(10) (28h)]
+    expected: `GOOD Status` + `Data Match`
+
+  ## Relevant Wiki (21 ingested pages)
+  ### UFS Attributes
+---
+type: entity
+title: "UFS Attributes"
+tags: [attributes, query, idn, power-mode, psa, writebooster]
+sources: [spec]
+created: 2026-06-21
+updated: 2026-06-21
+---
+
+# UFS Attributes
+
+Attributes are multi-byte device parameters, accessed via QUERY REQUEST UPIU (OPCODE 03h READ ATTRIBUTE / 04h WRITE ATTRIBUTE). The value field is 64-bit big-endian right-justified in the QUERY RESPONSE.
+
+## Query OPCODEs
+
+| OPCODE | Value | Description |
+|--------|-------|-------------|
+| READ ATTRIBUTE | 03h | Read current attribute value |
+| WRITE ATTRIBUTE | 04h | Write new attribute value |
+
+The IDN, INDEX, and SELECTOR fields address each attribute. Most attributes use INDEX=0 and SELECTOR=0; exceptions include wContextConf (INDEX=LUN, SELECTOR=ContextID).
+
+## Attribute Table
+
+| IDN | Name | Access | Size
+  ### Configuration Descriptor (IDN 01h)
+---
+type: entity
+title: "Configuration Descriptor (IDN 01h)"
+tags: [descriptor, configuration, query, ufs, lun]
+sources: [spec]
+created: 2026-06-21
+updated: 2026-06-21
+aliases: [Configuration Descriptor, IDN 01h, Config Descriptor, bDescriptorIDN 01h]
+---
+
+# Configuration Descriptor (IDN 01h)
+
+The Configuration Descriptor defines how the UFS device is partitioned into Logical Units. It is writable before `bConfigDescrLock` is set, and contains per-LU provisioning parameters for up to 8 LUs per configuration block.
+
+- **IDN**: 01h
+- **INDEX**: 00h–03h (each index covers 8 LUs; total up to 32 LUs)
+- **Access**: Read (OPCODE=01h) / Write (OPCODE=02h) — write allowed only when `bConfigDescrLock = 0`
+
+## Configuration Descriptor Structure
+
+A Configuration Descriptor (one INDEX) consists of:
+1. 
+  ### Device Descriptor (IDN 00h)
+---
+type: entity
+title: "Device Descriptor (IDN 00h)"
+tags: [descriptor, device, query, ufs]
+sources: [spec]
+created: 2026-06-21
+updated: 2026-06-21
+aliases: [Device Descriptor, IDN 00h, bDescriptorIDN 00h]
+---
+
+# Device Descriptor (IDN 00h)
+
+The Device Descriptor is the top-level descriptor of a UFS device. It identifies the manufacturer, product, spec version, LU count, and device capabilities. It is read-only and accessed via QUERY REQUEST with OPCODE=01h (READ DESCRIPTOR).
+
+- **IDN**: 00h
+- **bLength**: 59h (89 bytes for UFS 4.1)
+- **Access**: Read only (OPCODE=01h); host queries INDEX=00h, SELECTOR=00h
+
+## Field Table
+
+| Offset | Field | Value / Notes |
+|--------|-------|---------------|
+| 00h | bLength | 59h |
+| 01h | bDescriptorIDN | 00h |
+| 02h | bDevice | Device class |
+| 03h | bD

@@ -1,0 +1,14 @@
+{
+  "file": "62_12473_rpmb_operations_in_normal_rpmb_mode.md",
+  "title": "12.4.7.3 RPMB Operations in Normal RPMB Mode",
+  "description": "本章節涵蓋RPMB（Replay Protected Memory Block）在正常模式下的操作規範，包括認證金鑰程式設計、計數器值讀取、認證資料寫入和讀取等四大核心功能。詳細說明了使用SECURITY PROTOCOL命令進行RPMB操作的完整流程、資料框架結構、錯誤處理機制和MAC驗證程序。",
+  "keywords": [
+    "RPMB",
+    "authentication",
+    "security protocol",
+    "MAC verification",
+    "write counter",
+    "data protection"
+  ],
+  "page_range": "325-344"
+}

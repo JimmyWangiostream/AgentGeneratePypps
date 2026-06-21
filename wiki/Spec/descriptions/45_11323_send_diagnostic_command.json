@@ -1,0 +1,14 @@
+{
+  "file": "45_11323_send_diagnostic_command.md",
+  "title": "11.3.23 SEND DIAGNOSTIC Command",
+  "description": "本章節詳細說明SEND DIAGNOSTIC命令的規格，該命令用於要求設備伺服器對SCSI目標設備或邏輯單元執行診斷操作。內容涵蓋命令的CDB格式、各種診斷參數設定（包括自我測試代碼、參數格式等），以及資料傳輸流程和狀態回應處理。",
+  "keywords": [
+    "SEND DIAGNOSTIC",
+    "SCSI",
+    "self-test",
+    "diagnostic operations",
+    "CDB format",
+    "status response"
+  ],
+  "page_range": "252-253"
+}

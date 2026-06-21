@@ -1,0 +1,14 @@
+{
+  "file": "07_7_reset_power-up_and_power-down.md",
+  "title": "7 Reset, Power-Up And  Power-Down",
+  "description": "本章節詳細說明UFS設備的重置、上電和斷電相關規範。涵蓋五種重置類型（電源重置、硬體重置、EndPointReset、邏輯單元重置、主機UniPro溫重置）的操作流程與時序參數，以及電源上下電的電壓斜坡要求與設備電源模式管理。此章節可回答UFS設備重置機制、電源管理策略和各種重置對設備狀態影響的相關問題。",
+  "keywords": [
+    "reset",
+    "power-up",
+    "power-down",
+    "power modes",
+    "hardware reset",
+    "endpoint reset"
+  ],
+  "page_range": "54-76"
+}

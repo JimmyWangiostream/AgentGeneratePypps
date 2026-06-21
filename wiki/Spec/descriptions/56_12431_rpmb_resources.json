@@ -1,0 +1,14 @@
+{
+  "file": "56_12431_rpmb_resources.md",
+  "title": "12.4.3.1 RPMB Resources",
+  "description": "此章節詳細說明了RPMB（Replay Protected Memory Block）資源的技術規格與組成要素。涵蓋了驗證金鑰、寫入計數器、結果暫存器、資料區域以及安全寫入保護配置區塊等核心組件的規格定義，並包含MAC計算演算法、訊息格式與請求/回應類型等實作細節，適用於需要了解UFS設備RPMB功能實作與安全認證機制的技術問題。",
+  "keywords": [
+    "RPMB",
+    "authentication",
+    "MAC",
+    "write protection",
+    "security",
+    "UFS"
+  ],
+  "page_range": "299-310"
+}

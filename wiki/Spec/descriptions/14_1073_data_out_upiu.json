@@ -1,0 +1,14 @@
+{
+  "file": "14_1073_data_out_upiu.md",
+  "title": "10.7.3 DATA OUT UPIU",
+  "description": "本章節詳細說明 DATA OUT UPIU 的格式與運作機制，涵蓋從啟動裝置到目標裝置的資料寫入傳輸協定。內容包括 UPIU 標頭格式、各欄位定義（如資料緩衝區偏移、資料傳輸計數）、亂序傳輸規則，以及 SCSI 寫入交易的具體實作範例。",
+  "keywords": [
+    "DATA OUT UPIU",
+    "data transfer",
+    "write operation",
+    "UPIU header",
+    "data segment",
+    "out of order sequencing"
+  ],
+  "page_range": "117-120"
+}

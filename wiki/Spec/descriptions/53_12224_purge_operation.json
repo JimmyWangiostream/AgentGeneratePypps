@@ -1,0 +1,14 @@
+{
+  "file": "53_12224_purge_operation.md",
+  "title": "12.2.2.4 Purge Operation",
+  "description": "本章節描述UFS設備中的清除操作(Purge Operation)，說明如何從未使用的物理區塊中移除所有資料以防範晶片層級攻擊。詳細介紹了RPMB清除操作的特殊變體，包括其執行機制、對其他操作的影響，以及在UFS4.0中作為強制功能的要求。",
+  "keywords": [
+    "purge operation",
+    "RPMB purge",
+    "secure removal",
+    "physical blocks",
+    "UFS4.0",
+    "die level attacks"
+  ],
+  "page_range": "290-292"
+}

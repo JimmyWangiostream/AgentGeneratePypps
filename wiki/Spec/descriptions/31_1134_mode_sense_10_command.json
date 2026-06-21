@@ -1,0 +1,14 @@
+{
+  "file": "31_1134_mode_sense_10_command.md",
+  "title": "11.3.4 MODE SENSE (10) Command",
+  "description": "本章節詳細說明UFS設備中MODE SENSE (10)命令的規格和實作細節。涵蓋命令參數定義、頁面控制功能、資料傳輸機制以及狀態回應處理，包括支援的模式頁面類型和錯誤處理機制。此章節可回答關於MODE SENSE命令格式、參數設定、資料傳輸流程和錯誤狀態處理的相關問題。",
+  "keywords": [
+    "MODE SENSE",
+    "command parameters",
+    "page control",
+    "data transfer",
+    "status response",
+    "UFS"
+  ],
+  "page_range": "210-213"
+}

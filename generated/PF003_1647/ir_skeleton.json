@@ -1,0 +1,746 @@
+{
+  "skeleton": {
+    "pattern_id": "PF003_1647",
+    "title": "PF003_1647_NonFUA_SyncCache_L1_PPP-Normalized-TestFlow",
+    "description": "PF003_1647 Non-FUA Sync Cache L1 PPP Test — 混合 WriteBooster MIX mode (SLC L2)",
+    "tags": [
+      "test-flow",
+      "ufs",
+      "pf003_1647",
+      "scsi-cmd",
+      "non-fua",
+      "sync-cache",
+      "write-booster",
+      "l1-ppp",
+      "flush"
+    ],
+    "phases": [
+      {
+        "phase_id": "phase_0",
+        "name": "初始化與 WriteBooster 配置",
+        "type": "sequential",
+        "loop_type": null,
+        "loop_count": null,
+        "loop_condition": null,
+        "steps": [
+          {
+            "step_id": "step_0_1",
+            "name": "裝置相容性檢查",
+            "scsi_cmd": null,
+            "ufs_query": null,
+            "opcode": null,
+            "query_opcode": null,
+            "idn": null,
+            "expected": "",
+            "fail_condition": null,
+            "on_fail": null,
+            "raw_content": "**目的**: 確認 IC / NAND 組合為支援的配置。\n\n| Check | Expected Value |\n|-------|---------------|\n| IC | 8329 |\n| NAND | BICS8 |\n\n**若不支援**: Pattern 判定為 `NOT SUPPORTED`，終止測試。\n\n**備註**: PS8363 KIC 不支援 MIX mode，跳過 WB fill flow。\n\n---"
+          },
+          {
+            "step_id": "step_0_2",
+            "name": "確認裝置就緒",
+            "scsi_cmd": "TEST UNIT READY (00h)",
+            "ufs_query": null,
+            "opcode": "0x00",
+            "query_opcode": null,
+            "idn": null,
+            "expected": "`GOOD Status`",
+            "fail_condition": null,
+            "on_fail": null,
+            "raw_content": "**SCSI CMD**: `TEST UNIT READY (00h)`\n\n| Field | Value |\n|-------|-------|\n| Opcode | 0x00 |\n\n**Expected**: `GOOD Status`。\n\n**UFS SPEC Reference**: JESD220H Section 10.7.2\n\n---"
+          },
+          {
+            "step_id": "step_0_3",
+            "name": "配置 WriteBooster Buffer（Configuration Descriptor）",
+            "scsi_cmd": null,
+            "ufs_query": "WRITE DESCRIPTOR (Configuration Descriptor)",
+            "opcode": null,
+            "query_opcode": "0x08 (WRITE DESCRIPTOR)",
+            "idn": "0x01 (Configuration Descriptor)",
+            "expected": "`QUERY RESPONSE Success`",
+            "fail_condition": null,
+            "on_fail": null,
+            "raw_content": "**UFS QUERY**: `WRITE DESCRIPTOR (Configuration Descriptor)`\n\n**目的**: 透過 Configuration Descriptor 設定 WriteBooster 為 Shared Type + MAX buffer size。\n`dLUNumWriteBoosterBufferAllocUnits` (IDN 0x17) 為唯讀 Attribute，不可用 WRITE ATTRIBUTE 寫入。\n\n| Field | Value |\n|-------|-------|\n| Query Opcode | 0x08 (WRITE DESCRIPTOR) |\n| IDN | 0x01 (Configuration Descriptor) |\n| Index | 0x00 |\n| Selector | 0x00 |\n| bWriteBoosterBufferType | 0x01 (Shared Buffer Type) |\n| dLUNumWriteBoosterBufferAllocUnits | MAX (取自 Device Descriptor) |\n\n**Expected**: `QUERY RESPONSE Success`。\n\n**UFS SPEC Reference**: JESD220H Section 14.1.4.5 (Configuration Descriptor), Section 14.3.1 (dLUNumWriteBoosterBufferAllocUnits 為 R/O)\n\n---"
+          },
+          {
+            "step_id": "step_0_4",
+            "name": "Erase All Card",
+            "scsi_cmd": "UNMAP (42h)",
+            "ufs_query": "SET FLAG (fPurgeEnable, IDN 0x06)",
+            "opcode": null,
+            "query_opcode": null,
+            "idn": null,
+            "expected": "Purge 完成，`bPurgeStatus == 0x00`",
+            "fail_condition": "NOT (Purge 完成，`bPurgeStatus == 0x00`)",
+            "on_fail": "abort",
+            "raw_content": "**SCSI CMD**: `UNMAP (42h)` + **UFS QUERY**: `SET FLAG (fPurgeEnable, IDN 0x06)`\n\n| Field | Value |\n|-------|-------|\n| UNMAP Opcode | 0x42 |\n| UNMAP LUN | All LUNs |\n| UNMAP LBA Range | 0 ~ MAX_LBA |\n| SET FLAG Opcode | 0x02 |\n| SET FLAG IDN | 0x06 (fPurgeEnable) |\n| SET FLAG Value | 0x01 (Set) |\n\n**Expected**: Purge 完成，`bPurgeStatus == 0x00`。\n\n**UFS SPEC Reference**: JESD220H Section 13.4.11 (PURGE)\n\n---"
+          },
+          {
+            "step_id": "step_0_5",
+            "name": "取得 LUN 容量",
+            "scsi_cmd": "READ CAPACITY(10) (25h)",
+            "ufs_query": null,
+            "opcode": "0x25",
+            "query_opcode": null,
+            "idn": null,
+            "expected": "`GOOD Status`，取得 `TOTAL_LBA` 與 Block Size",
+            "fail_condition": null,
+            "on_fail": null,
+            "raw_content": "**SCSI CMD**: `READ CAPACITY(10) (25h)`\n\n| Field | Value |\n|-------|-------|\n| Opcode | 0x25 |\n| LUN | All LUNs |\n\n**Expected**: `GOOD Status`，取得 `TOTAL_LBA` 與 Block Size。\n\n**UFS SPEC Reference**: JESD220H Section 10.7.2\n\n---"
+          }
+        ]
+      },
+      {
+        "phase_id": "phase_1",
+        "name": "WB Enable + Fill Buffer",
+        "type": "sequential",
+        "loop_type": null,
+        "loop_count": null,
+        "loop_condition": null,
+        "steps": [
+          {
+            "step_id": "step_1_1",
+            "name": "啟用 WriteBooster",
+            "scsi_cmd": null,
+            "ufs_query": "SET FLAG (fWriteBoosterEn)",
+            "opcode": null,
+            "query_opcode": "0x02 (SET FLAG)",
+            "idn": "0x0E (fWriteBoosterEn)",
+            "expected": "`QUERY RESPONSE Success`",
+            "fail_condition": null,
+            "on_fail": null,
+            "raw_content": "**UFS QUERY**: `SET FLAG (fWriteBoosterEn)`\n\n| Field | Value |\n|-------|-------|\n| Query Opcode | 0x02 (SET FLAG) |\n| IDN | 0x0E (fWriteBoosterEn) |\n| Value | 0x01 (Set) |\n\n**Expected**: `QUERY RESPONSE Success`。\n\n**UFS SPEC Reference**: JESD220H Section 14.2 (Flags), Section 13.4.18 (WriteBooster)\n\n---"
+          },
+          {
+            "step_id": "step_1_2",
+            "name": "Sequential Write Fill WB Buffer（FUA=1）",
+            "scsi_cmd": "WRITE(10) (2Ah)",
+            "ufs_query": null,
+            "opcode": "0x2A",
+            "query_opcode": null,
+            "idn": null,
+            "expected": "`GOOD Status`（全部 chunks 寫入成功）",
+            "fail_condition": null,
+            "on_fail": null,
+            "raw_content": "**SCSI CMD**: `WRITE(10) (2Ah)`\n\n**目的**: 以 FUA=1 對 LUN0 從 LBA=0 開始循序寫入，填滿 WB Buffer（MIX mode = SLC L2）。\n\n| Field | Value |\n|-------|-------|\n| Opcode | 0x2A |\n| LUN | 0 (LUN0) |\n| Logical Block Address | 0x00000000 |\n| Transfer Length | per chunk = 1GB (2097152 blocks @ 512B) |\n| FUA bit | 1 (Force Unit Access) |\n| Total Length | dLUNumWriteBoosterBufferAllocUnits (WB Buffer Total) |\n\n**Expected**: `GOOD Status`（全部 chunks 寫入成功）。\n\n**UFS SPEC Reference**: JESD220H Section 13.4.18 (WriteBooster), SBC-4 5.43 (FUA)\n\n---"
+          },
+          {
+            "step_id": "step_1_3",
+            "name": "停用 WriteBooster",
+            "scsi_cmd": null,
+            "ufs_query": "CLEAR FLAG (fWriteBoosterEn)",
+            "opcode": null,
+            "query_opcode": "0x05 (CLEAR FLAG)",
+            "idn": "0x0E (fWriteBoosterEn)",
+            "expected": "`QUERY RESPONSE Success`",
+            "fail_condition": null,
+            "on_fail": null,
+            "raw_content": "**UFS QUERY**: `CLEAR FLAG (fWriteBoosterEn)`\n\n| Field | Value |\n|-------|-------|\n| Query Opcode | 0x05 (CLEAR FLAG) |\n| IDN | 0x0E (fWriteBoosterEn) |\n\n**Expected**: `QUERY RESPONSE Success`。\n\n**UFS SPEC Reference**: JESD220H Section 14.2 (Flags)\n\n---"
+          }
+        ]
+      },
+      {
+        "phase_id": "loop_6",
+        "name": "Burn-in",
+        "type": "loop",
+        "loop_type": "condition",
+        "loop_count": null,
+        "loop_condition": null,
+        "steps": [
+          {
+            "step_id": "step_2_1",
+            "name": "Random Big Chunk Write to L2（Non-FUA, FUA=0）",
+            "scsi_cmd": "WRITE(10) (2Ah)",
+            "ufs_query": null,
+            "opcode": "0x2A",
+            "query_opcode": null,
+            "idn": null,
+            "expected": "`GOOD Status`",
+            "fail_condition": null,
+            "on_fail": null,
+            "raw_content": "**SCSI CMD**: `WRITE(10) (2Ah)`\n\n**目的**: Chunk size ≥ TLC L2 threshold，確保資料寫入 TLC L2（big chunk mode）。\n\n| Field | Value |\n|-------|-------|\n| Opcode | 0x2A |\n| LUN | All LUNs |\n| Logical Block Address | Random (total_WB_size ~ TOTAL_LBA) |\n| Transfer Length | Random (TLC_L2_THRESHOLD ~ TLC_L2_THRESHOLD + 5) (units) |\n| FUA bit | 0 (Non-FUA) |\n\n**Expected**: `GOOD Status`。\n\n**UFS SPEC Reference**: JESD220H Section 10.7.2, SBC-4 5.43\n\n---"
+          },
+          {
+            "step_id": "step_2_2",
+            "name": "Random Small Chunk Write to L1（Non-FUA, FUA=0）",
+            "scsi_cmd": "WRITE(10) (2Ah)",
+            "ufs_query": null,
+            "opcode": "0x2A",
+            "query_opcode": null,
+            "idn": null,
+            "expected": "`GOOD Status`",
+            "fail_condition": null,
+            "on_fail": null,
+            "raw_content": "**SCSI CMD**: `WRITE(10) (2Ah)`\n\n**目的**: Chunk size < TLC L2 threshold，確保資料寫入 TLC L1（small chunk mode）。\n\n| Field | Value |\n|-------|-------|\n| Opcode | 0x2A |\n| LUN | All LUNs |\n| Logical Block Address | Random (total_WB_size ~ TOTAL_LBA) |\n| Transfer Length | Random (1 ~ TLC_L2_THRESHOLD - 1) (units) |\n| FUA bit | 0 (Non-FUA) |\n\n**Expected**: `GOOD Status`。\n\n**UFS SPEC Reference**: JESD220H Section 10.7.2, SBC-4 5.43\n\n---\n\n### Phase 3 — Random Flush + Read Compare"
+          },
+          {
+            "step_id": "step_3_1",
+            "name": "Random Flush",
+            "scsi_cmd": null,
+            "ufs_query": null,
+            "opcode": null,
+            "query_opcode": null,
+            "idn": null,
+            "expected": "依所選機制完成 Flush",
+            "fail_condition": null,
+            "on_fail": null,
+            "raw_content": "**目的**: 隨機選取一種 Flush 機制，確保 Non-FUA 寫入的資料從 cache 落 NAND。\n\n**Flush 類型**（隨機選一）:\n\n| # | Flush Method | Mechanism |\n|:---|:---|:---|\n| 1 | Sync Cache | `SYNCHRONIZE CACHE(10) (35h)` |\n| 2 | Sleep / Awake | `START STOP UNIT` → Sleep → Start |\n| 3 | Power Down / Active | `START STOP UNIT` → Power Down → Active |\n| 4 | Reset + Power Down/Active | HW_RESET / RST_n / EndPoint / UniPro Reset → Power cycle |\n| 5 | Auto Standby | Idle 10s + Hibernate entry + current < 2mA |\n\n**Expected**: 依所選機制完成 Flush。\n\n**UFS SPEC Reference**: JESD220H Section 10.2.5 (Power Conditions), Section 10.4 (Reset)\n\n---"
+          },
+          {
+            "step_id": "step_3_2",
+            "name": "Read Compare（Step 2.1 + 2.2 資料）",
+            "scsi_cmd": "READ(10) (28h)",
+            "ufs_query": null,
+            "opcode": "0x28",
+            "query_opcode": null,
+            "idn": null,
+            "expected": "`GOOD Status` + `Data Match`",
+            "fail_condition": "NOT (`GOOD Status` + `Data Match`)",
+            "on_fail": "abort",
+            "raw_content": "**SCSI CMD**: `READ(10) (28h)`\n\n| Field | Value |\n|-------|-------|\n| Opcode | 0x28 |\n| LUN | Step 2.1/2.2 使用之 LUN |\n| Logical Block Address | Step 2.1/2.2 寫入之 LBA |\n| Transfer Length | Step 2.1/2.2 寫入之大小 |\n\n**Expected**: `GOOD Status` + `Data Match`。\n\n**UFS SPEC Reference**: JESD220H Section 10.7.2, SBC-4 5.18\n\n---"
+          },
+          {
+            "step_id": "step_3_3",
+            "name": "Random Power / Reset Case",
+            "scsi_cmd": null,
+            "ufs_query": null,
+            "opcode": null,
+            "query_opcode": null,
+            "idn": null,
+            "expected": "Device 恢復就緒，`fDeviceInit == 1`",
+            "fail_condition": null,
+            "on_fail": null,
+            "raw_content": "**目的**: 隨機選取一種 Power Transition 或 Reset，模擬異常中斷情境。\n\n**Case 類型**（隨機選一）:\n\n| # | Case | 說明 |\n|:---|:---|:---|\n| 1 | SPOR | Sudden Power-Off Recovery |\n| 2 | Sleep / Awake | Power Condition transition |\n| 3 | Reset + Power Down/Active | HW_RESET / RST_n / EndPoint / UniPro → Power cycle |\n| 4 | Hibernate Enter / Exit | Hibernate state transition |\n| 5 | Auto Standby | Idle 10s + HIB + current < 2mA |\n| 6 | Power Down / Active | Simple power cycle |\n\n**Expected**: Device 恢復就緒，`fDeviceInit == 1`。\n\n**UFS SPEC Reference**: JESD220H Section 10.2.5 (Power Conditions), Section 10.4 (Reset), Section 13.4.12 (SPOR)\n\n---"
+          },
+          {
+            "step_id": "step_3_4",
+            "name": "Read Compare（Step 2.1 + 2.2 資料，Post Power Case）",
+            "scsi_cmd": "READ(10) (28h)",
+            "ufs_query": null,
+            "opcode": "0x28",
+            "query_opcode": null,
+            "idn": null,
+            "expected": "`GOOD Status` + `Data Match`",
+            "fail_condition": "NOT (`GOOD Status` + `Data Match`)",
+            "on_fail": "abort",
+            "raw_content": "**SCSI CMD**: `READ(10) (28h)`\n\n| Field | Value |\n|-------|-------|\n| Opcode | 0x28 |\n| LUN | Step 2.1/2.2 使用之 LUN |\n| Logical Block Address | Step 2.1/2.2 寫入之 LBA |\n| Transfer Length | Step 2.1/2.2 寫入之大小 |\n\n**Expected**: `GOOD Status` + `Data Match`。\n\n**UFS SPEC Reference**: JESD220H Section 10.7.2\n\n---\n\n### Phase 4 — Random Multi-CMD Write + Flush + Compare"
+          },
+          {
+            "step_id": "step_4_1",
+            "name": "Random Multi-CMD Write（Non-FUA, FUA=0）",
+            "scsi_cmd": "WRITE(10) (2Ah)",
+            "ufs_query": null,
+            "opcode": "0x2A",
+            "query_opcode": null,
+            "idn": null,
+            "expected": "`GOOD Status`（所有 N 個命令）",
+            "fail_condition": null,
+            "on_fail": null,
+            "raw_content": "**SCSI CMD**: `WRITE(10) (2Ah)` × N (N = Random 20~33)\n\n**目的**: 隨機數量（20~33）的 Non-FUA Write，模擬混合 L1/L2 大量寫入。\n\n| Field | Value |\n|-------|-------|\n| Opcode | 0x2A |\n| LUN | All LUNs |\n| Logical Block Address | Random (total_WB_size ~ TOTAL_LBA) |\n| Transfer Length | Random (1 ~ TLC_L2_THRESHOLD + 5) (units) |\n| FUA bit | 0 (Non-FUA) |\n| Command Count (N) | Random (20 ~ 33) |\n\n**Expected**: `GOOD Status`（所有 N 個命令）。\n\n**UFS SPEC Reference**: JESD220H Section 10.7.2, SBC-4 5.43\n\n---"
+          },
+          {
+            "step_id": "step_4_2",
+            "name": "Random Flush",
+            "scsi_cmd": null,
+            "ufs_query": null,
+            "opcode": null,
+            "query_opcode": null,
+            "idn": null,
+            "expected": "Flush 完成",
+            "fail_condition": null,
+            "on_fail": null,
+            "raw_content": "**目的**: 隨機選取一種 Flush 機制（同 Step 3.1）。\n\n**Flush 類型**: 隨機選一（Sync Cache / Sleep/Awake / Power Down / Reset / Auto Standby）\n\n**Expected**: Flush 完成。\n\n**UFS SPEC Reference**: JESD220H Section 10.2.5, Section 10.4\n\n---"
+          },
+          {
+            "step_id": "step_4_3",
+            "name": "Read Compare（Step 4.1 資料）",
+            "scsi_cmd": "READ(10) (28h)",
+            "ufs_query": null,
+            "opcode": "0x28",
+            "query_opcode": null,
+            "idn": null,
+            "expected": "`GOOD Status` + `Data Match`",
+            "fail_condition": "NOT (`GOOD Status` + `Data Match`)",
+            "on_fail": "abort",
+            "raw_content": "**SCSI CMD**: `READ(10) (28h)`\n\n| Field | Value |\n|-------|-------|\n| Opcode | 0x28 |\n| LUN | Step 4.1 使用之 LUN |\n| Logical Block Address | Step 4.1 寫入之 LBA |\n| Transfer Length | Step 4.1 寫入之大小 |\n\n**Expected**: `GOOD Status` + `Data Match`。\n\n**UFS SPEC Reference**: JESD220H Section 10.7.2\n\n---"
+          }
+        ]
+      },
+      {
+        "phase_id": "phase_F",
+        "name": "Final Read Compare All",
+        "type": "sequential",
+        "loop_type": null,
+        "loop_count": null,
+        "loop_condition": null,
+        "steps": [
+          {
+            "step_id": "step_F_1",
+            "name": "全卡 Read Compare",
+            "scsi_cmd": "READ(10) (28h)",
+            "ufs_query": null,
+            "opcode": "0x28",
+            "query_opcode": null,
+            "idn": null,
+            "expected": "`GOOD Status` + `Data Match All Card`",
+            "fail_condition": "NOT (`GOOD Status` + `Data Match All Card`)",
+            "on_fail": "abort",
+            "raw_content": "**SCSI CMD**: `READ(10) (28h)`\n\n| Field | Value |\n|-------|-------|\n| Opcode | 0x28 |\n| LUN | All LUNs |\n| Logical Block Address | 0x00000000 |\n| Transfer Length | TOTAL_LBA + 1 |\n\n**Expected**: `GOOD Status` + `Data Match All Card`。\n\n**UFS SPEC Reference**: JESD220H Section 10.7.2\n\n---"
+          }
+        ]
+      }
+    ]
+  },
+  "wiki_refs": {
+    "phase_0": [
+      {
+        "title": "UFS Attributes",
+        "file": "entities/attributes.md",
+        "excerpt": "---\ntype: entity\ntitle: \"UFS Attributes\"\ntags: [attributes, query, idn, power-mode, psa, writebooster]\nsources: [spec]\ncreated: 2026-06-21\nupdated: 2026-06-21\n---\n\n# UFS Attributes\n\nAttributes are multi-byte device parameters, accessed via QUERY REQUEST UPIU (OPCODE 03h READ ATTRIBUTE / 04h WRITE ATTRIBUTE). The value field is 64-bit big-endian right-justified in the QUERY RESPONSE.\n\n## Query OPCODEs\n\n| OPCODE | Value | Description |\n|--------|-------|-------------|\n| READ ATTRIBUTE | 03h | Read current attribute value |\n| WRITE ATTRIBUTE | 04h | Write new attribute value |\n\nThe IDN, INDEX, and SELECTOR fields address each attribute. Most attributes use INDEX=0 and SELECTOR=0; exceptions include wContextConf (INDEX=LUN, SELECTOR=ContextID).\n\n## Attribute Table\n\n| IDN | Name | Access | Size | MDV | Description / Enum |\n|-----|------|--------|------|-----|-------------------|\n| 00h | bBootLunEn | Persistent | 1B | 00h | 00h=Boot LU disabled, 01h=Boot LU A active, 02h=Boot LU B active |\n| 01h | Reserved | — | — | — | Reserved (HPB extension) |\n| 02h | bCurrentPowerMode | Read only | 1B | — | Current device power state — see enum below |\n| 03h | bActiveICCLevel | Volatile | 1B | — | Ac"
+      },
+      {
+        "title": "Configuration Descriptor (IDN 01h)",
+        "file": "entities/configuration-descriptor.md",
+        "excerpt": "---\ntype: entity\ntitle: \"Configuration Descriptor (IDN 01h)\"\ntags: [descriptor, configuration, query, ufs, lun]\nsources: [spec]\ncreated: 2026-06-21\nupdated: 2026-06-21\naliases: [Configuration Descriptor, IDN 01h, Config Descriptor, bDescriptorIDN 01h]\n---\n\n# Configuration Descriptor (IDN 01h)\n\nThe Configuration Descriptor defines how the UFS device is partitioned into Logical Units. It is writable before `bConfigDescrLock` is set, and contains per-LU provisioning parameters for up to 8 LUs per configuration block.\n\n- **IDN**: 01h\n- **INDEX**: 00h–03h (each index covers 8 LUs; total up to 32 LUs)\n- **Access**: Read (OPCODE=01h) / Write (OPCODE=02h) — write allowed only when `bConfigDescrLock = 0`\n\n## Configuration Descriptor Structure\n\nA Configuration Descriptor (one INDEX) consists of:\n1. **Header section** — device-level configuration fields\n2. **Unit Descriptor Parameter blocks** — one block per LU (up to 8 LUs per index)\n\n### Header Fields\n\n| Offset | Field | Value / Notes |\n|--------|-------|---------------|\n| 00h | bLength | Total length of this configuration descriptor |\n| 01h | bDescriptorIDN | 01h |\n| 02h | bConfDescContinue | 00h=this is the last config descriptor, 01h=mor"
+      },
+      {
+        "title": "Device Descriptor (IDN 00h)",
+        "file": "entities/device-descriptor.md",
+        "excerpt": "---\ntype: entity\ntitle: \"Device Descriptor (IDN 00h)\"\ntags: [descriptor, device, query, ufs]\nsources: [spec]\ncreated: 2026-06-21\nupdated: 2026-06-21\naliases: [Device Descriptor, IDN 00h, bDescriptorIDN 00h]\n---\n\n# Device Descriptor (IDN 00h)\n\nThe Device Descriptor is the top-level descriptor of a UFS device. It identifies the manufacturer, product, spec version, LU count, and device capabilities. It is read-only and accessed via QUERY REQUEST with OPCODE=01h (READ DESCRIPTOR).\n\n- **IDN**: 00h\n- **bLength**: 59h (89 bytes for UFS 4.1)\n- **Access**: Read only (OPCODE=01h); host queries INDEX=00h, SELECTOR=00h\n\n## Field Table\n\n| Offset | Field | Value / Notes |\n|--------|-------|---------------|\n| 00h | bLength | 59h |\n| 01h | bDescriptorIDN | 00h |\n| 02h | bDevice | Device class |\n| 03h | bDeviceClass | |\n| 04h | bDeviceSubClass | |\n| 05h | bProtocol | |\n| 06h | bNumberLU | Number of enabled LUs |\n| 07h | bNumberWLU | Number of Well-Known LUs |\n| 08h | bBootEnable | 00h=disabled, 01h=bootable, 02h=permanent-bootable |\n| 09h | bDescrAccessEn | |\n| 0Ah | bInitPowerMode | Power mode after init |\n| 0Bh | bHighPriorityLUN | 7Fh=equal priority; or specific LUN index |\n| 0Ch | bSecureRemova"
+      },
+      {
+        "title": "Device Health Descriptor (IDN 09h)",
+        "file": "entities/device-health-descriptor.md",
+        "excerpt": "---\ntype: entity\ntitle: \"Device Health Descriptor (IDN 09h)\"\ntags: [descriptor, health, eol, lifetime, query, ufs]\nsources: [spec]\ncreated: 2026-06-21\nupdated: 2026-06-21\naliases: [Device Health Descriptor, IDN 09h, Health Descriptor, bDescriptorIDN 09h]\n---\n\n# Device Health Descriptor (IDN 09h)\n\nThe Device Health Descriptor provides device wear and lifetime information. It is used to monitor the health of the UFS device's NAND flash, including End-of-Life (EOL) prediction, life-time estimate, and refresh progress tracking.\n\n- **IDN**: 09h\n- **bLength**: 2Dh (45 bytes)\n- **INDEX**: 00h, SELECTOR: 00h\n- **Access**: Read only (OPCODE=01h)\n\n## Field Table\n\n| Offset | Field | Value / Notes |\n|--------|-------|---------------|\n| 00h | bLength | 2Dh |\n| 01h | bDescriptorIDN | 09h |\n| 02h | bPreEOLInfo | Pre-EOL information (see enum below) |\n| 03h | bDeviceLifeTimeEstA | Life-time estimate for memory type A (see enum below) |\n| 04h | bDeviceLifeTimeEstB | Life-time estimate for memory type B (see enum below) |\n| 05h–24h | VendorPropInfo | 32 bytes vendor-specific health info |\n| 25h–28h | dRefreshTotalCount | Total number of refresh operations completed |\n| 29h–2Ch | dRefreshProgress | P"
+      },
+      {
+        "title": "UFS Flags",
+        "file": "entities/flags.md",
+        "excerpt": "---\ntype: entity\ntitle: \"UFS Flags\"\ntags: [flags, query, attribute, idn]\nsources: [spec]\ncreated: 2026-06-21\nupdated: 2026-06-21\n---\n\n# UFS Flags\n\nFlags are single-bit boolean values on the UFS device, accessed via QUERY REQUEST UPIU. Each flag has an IDN (Index Number) and supports specific OPCODE operations.\n\n## Access OPCODEs\n\n| OPCODE | Value | Description |\n|--------|-------|-------------|\n| READ FLAG | 05h | Read current flag value (0 or 1) |\n| SET FLAG | 06h | Set flag to 1 |\n| CLEAR FLAG | 07h | Clear flag to 0 |\n| TOGGLE FLAG | 08h | Toggle current flag value |\n\nThe flag value is returned in **byte 23** of the QUERY RESPONSE UPIU (Flag Value field).\n\nNot all flags support all OPCODEs — see the Access column below.\n\n## Flag Table\n\n| IDN | Name | Access | Default | Description |\n|-----|------|--------|---------|-------------|\n| 01h | fDeviceInit | Set only | 0 | Device sets this to 1 during initialization; host polls until cleared to 0 before sending normal commands |\n| 02h | fPermanentWPEn | Write once | 0 | Enables permanent write protection on LUs with bLUWriteProtect=02h; irreversible |\n| 03h | fPowerOnWPEn | Power-on-reset | 0 | Enables power-on write protection on LUs "
+      },
+      {
+        "title": "Inhibition Timeout",
+        "file": "entities/inhibition-timeout.md",
+        "excerpt": "---\ntype: entity\ntitle: \"Inhibition Timeout\"\ntags: [power-management, hwsetting, timing, background-operations, gc]\nsources: [spec, script, modeldefault]\ncreated: 2026-06-21\nupdated: 2026-06-21\naliases: [inhibition_time, INHIBITION_TIME, inhibition time]\n---\n\n# Inhibition Timeout\n\nThe duration (in seconds) a UFS device waits in idle before entering inhibition mode. During the inhibition window, background (BG) tasks — including Garbage Collection, Media Scan, Read Disturb scans, HIR, HID, and Refresh — are blocked from executing. Once the window expires, blocked tasks resume normally.\n\nConfigured via `HwSettingField.INHIBITION_TIME` and persists across power cycles.\n\n## Attribute\n\n- **Field:** `api.HwSettingField.INHIBITION_TIME`\n- **Type:** Integer (seconds)\n- **FW register:** `gInhibitMgr.lock` — returns `1` when inhibition is active, `0` when inactive\n- **Read method:** `get_hwsetting_inhibition_time()` — reads configured value from HwSetting\n\n## Valid Values\n\n| Value | Meaning |\n|-------|---------|\n| `0` | Immediate inhibition on idle (zero-timeout special case; `gInhibitMgr.lock` already `0` after power cycle) |\n| `30–255` | Wait N seconds before inhibition window closes |\n| `"
+      },
+      {
+        "title": "LUN — Logical Unit Number",
+        "file": "entities/lun.md",
+        "excerpt": "---\ntype: entity\ntitle: \"LUN — Logical Unit Number\"\ntags: [lun, storage, configuration, encoding, well-known-lun]\nsources: [spec, customerreq, userprompt, modeldefault]\ncreated: 2026-06-21\nupdated: 2026-06-21\naliases: [LUN, logical unit, LogicalUnit, W-LUN, Well-Known LUN]\n---\n\n# LUN — Logical Unit Number\n\nA logical storage partition within a UFS device. Multiple LUNs can coexist on one device, each with its own capacity, memory type, provisioning behavior, and access permissions.\n\n## LUN Types\n\n| Type | W-LUN | LUN Field in UPIU | Commands Supported |\n|------|-------|-------------------|--------------------|\n| Normal LU (0–31) | — | 00h–1Fh | All UCS commands when bLUEnable=01h |\n| REPORT LUNS | 01h | 81h | INQUIRY, REQUEST SENSE, TEST UNIT READY, REPORT LUNS |\n| UFS Device | 50h | D0h | INQUIRY, REQUEST SENSE, TEST UNIT READY, START STOP UNIT, FORMAT UNIT |\n| Boot | 30h | B0h | INQUIRY, REQUEST SENSE, TEST UNIT READY, READ (6), READ (10), READ (16), READ BUFFER |\n| RPMB | 44h | C4h | INQUIRY, REQUEST SENSE, TEST UNIT READY, SECURITY PROTOCOL IN, SECURITY PROTOCOL OUT |\n\n## LUN Field Encoding (Spec)\n\nThe LUN field in a UPIU is 8-bit and encoded as follows:\n\n| Bit(s) | Name | Meani"
+      },
+      {
+        "title": "UFS Power Modes",
+        "file": "entities/power-modes.md",
+        "excerpt": "---\ntype: entity\ntitle: \"UFS Power Modes\"\ntags: [power, state-machine, bCurrentPowerMode, start-stop-unit, vcc, vccq]\nsources: [spec]\ncreated: 2026-06-21\nupdated: 2026-06-21\naliases: [power mode, bCurrentPowerMode, PowerMode, UFS-Sleep, UFS-DeepSleep, UFS-PowerDown]\n---\n\n# UFS Power Modes\n\nUFS devices support nine defined power modes (five stable + four transitional) controlled by the `START STOP UNIT` (SSU) command and the `bCurrentPowerMode` attribute. The current mode is readable at any time (except Pre-DeepSleep and UFS-DeepSleep).\n\n## bCurrentPowerMode Values\n\n| Value | State | Description |\n|-------|-------|-------------|\n| 00h | **Idle** | Device not executing any operation; may be reached from Active when all operations complete |\n| 10h | **Pre-Active** | Transitional: preparing to accept commands; only SSU and REQUEST SENSE allowed on Device W-LUN |\n| 11h | **Active** | Full operation; all commands accepted; all three power supplies on |\n| 20h | **Pre-Sleep** | Transitional: flushing outstanding operations before entering UFS-Sleep |\n| 22h | **UFS-Sleep** | Reduced power; VCC may be off; UniPro link recommended in HIBERN8 |\n| 30h | **Pre-PowerDown** | Transitional: complet"
+      },
+      {
+        "title": "PSA State",
+        "file": "entities/psa-state.md",
+        "excerpt": "---\ntype: entity\ntitle: \"PSA State\"\ntags: [psa, attribute, state-machine, bPSAState, pre-soldering]\nsources: [spec, script, modeldefault]\ncreated: 2026-06-21\nupdated: 2026-06-21\naliases: [bPSAState, PSAState, psa_state]\n---\n\n# PSA State\n\nThe `bPSAState` attribute (IDN 15h) tracks the current phase of the Production State Awareness (PSA) flow. Transitions are one-directional and irreversible once the device is soldered. PSA enables secure pre-loading of data before the device is physically soldered to the host board.\n\n**Spec reference**: JEDEC Standard No. 220G §13.6 (Chapter 67)\n\n## Attribute\n\n| Field | Value |\n|-------|-------|\n| Attribute IDN | 15h (`api.AttributeIDN.PSA_STATE`) |\n| Access | Persistent (read/write with state-transition restrictions) |\n| Size | 1 byte |\n| Default (factory) | 00h (Off) or 01h (Pre-soldering), device-specific |\n| QUERY OPCODE | READ ATTRIBUTE (03h) / WRITE ATTRIBUTE (04h) |\n\n## State Definitions\n\n| State | Value | Description |\n|-------|-------|-------------|\n| Off | 00h | PSA not active; normal operation or PSA reset |\n| Pre-soldering | 01h | PSA data loading phase; device uses special internal write operations for pre-loaded data |\n| Loading Compl"
+      },
+      {
+        "title": "RPMB — Replay Protected Memory Block",
+        "file": "entities/rpmb.md",
+        "excerpt": "---\ntype: entity\ntitle: \"RPMB — Replay Protected Memory Block\"\ntags: [rpmb, security, authentication, mac, write-counter, region]\nsources: [spec]\ncreated: 2026-06-21\nupdated: 2026-06-21\naliases: [RPMB, Replay Protected Memory Block, rpmb_region]\n---\n\n# RPMB — Replay Protected Memory Block\n\nRPMB is a secure storage partition in UFS devices that uses HMAC-SHA-256 authentication to prevent unauthorized writes. It supports up to 4 regions, each with its own dedicated key, write counter, and result register. Supported if `bSecurityLU (Device Descriptor 0Dh) = 01h`.\n\n## Regions\n\nEach RPMB region is independently keyed and addressed.\n\n| Region | Protocol Specific | Descriptor Field | Notes |\n|--------|------------------|-----------------|-------|\n| Region 0 | 00h 01h | bRPMBRegion0Size | Always enabled; only region that supports Secure WP Config Block |\n| Region 1 | 01h 01h | bRPMBRegion1Size | Optional |\n| Region 2 | 02h 01h | bRPMBRegion2Size | Optional |\n| Region 3 | 03h 01h | bRPMBRegion3Size | Optional |\n\n- `bRPMBRegionEnable`: bits[0–3] = region 0–3 enabled; bit[4] = Advanced RPMB mode\n- Region size unit: **128 KB** (0 = disabled); range: 128 KB – 16 MB\n- `bRPMBLifeTimeEst`: 00h = n"
+      },
+      {
+        "title": "UFS SCSI Commands (UCS)",
+        "file": "entities/scsi-commands.md",
+        "excerpt": "---\ntype: entity\ntitle: \"UFS SCSI Commands (UCS)\"\ntags: [scsi, commands, ucs, cdb, read, write, inquiry, unmap]\nsources: [spec]\ncreated: 2026-06-21\nupdated: 2026-06-21\n---\n\n# UFS SCSI Commands (UCS)\n\nThe UFS Command Set (UCS) is a subset of SCSI commands transported via COMMAND UPIU. All CDBs are fixed-length (maximum 16 bytes). The CONTROL byte in every CDB is always 00h.\n\n## Support Levels\n\n- **M** = Mandatory — all UFS devices must implement\n- **O** = Optional\n\n## Command Table\n\n| Command | Opcode | Support | Notes |\n|---------|--------|---------|-------|\n| TEST UNIT READY | 00h | M | No data transfer; checks if device is ready to process commands |\n| REQUEST SENSE | 03h | M | Returns 18-byte fixed-format sense data (Response Code=70h) |\n| FORMAT UNIT | 04h | M | Formats medium; when sent to Device W-LUN (D0h), formats all LUs except RPMB |\n| READ (6) | 08h | M | 6-byte CDB; LBA and transfer length limited to small ranges |\n| WRITE (6) | 0Ah | M | 6-byte CDB write |\n| INQUIRY | 12h | M | EVPD=0: Standard 36-byte response; EVPD=1: VPD pages |\n| MODE SELECT (10) | 55h | M | Sets mode pages (e.g., caching policy, error recovery) |\n| START STOP UNIT | 1Bh | M | POWER CONDITIONS fiel"
+      },
+      {
+        "title": "Thermal Protection Mode",
+        "file": "entities/thermal-protection-mode.md",
+        "excerpt": "---\ntype: entity\ntitle: \"Thermal Protection Mode\"\ntags: [thermal, hwsetting, protection, stuck, VU, temperature, shipping-mode]\nsources: [spec, script, modeldefault]\ncreated: 2026-06-21\nupdated: 2026-06-21\naliases: [ThermalProtectionMode, thermal_protection_mode, TP, thermal stuck]\n---\n\n# Thermal Protection Mode\n\nConfigures how the UFS device responds to temperature extremes. When thermal thresholds are exceeded, the device enters a \"stuck\" state — it stops responding to write commands until reset. The three protection modes correspond to which direction of temperature violation triggers a stuck state.\n\n## Modes\n\n| Mode | Value | Behavior |\n|------|-------|----------|\n| `HOT_COLD` | Default | Triggers stuck on both overheating AND extreme cold |\n| `HOT_ONLY` | — | Triggers stuck on overheating only |\n| `COLD_ONLY` | — | Triggers stuck on extreme cold only |\n| `DISABLE` | — | No thermal protection (use only in controlled environments) |\n\n## Default Value\n\n`thermal_protection = HOT_COLD` — from [[modeldefault]].\n\n## Thresholds (ModelDefault)\n\n```python\nTHERMAL_HOT_THRESHOLD  = 85   # °C — trigger throttling / stuck\nTHERMAL_COLD_THRESHOLD = 0    # °C — lower bound\nTHERMAL_SAFE_OPERATI"
+      },
+      {
+        "title": "Unit Descriptor (IDN 02h)",
+        "file": "entities/unit-descriptor.md",
+        "excerpt": "---\ntype: entity\ntitle: \"Unit Descriptor (IDN 02h)\"\ntags: [descriptor, lun, unit, query, ufs, provisioning]\nsources: [spec]\ncreated: 2026-06-21\nupdated: 2026-06-21\naliases: [Unit Descriptor, IDN 02h, LU Descriptor, bDescriptorIDN 02h]\n---\n\n# Unit Descriptor (IDN 02h)\n\nThe Unit Descriptor describes the runtime parameters of a single Logical Unit. One Unit Descriptor exists per LU (Normal LU 0–31, RPMB, Boot). It is accessed via QUERY REQUEST using OPCODE=01h (READ DESCRIPTOR), with INDEX=LUN number.\n\n- **IDN**: 02h\n- **INDEX**: LUN number (00h–1Fh for Normal LUs; additional values for Well-Known LUs)\n- **Access**: Read only (OPCODE=01h); parameters are configured via [[configuration-descriptor]]\n\n## Field Table\n\n| Offset | Field | Value / Notes |\n|--------|-------|---------------|\n| 00h | bLength | Length of this descriptor |\n| 01h | bDescriptorIDN | 02h |\n| 02h | bUnitIndex | LUN index of this unit |\n| 03h | bLUEnable | 00h=disabled, 01h=enabled |\n| 04h | bBootLunID | 00h=not a boot LU, 01h=Boot LU A, 02h=Boot LU B |\n| 05h | bLUWriteProtect | 00h=not protected, 01h=power-on WP, 02h=permanent WP |\n| 06h | bLUQueueDepth | Per-LU queue depth (0=uses device shared queue) |\n| 07h | bPSA"
+      },
+      {
+        "title": "UPIU Types",
+        "file": "entities/upiu.md",
+        "excerpt": "---\ntype: entity\ntitle: \"UPIU Types\"\ntags: [upiu, protocol, query, scsi, transport, response-codes]\nsources: [spec]\ncreated: 2026-06-21\nupdated: 2026-06-21\n---\n\n# UPIU Types\n\nUPIU (UFS Protocol Information Unit) is the fundamental transport unit of the UFS Transport Protocol (UTP) layer. All host-device communication uses UPIUs.\n\n## General UPIU Format\n\n- **Minimum size**: 32 bytes (12-byte basic header + 20 bytes transaction-specific fields)\n- **Maximum size**: 65,600 bytes\n- **Optional**: Extended Header Segments (EHS) + Data Segment\n\n### Basic Header (Bytes 0–11)\n\n| Byte | Field | Notes |\n|------|-------|-------|\n| 0 | Transaction Type | bit[7]=HD, bit[6]=DD, bits[5:0]=Transaction Code |\n| 1 | Flags | Transaction-specific flags |\n| 2 | LUN | Logical Unit Number (or Well-Known LUN) |\n| 3 | Task Tag | Command identifier within initiator |\n| 4 | IID [bits 7:4] | Initiator ID (upper 4 bits) |\n| 5 | Command Set Type / EXT_IID / Query Function / TM Function | Role depends on transaction type |\n| 6 | Response | Device→Host response code |\n| 7 | EXT_IID (H→D) / Status (D→H) | SCSI status in Response UPIU |\n| 8–9 | Total EHS Length / Device Information | EHS length in 32-byte units (0–3)"
+      },
+      {
+        "title": "Write Booster",
+        "file": "entities/write-booster.md",
+        "excerpt": "---\ntype: entity\ntitle: \"Write Booster\"\ntags: [write-booster, performance, attribute, flag]\nsources: [spec, customerreq, modeldefault]\ncreated: 2026-06-21\nupdated: 2026-06-21\naliases: [WB, WriteBooster, WRITEBOOSTER]\n---\n\n# Write Booster\n\nA UFS performance feature that uses a portion of TLC/QLC NAND in SLC mode as a write buffer. Improves sustained write performance by absorbing bursts before data is migrated to TLC/QLC.\n\n## Key Attributes and Flags\n\n| Name | IDN | Type | Purpose |\n|------|-----|------|---------|\n| `WRITEBOOSTER_EN` | `api.FlagIDN.WRITEBOOSTER_EN` | Flag | Enable/disable WB |\n| `AVAILABLE_WRITEBOOSTER_BUFFER_SIZE` | `api.AttributeIDN.AVAILABLE_WRITEBOOSTER_BUFFER_SIZE` | Attribute (read) | Current available WB buffer |\n| `b16_write_booster_buffer_preserve_user_space_en` | Config Descriptor | Config | Preserve user space when WB enabled |\n| `l18_num_shared_write_booster_buffer_alloc_units` | Config Descriptor | Config | WB buffer size in allocation units |\n\n## Default Value\n\n`WRITEBOOSTER_ENABLED = True` — from [[modeldefault]].\n\n## LUN Constraint *(CustomerReq overrides Spec)*\n\n**CustomerReq rule (KEPT):** WB-related Attribute/Flag operations must target:\n- A **Nor"
+      },
+      {
+        "title": "Background Operations (BKOPS)",
+        "file": "concepts/background-operations.md",
+        "excerpt": "---\ntype: concept\ntitle: \"Background Operations (BKOPS)\"\ntags: [bkops, gc, wear-leveling, background]\nsources: [spec, modeldefault, pronoun]\ncreated: 2026-06-21\nupdated: 2026-06-21\n---\n\n# Background Operations (BKOPS)\n\nUFS maintenance tasks that run in the background while the device is idle or between commands. Includes Garbage Collection (GC), Wear Leveling (WL), and other firmware housekeeping.\n\n## Key Terms (from [[pronoun]])\n\n| Term | Meaning |\n|------|---------|\n| **BKOPS** | Background Operations umbrella term |\n| **GC** | Garbage Collection — reclaims invalid (erased) flash blocks |\n| **WL** | Wear Leveling — distributes writes to extend flash lifespan |\n\n## Attributes\n\n| Attribute | Purpose |\n|-----------|---------|\n| `BKOPS_STATUS` | Reports current background operation urgency level |\n| `BKOPS_ENABLE` | Flag to enable/disable BKOPS |\n\n## Defaults (ModelDefault)\n\n```python\nBKOPS_ENABLED      = True\nBKOPS_FLUSH_ENABLE = True\n```\n\n## Inhibition Interaction\n\n[[inhibition-timeout]] governs how long the device waits idle before the inhibition manager locks out certain operations. BKOPS may be inhibited during this window. Pattern `PSW_F_P3_InhibitionTime_0002_BG_Task_Inhibitio"
+      },
+      {
+        "title": "Exception Events",
+        "file": "concepts/exception-events.md",
+        "excerpt": "---\ntype: concept\ntitle: \"Exception Events\"\ntags: [exception-events, attributes, temperature, writebooster, health]\nsources: [spec]\ncreated: 2026-06-21\nupdated: 2026-06-21\n---\n\n# Exception Events\n\nException Events are an asynchronous notification mechanism allowing the device to alert the host to conditions requiring attention. The device signals an event by setting `EVENT_ALERT` in the RESPONSE UPIU Device Information field; the host then reads `wExceptionEventStatus` to determine which event(s) are active.\n\n## Signal Path\n\n1. **Device detects condition** → sets corresponding bit in `wExceptionEventStatus` (IDN 0Eh)\n2. **Device sets `EVENT_ALERT`** → `bit[0]` of Device Information field in the next RESPONSE UPIU\n3. **Host reads `EVENT_ALERT = 1`** → issues QUERY REQUEST to read `wExceptionEventStatus`\n4. **Device clears the bit** in `wExceptionEventStatus` when the status is read by the host\n5. **Host takes action** based on which bits are set\n\n## Control Attribute\n\n`wExceptionEventControl` (Attribute IDN 0Dh):\n- **Volatile** (resets on power cycle)\n- 2-byte register; bits 0–11 map to corresponding event enable/disable controls\n- Set a bit to **enable** the corresponding event not"
+      },
+      {
+        "title": "FFU — Field Firmware Update",
+        "file": "concepts/ffu.md",
+        "excerpt": "---\ntype: concept\ntitle: \"FFU — Field Firmware Update\"\ntags: [ffu, firmware, write-buffer, attributes, commands]\nsources: [spec]\ncreated: 2026-06-21\nupdated: 2026-06-21\n---\n\n# FFU — Field Firmware Update\n\nField Firmware Update (FFU) is the UFS mechanism for delivering new firmware to a device in the field without physical access to the flash. FFU is supported when `bUFSFeaturesSupport bit[0] = 1` in the Device Descriptor (offset 1Fh).\n\nExtended FFU support is indicated by `dExtendedUFSFeaturesSupport bit[2] = 1` (offset 4Fh–52h).\n\n## Mechanism\n\nFFU uses the **WRITE BUFFER command** (opcode 3Bh) with a specific MODE value. UFS supports only one FFU mode:\n\n| MODE field | Value | Description |\n|-----------|-------|-------------|\n| 0Eh | Download microcode with offsets, save, and defer active | The only valid FFU mode in UFS |\n\nAll other WRITE BUFFER modes (00h, 03h–0Dh, 0Fh, etc.) are not used for FFU.\n\n## WRITE BUFFER Command for FFU\n\nCDB format (opcode 3Bh):\n\n| Byte | Field | FFU Requirement |\n|------|-------|----------------|\n| 1[4:0] | MODE | Must be 0Eh |\n| 2 | BUFFER ID | Must be 00h |\n| 3–5 | BUFFER OFFSET | Should be 4 KB-aligned; increasing order across sequence |\n| 6–8 | PAR"
+      },
+      {
+        "title": "Pattern: APL System Rebuild Implementation Guide",
+        "file": "concepts/pattern-apl-rebuild.md",
+        "excerpt": "---\ntype: concept\ntitle: \"Pattern: APL System Rebuild Implementation Guide\"\ntags: [pattern, script, implementation, apl, rebuild, uecc, hecc, spor, system-table]\nsources: [script, spec, modeldefault]\ncreated: 2026-06-21\nupdated: 2026-06-21\n---\n\n# Pattern: APL System Rebuild (APL 系统重建) Implementation Guide\n\n## 概述\n\nAPL System Rebuild（Application Layer 系统重建）pattern 测试 UFS 固件在系统表块（BBT、Page Table、Index、List、Log、ISP、PTE）或用户数据块发生 UECC（不可纠正错误）或 HECC（硬 ECC 错误）后，经过 SPOR（Sudden Power Off and Recovery），固件能否正确重建这些结构并恢复数据完整性。\n\n该 pattern 包含 21 个测试文件和共享的 `mutual_fun.py`。\n\n---\n\n## 测试文件一览\n\n| 测试范围 | 目的 |\n|---------|------|\n| PSW_F_P3_APL_Rebuild_0001 | BBT（Bad Block Table）UECC 注入后 SPOR 重建 |\n| PSW_F_P3_APL_Rebuild_0002 | Page Table UECC 注入后 SPOR 重建 |\n| PSW_F_P3_APL_Rebuild_0003 | Index 块 UECC 注入后 SPOR 重建 |\n| PSW_F_P3_APL_Rebuild_0004 | List 块 UECC 注入后 SPOR 重建 |\n| PSW_F_P3_APL_Rebuild_0005 | Log 块 UECC 注入后 SPOR 重建 |\n| PSW_F_P3_APL_Rebuild_0006 | ISP 块 UECC 注入后 SPOR 重建 |\n| PSW_F_P3_APL_Rebuild_0007 | PTE（Page Table Entry）UECC 注入后 SPOR 重建 |\n| PSW_F_P3_APL_Rebuild_0008 | GC UECC 场景：GC 源 VB 发生 UECC |\n| PSW_F_P3_APL_Rebuild_0009–0017 | 各种 EM1/TLC UECC/HECC 重建场景 |\n| PSW_F_P3_APL_Rebuild_0018 | PSA 模式下的重建（PRE"
+      },
+      {
+        "title": "Pattern: Health Report Implementation Guide",
+        "file": "concepts/pattern-health-report.md",
+        "excerpt": "---\ntype: concept\ntitle: \"Pattern: Health Report Implementation Guide\"\ntags: [pattern, script, implementation, health-report, device-health, eol]\nsources: [script, spec, modeldefault]\ncreated: 2026-06-21\nupdated: 2026-06-21\n---\n\n# Pattern: Health Report (设备健康报告) Implementation Guide\n\n## 概述\n\nHealth Report pattern 测试 UFS 设备通过标准和扩展健康报告命令正确汇报设备健康状态的能力。健康报告包含 EOL 信息、寿命估计、刷新计数、温度历史、读取错误统计等关键字段。\n\n该 pattern 包含 2 个核心测试文件，以及大量其他 pattern（PSA、Wear Leveling、RAIN 等）在 post-condition 验证中使用健康报告进行交叉验证。\n\n---\n\n## 测试文件一览\n\n| 测试文件 | 目的 |\n|---------|------|\n| PSW_F_P3_HealthReport_0001 | 基础健康报告：最小化验证健康报告检索 |\n| PSW_F_P3_HealthReport_0002 | 增强健康报告：30+ 字段的全面验证，覆盖电源管理和温度边界场景 |\n\n---\n\n## 健康报告 API\n\n### 基础健康报告（VU）\n\n```python\n# 读取 Micron 专有健康报告\nhealth_report = project_api.get_micron_health_report()\n```\n\n### 增强健康报告（VU 40FE）\n\n```python\n# 读取增强健康报告（30+ 字段）\nenhanced_hr = project_api.issue_40FE_to_read_enhanced_health_report()\n```\n\n### VDET 信息（VU 40B8）\n\n```python\n# 读取 VDET（Voltage Detection）信息\nvdet_info = project_api.issue_40B8_to_get_vdet_information()\n```\n\n---\n\n## 关键字段说明\n\n### bPreEOLInfo — 预期寿命终止信息\n\n`bPreEOLInfo` 表示设备距离 EOL（End of Life）的预期状态：\n\n| 值 | 含义 |\n|----|------|\n| `0x00` | 未定义（Normal） |\n| `0x01` | 正常（设备寿命 < 80%）"
+      },
+      {
+        "title": "Pattern: Inhibition Time Implementation Guide",
+        "file": "concepts/pattern-inhibition-time.md",
+        "excerpt": "---\ntype: concept\ntitle: \"Pattern: Inhibition Time Implementation Guide\"\ntags: [pattern, script, implementation, inhibition-time, background-operations, bg-task]\nsources: [script, spec, modeldefault]\ncreated: 2026-06-21\nupdated: 2026-06-21\n---\n\n# Pattern: Inhibition Time (抑制时间) Implementation Guide\n\n## 概述\n\nInhibition Time pattern 测试 UFS 固件在\"抑制窗口\"（inhibition window）内正确阻塞后台（BG）任务的能力，并验证窗口到期后任务能恢复正常执行。抑制机制的目的是在主机密集写入期间（刚完成写入后的短暂窗口）阻止固件执行可能影响性能的后台操作。\n\n测试文件夹包含 11 个测试文件，使用共享的 `mutual_fun.py` 提供触发器、轮询和验证助手函数。\n\n---\n\n## 测试文件一览\n\n| 测试文件 | 目的 |\n|---------|------|\n| PSW_F_P3_InhibitionTime_0001 | Disable/Enable Timing：抑制定时器启动与到期行为验证 |\n| PSW_F_P3_InhibitionTime_0002 | BG Task Inhibition：GC 等后台任务在抑制窗口内被阻塞，`gInhibitMgr.lock == 1` 验证 |\n| PSW_F_P3_InhibitionTime_0003 | GC inhibition：GC 在抑制窗口内被阻塞 |\n| PSW_F_P3_InhibitionTime_0004 | MS/BF/RD scan inhibition：Media Scan、BFEA、Read Disturb 扫描被阻塞 |\n| PSW_F_P3_InhibitionTime_0005 | BBM scan inhibition：Bad Block Management 扫描被阻塞 |\n| PSW_F_P3_InhibitionTime_0006 | Read Back Open TLC inhibition：开放 TLC 块的 read-back 被阻塞 |\n| PSW_F_P3_InhibitionTime_0007 | HIR Read Back inhibition：HIR（高强度刷新）read-back 被阻塞 |\n| PSW_F_P3_InhibitionTime_0008 | Purge Read Back inhibition"
+      },
+      {
+        "title": "Pattern: PSA (Pre-Soldering Authentication) Implementation Guide",
+        "file": "concepts/pattern-psa.md",
+        "excerpt": "---\ntype: concept\ntitle: \"Pattern: PSA (Pre-Soldering Authentication) Implementation Guide\"\ntags: [pattern, script, implementation, psa, pre-soldering, authentication]\nsources: [script, spec, modeldefault]\ncreated: 2026-06-21\nupdated: 2026-06-21\n---\n\n# Pattern: PSA (Pre-Soldering Authentication) Implementation Guide\n\n## 概述\n\nPSA（Pre-Soldering Authentication，焊前认证）pattern 测试 UFS 设备在出厂前的完整生命周期：从初始 LUN 配置，经过 PRE_SOLDERING、LOADING_COMPLETE，最终到达 SOLDERED 状态。PSA 机制确保设备在焊接到主板之前已经完成认证数据写入，保护生产流程中的固件完整性。\n\n该 pattern 包含 6 个测试文件（PSA_0001 到 PSA_0006），覆盖完整流程、中断恢复、事件日志、VU 命令验证、Boot EM1 写入以及 HIR 交互场景。\n\n---\n\n## 测试文件一览\n\n| 测试文件 | 目的 |\n|---------|------|\n| PSW_F_P3_PSA_0001 | 完整 PSA 38 步骤生命周期验证，覆盖所有状态转换、数据写入和验证点 |\n| PSW_F_P3_PSA_0002 | SPOR 中断恢复：在 PRE_SOLDERING 状态下的 SPOR 行为，以及 HIR/HID 拒绝验证 |\n| PSW_F_P3_PSA_0003 | 事件日志：温度阈值越限和 EC 阈值越限事件在 PSA 模式下的正确记录 |\n| PSW_F_P3_PSA_0004 | VU 命令验证：VU 4050（剩余 buffer 大小）、VU 404F（迁移状态）、VU 405C（post-reflow 进度） |\n| PSW_F_P3_PSA_0005 | Boot LUN 编程：BootLUN A 和 B 的 EM1 数据写入，CE 计数处理和 BootLUN 分配验证 |\n| PSW_F_P3_PSA_0006 | HIR 交互：INHIBITION_TIME=240s 时 HIR 的行为，VB MLC trim 从 PSA_TRIM 转换为 POR_TRIM |\n\n---\n\n## PSA 状态机\n\n```\nOFF → PRE_SOLDERING → LOADING_COMPLETE → SOLDERED\n```\n\n状态通过写 UF"
+      },
+      {
+        "title": "Pattern: RPMB Implementation Guide",
+        "file": "concepts/pattern-rpmb.md",
+        "excerpt": "---\ntype: concept\ntitle: \"Pattern: RPMB Implementation Guide\"\ntags: [pattern, script, implementation, rpmb, authentication, security, write-counter]\nsources: [script, spec, modeldefault]\ncreated: 2026-06-21\nupdated: 2026-06-21\n---\n\n# Pattern: RPMB (Replay Protected Memory Block) Implementation Guide\n\n## 概述\n\nRPMB（Replay Protected Memory Block，重放保护存储块）pattern 测试 UFS 设备对 RPMB 认证机制的正确实现。RPMB 通过共享密钥（HMAC-SHA256）对写操作进行认证，并维护单调递增的写计数器（write counter）以防止重放攻击。\n\nRPMB 相关测试分散在多个 pattern 文件夹中：`custom_vu`（0009、0036）、PSA、RAIN、APL Rebuild 等均使用 RPMB 进行 APL 块创建或安全验证。\n\n---\n\n## RPMB 区域配置\n\n标准测试配置使用 4 个 RPMB 区域（Region 0–3）：\n\n```python\n# CustomVU_0009 配置\nconfig_region_num = 4\nregion1_size == region2_size == region3_size == 1  # 每个区域大小为 1\n```\n\n---\n\n## RPMB 初始化流程\n\n### 标准初始化：Clear Key → Program Key → Write Counter\n\n```\nStep 1: Clear RPMB Key（如果已有旧密钥）\n   VU D079: issue_D079_to_clear_rpmb_key(region)\n\nStep 2: Program RPMB Key\n   rpmb.rpmb_key_programming()\n\nStep 3: Read Write Counter（验证密钥编程成功）\n   counter = rpmb.rpmb_read_counter(region)\n   # counter 应为 0（新初始化设备）\n\nStep 4（可选）: Set Write Counter via VU D078\n   issue_D078_to_set_rpmb_write_counter(region, counter_val)\n```\n\n### CustomVU_0009 完整流程\n\n```python\n# 对 4 个"
+      },
+      {
+        "title": "Pattern: Thermal Protection Implementation Guide",
+        "file": "concepts/pattern-thermal-protection.md",
+        "excerpt": "---\ntype: concept\ntitle: \"Pattern: Thermal Protection Implementation Guide\"\ntags: [pattern, script, implementation, thermal-protection, temperature, stuck-state]\nsources: [script, spec, modeldefault]\ncreated: 2026-06-21\nupdated: 2026-06-21\n---\n\n# Pattern: Thermal Protection (热保护) Implementation Guide\n\n## 概述\n\nThermal Protection pattern 测试 UFS 固件在温度超出安全范围（过热或过冷）时，能否正确进入\"stuck/throttled\"卡住状态，以及能否通过 VU D0F3 命令解除该状态。测试还覆盖 ATS 定时器行为、ASIC-NAND 温度差以及 auto-standby 的交互。\n\n该 pattern 包含 7 个测试文件：0001–0006 和 0010（注意：0007–0009 文件不存在，编号不连续）。\n\n---\n\n## 测试文件一览\n\n| 测试文件 | 目的 |\n|---------|------|\n| PSW_F_P3_ThermalProtection_0001 | HOT_ONLY Stuck：设置热阈值，注入超阈值温度，验证 stuck 状态，D0F3 解除 |\n| PSW_F_P3_ThermalProtection_0002 | COLD_ONLY Stuck：同 0001 但为低温（低于阈值）场景 |\n| PSW_F_P3_ThermalProtection_0003 | HOT_COLD Stuck：同时测试热阈值和冷阈值 |\n| PSW_F_P3_ThermalProtection_0004 | Shipping Mode 切换：Shipping Mode 配置变更时的热保护行为 |\n| PSW_F_P3_ThermalProtection_0005 | Shipping Mode 切换（场景二） |\n| PSW_F_P3_ThermalProtection_0006 | Shipping Mode 切换（场景三） |\n| PSW_F_P3_ThermalProtection_0010 | Temperature Measurement Check：ATS 定时器、delta_asic_nand 温度差、auto-standby 交互 |\n\n**注意**：0007–0009 编号缺失，文件不存在于此 pattern 文件夹中。\n\n---\n\n## 温度编码规则\n\nUFS 固件使用偏移编码表示温度：\n"
+      },
+      {
+        "title": "Pattern: Wear Leveling Implementation Guide",
+        "file": "concepts/pattern-wear-leveling.md",
+        "excerpt": "---\ntype: concept\ntitle: \"Pattern: Wear Leveling Implementation Guide\"\ntags: [pattern, script, implementation, wear-leveling, erase-count, vb-version, gc]\nsources: [script, spec, modeldefault]\ncreated: 2026-06-21\nupdated: 2026-06-21\n---\n\n# Pattern: Wear Leveling (磨损均衡) Implementation Guide\n\n## 概述\n\nWear Leveling（WL，磨损均衡）pattern 测试 UFS 固件在所有 VB（Virtual Block）之间均匀分布写入操作的能力。固件通过跟踪擦除次数（EC）和版本值（VER），当 EC 差距或版本差距超过阈值时触发静态（Static WL）或动态（Dynamic WL）磨损均衡，将数据从高 EC 块迁移到低 EC 块。\n\n该 pattern 包含 4 个测试文件和共享的 `mutual_fun.py`。\n\n---\n\n## 测试文件一览\n\n| 测试文件 | 目的 |\n|---------|------|\n| PSW_F_P3_WearLeveling_0001 | WL 信息测试：VBListNum/OpenVBType、EC/版本设置与读回、健康报告交叉验证 |\n| PSW_F_P3_WearLeveling_0002 | 静态 WL 刷新测试：ICS/Static/Dynamic 池触发、cold/prior-round、TH1/TH2 阈值、booking queue 验证 |\n| PSW_F_P3_WearLeveling_0003 | 静态 WL GC 测试：USED_BLK_POOL_EM1/TLC/TLC_WB GC 触发，`totalSWLGCTriggerCount` 递增 |\n| PSW_F_P3_WearLeveling_0004 | 动态 WL 测试：在搜索范围内按最低 EC 选择 VB |\n\n---\n\n## mutual_fun.py 共享函数\n\n### VB Entry 解析（get_VB_group）\n\n每个 VB 条目为 4 字节，`get_VB_group()` 解析位域：\n\n```python\ndef get_VB_group(vb_entry: int) -> dict:\n    return {\n        'group':       (vb_entry >>  0) & 0x3F,   # bits 0–5\n        'access_mode': (vb_entry >>  6) & 0x03,   "
+      },
+      {
+        "title": "Power Management",
+        "file": "concepts/power-management.md",
+        "excerpt": "---\ntype: concept\ntitle: \"Power Management\"\ntags: [power, reset, hibernate, timing]\nsources: [spec, script, modeldefault]\ncreated: 2026-06-21\nupdated: 2026-06-21\n---\n\n# Power Management\n\nCovers power cycling, reset types, hibernate states, and timing defaults used across UFS Pattern Code.\n\n## Reset Types\n\n| Reset | Enum | powerdown | Use Case |\n|-------|------|-----------|----------|\n| HW_RESET (no power loss) | `Dcmd5ResetType.HW_RESET` | `False` | General reset, faster |\n| HW_RESET (with power loss) | `Dcmd5ResetType.HW_RESET` | `True` | Full power cycle, more stress |\n| SOFT_RESET | `Dcmd5ResetType.SOFT_RESET` | `False` | Warm reset, reset recovery testing |\n\n## Default power_cycle() Pattern\n\nScript patterns randomize between power-on and power-off reset to maximize stress coverage:\n\n```python\ndef power_cycle(self) -> None:\n    if random.randint(0, 1):\n        init_tester_to_unit_ready(resetmode=Dcmd5ResetType.HW_RESET, powerdown=False)\n    else:\n        init_tester_to_unit_ready(resetmode=Dcmd5ResetType.HW_RESET, powerdown=True)\n    access_vendor_mode()   # always restore after reset\n```\n\nFor deterministic tests (e.g., PSA flow step 27, 35), use explicit `powerdown=True`.\n\n## H"
+      },
+      {
+        "title": "PSA — Production State Awareness",
+        "file": "concepts/psa.md",
+        "excerpt": "---\ntype: concept\ntitle: \"PSA — Production State Awareness\"\ntags: [psa, manufacturing, state-machine, attributes]\nsources: [spec, script]\ncreated: 2026-06-21\nupdated: 2026-06-21\n---\n\n# PSA — Production State Awareness\n\n## Introduction (Spec 13.6.1)\n\nUFS devices can utilize knowledge about their production status and adjust internal operations accordingly. Content loaded into the storage device prior to device soldering might be corrupted at a higher probability than in regular mode. The UFS device uses \"special\" internal operations for loading content prior to device soldering which reduces production failures, and switches to \"regular\" operations post-soldering.\n\nThe sensitivity to device soldering is a property of the individual logical unit. Some logical units may be sensitive to device soldering while others may not. Before loading data, the host reads `bPSASensitive` to identify which LUs are sensitive.\n\nPre-loaded data is data written to the device **after** device configuration is completed (`bConfigDescrLock` is set and device has been reset), and **before** device soldering to the host platform.\n\nThe combined maximum amount of data which can be pre-loaded to all sensitive "
+      },
+      {
+        "title": "Refresh Operation",
+        "file": "concepts/refresh.md",
+        "excerpt": "---\ntype: concept\ntitle: \"Refresh Operation\"\ntags: [refresh, data-retention, background-operations, attributes, flags, hir]\nsources: [spec, script]\ncreated: 2026-06-21\nupdated: 2026-06-21\n---\n\n# Refresh Operation\n\nThe Refresh operation relocates data to mitigate NAND retention degradation. It is supported when `dExtendedUFSFeaturesSupport bit[3] = 1` (Device Descriptor offset 4Fh–52h) and `bUFSFeaturesSupport bit[3] = 1` (offset 1Fh).\n\nRefresh re-programs data stored in NAND cells to fresh locations, counteracting charge loss that causes read errors over time or across temperature extremes.\n\n## Trigger Methods\n\n### Manual Trigger\n\nHost sets `fRefreshEnable` (Flag IDN 07h) to 1. This is a write-only volatile flag — it is automatically cleared when the operation completes.\n\nPrecondition: command queues of all logical units must be empty before the flag can be set.\n\n### Automatic (HIR — Host-Initiated Refresh)\n\nTemperature-triggered refresh (XTEMP): when NAND temperature goes out of range (too hot or too cold), the device books VBs for refresh automatically. The host is notified via `wExceptionEventStatus bit[11]` (device-level exception event).\n\n### Booking Queue (Script)\n\nScript-lay"
+      },
+      {
+        "title": "Shipping Mode",
+        "file": "concepts/shipping-mode.md",
+        "excerpt": "---\ntype: concept\ntitle: \"Shipping Mode\"\ntags: [shipping-mode, power, thermal, hwsetting, lifecycle, psa]\nsources: [script, modeldefault]\ncreated: 2026-06-21\nupdated: 2026-06-21\naliases: [shipping mode, ShippingMode, shipping_mode]\n---\n\n# Shipping Mode\n\nShipping Mode is a low-power state that UFS devices can enter before they are shipped to end customers or system integrators. In this mode, the device draws minimal power, protecting the battery or power supply during transit and storage. The device must be explicitly woken up before normal use.\n\n## Purpose\n\n- Minimize power draw during shipping and storage\n- Prevent unintended writes or operations while in transit\n- Default thermal protection applies (`HOT_COLD`) to cover a wide range of storage temperatures\n\n## Entry Flow\n\n```\n1. Ensure device is in Active or Idle power mode\n2. Set thermal protection mode to default (HOT_COLD)\n3. Issue the shipping mode entry command via HwSetting or VU\n4. Power cycle (powerdown=True) to commit the shipping mode state\n```\n\nShipping mode is typically part of the manufacturing lifecycle flow, performed before the device leaves the factory or after PSA loading is complete.\n\n## Exit Flow\n\n```\n1. Apply"
+      },
+      {
+        "title": "Thin Provisioning and UNMAP",
+        "file": "concepts/thin-provisioning.md",
+        "excerpt": "---\ntype: concept\ntitle: \"Thin Provisioning and UNMAP\"\ntags: [thin-provisioning, unmap, provisioning-type, scsi-commands, lun]\nsources: [spec]\ncreated: 2026-06-21\nupdated: 2026-06-21\n---\n\n# Thin Provisioning and UNMAP\n\nThin Provisioning is a UFS LU-level configuration that allows the host to de-allocate logical blocks, notifying the device that certain LBA ranges are no longer in use. This enables the device to reclaim physical NAND resources associated with those addresses.\n\n## `bProvisioningType` — LU Provisioning Mode\n\nConfigured per-LU in the Unit Descriptor (IDN 02h):\n\n| Value | Mode | UNMAP Support | Unmapped LBA Read Behavior |\n|-------|------|--------------|--------------------------|\n| 00h | Full provisioning | Not supported | Returns data (implementation-defined) |\n| 02h | Thin provisioning, TPRZ=0 | Supported | Returns any data (not guaranteed to be zeros) |\n| 03h | Thin provisioning, TPRZ=1 | Supported | Returns zeros (secure erase semantics) |\n\n`bProvisioningType` is set in the Configuration Descriptor (via Unit Descriptor fields). It is applied at LU configuration time (before `bConfigDescrLock = 1`).\n\n### TPRZ Bit\n\nTPRZ (Thin Provisioning Return Zeros) is reported in"
+      },
+      {
+        "title": "WriteBooster",
+        "file": "concepts/write-booster.md",
+        "excerpt": "---\ntype: concept\ntitle: \"WriteBooster\"\ntags: [write-booster, performance, slc-cache, flags, attributes]\nsources: [spec]\ncreated: 2026-06-21\nupdated: 2026-06-21\n---\n\n# WriteBooster\n\nWriteBooster is an SLC-based write acceleration buffer defined in the UFS specification. It is supported when `dExtendedUFSFeaturesSupport bit[0] = 1` (Device Descriptor offset 4Fh–52h).\n\n## Overview\n\nThe WriteBooster feature allows the device to use an SLC buffer for incoming write data, converting writes to high-throughput SLC writes initially, then migrating data to TLC in the background. This provides burst write performance significantly above the device's sustained TLC write rate.\n\n## Flags\n\n| IDN | Name | Access | Default | Description |\n|-----|------|--------|---------|-------------|\n| 0Eh | `fWriteBoosterEn` | Volatile | 0 | Enable/disable WriteBooster; when cleared, WB buffer is not used |\n| 0Fh | `fWriteBoosterBufferFlushEn` | Volatile | 0 | Enables background flush of WB buffer to TLC |\n| 10h | `fWriteBoosterBufferFlushDuringHibernate` | Volatile | 0 | Allows WB buffer flush to continue during UniPro Hibernate state |\n| 13h | `fUnpinEn` | Volatile | 0 | Enables unpinning of Pinned data in Wr"
+      }
+    ],
+    "phase_1": [
+      {
+        "title": "UFS Attributes",
+        "file": "entities/attributes.md",
+        "excerpt": "---\ntype: entity\ntitle: \"UFS Attributes\"\ntags: [attributes, query, idn, power-mode, psa, writebooster]\nsources: [spec]\ncreated: 2026-06-21\nupdated: 2026-06-21\n---\n\n# UFS Attributes\n\nAttributes are multi-byte device parameters, accessed via QUERY REQUEST UPIU (OPCODE 03h READ ATTRIBUTE / 04h WRITE ATTRIBUTE). The value field is 64-bit big-endian right-justified in the QUERY RESPONSE.\n\n## Query OPCODEs\n\n| OPCODE | Value | Description |\n|--------|-------|-------------|\n| READ ATTRIBUTE | 03h | Read current attribute value |\n| WRITE ATTRIBUTE | 04h | Write new attribute value |\n\nThe IDN, INDEX, and SELECTOR fields address each attribute. Most attributes use INDEX=0 and SELECTOR=0; exceptions include wContextConf (INDEX=LUN, SELECTOR=ContextID).\n\n## Attribute Table\n\n| IDN | Name | Access | Size | MDV | Description / Enum |\n|-----|------|--------|------|-----|-------------------|\n| 00h | bBootLunEn | Persistent | 1B | 00h | 00h=Boot LU disabled, 01h=Boot LU A active, 02h=Boot LU B active |\n| 01h | Reserved | — | — | — | Reserved (HPB extension) |\n| 02h | bCurrentPowerMode | Read only | 1B | — | Current device power state — see enum below |\n| 03h | bActiveICCLevel | Volatile | 1B | — | Ac"
+      },
+      {
+        "title": "Configuration Descriptor (IDN 01h)",
+        "file": "entities/configuration-descriptor.md",
+        "excerpt": "---\ntype: entity\ntitle: \"Configuration Descriptor (IDN 01h)\"\ntags: [descriptor, configuration, query, ufs, lun]\nsources: [spec]\ncreated: 2026-06-21\nupdated: 2026-06-21\naliases: [Configuration Descriptor, IDN 01h, Config Descriptor, bDescriptorIDN 01h]\n---\n\n# Configuration Descriptor (IDN 01h)\n\nThe Configuration Descriptor defines how the UFS device is partitioned into Logical Units. It is writable before `bConfigDescrLock` is set, and contains per-LU provisioning parameters for up to 8 LUs per configuration block.\n\n- **IDN**: 01h\n- **INDEX**: 00h–03h (each index covers 8 LUs; total up to 32 LUs)\n- **Access**: Read (OPCODE=01h) / Write (OPCODE=02h) — write allowed only when `bConfigDescrLock = 0`\n\n## Configuration Descriptor Structure\n\nA Configuration Descriptor (one INDEX) consists of:\n1. **Header section** — device-level configuration fields\n2. **Unit Descriptor Parameter blocks** — one block per LU (up to 8 LUs per index)\n\n### Header Fields\n\n| Offset | Field | Value / Notes |\n|--------|-------|---------------|\n| 00h | bLength | Total length of this configuration descriptor |\n| 01h | bDescriptorIDN | 01h |\n| 02h | bConfDescContinue | 00h=this is the last config descriptor, 01h=mor"
+      },
+      {
+        "title": "Device Descriptor (IDN 00h)",
+        "file": "entities/device-descriptor.md",
+        "excerpt": "---\ntype: entity\ntitle: \"Device Descriptor (IDN 00h)\"\ntags: [descriptor, device, query, ufs]\nsources: [spec]\ncreated: 2026-06-21\nupdated: 2026-06-21\naliases: [Device Descriptor, IDN 00h, bDescriptorIDN 00h]\n---\n\n# Device Descriptor (IDN 00h)\n\nThe Device Descriptor is the top-level descriptor of a UFS device. It identifies the manufacturer, product, spec version, LU count, and device capabilities. It is read-only and accessed via QUERY REQUEST with OPCODE=01h (READ DESCRIPTOR).\n\n- **IDN**: 00h\n- **bLength**: 59h (89 bytes for UFS 4.1)\n- **Access**: Read only (OPCODE=01h); host queries INDEX=00h, SELECTOR=00h\n\n## Field Table\n\n| Offset | Field | Value / Notes |\n|--------|-------|---------------|\n| 00h | bLength | 59h |\n| 01h | bDescriptorIDN | 00h |\n| 02h | bDevice | Device class |\n| 03h | bDeviceClass | |\n| 04h | bDeviceSubClass | |\n| 05h | bProtocol | |\n| 06h | bNumberLU | Number of enabled LUs |\n| 07h | bNumberWLU | Number of Well-Known LUs |\n| 08h | bBootEnable | 00h=disabled, 01h=bootable, 02h=permanent-bootable |\n| 09h | bDescrAccessEn | |\n| 0Ah | bInitPowerMode | Power mode after init |\n| 0Bh | bHighPriorityLUN | 7Fh=equal priority; or specific LUN index |\n| 0Ch | bSecureRemova"
+      },
+      {
+        "title": "Device Health Descriptor (IDN 09h)",
+        "file": "entities/device-health-descriptor.md",
+        "excerpt": "---\ntype: entity\ntitle: \"Device Health Descriptor (IDN 09h)\"\ntags: [descriptor, health, eol, lifetime, query, ufs]\nsources: [spec]\ncreated: 2026-06-21\nupdated: 2026-06-21\naliases: [Device Health Descriptor, IDN 09h, Health Descriptor, bDescriptorIDN 09h]\n---\n\n# Device Health Descriptor (IDN 09h)\n\nThe Device Health Descriptor provides device wear and lifetime information. It is used to monitor the health of the UFS device's NAND flash, including End-of-Life (EOL) prediction, life-time estimate, and refresh progress tracking.\n\n- **IDN**: 09h\n- **bLength**: 2Dh (45 bytes)\n- **INDEX**: 00h, SELECTOR: 00h\n- **Access**: Read only (OPCODE=01h)\n\n## Field Table\n\n| Offset | Field | Value / Notes |\n|--------|-------|---------------|\n| 00h | bLength | 2Dh |\n| 01h | bDescriptorIDN | 09h |\n| 02h | bPreEOLInfo | Pre-EOL information (see enum below) |\n| 03h | bDeviceLifeTimeEstA | Life-time estimate for memory type A (see enum below) |\n| 04h | bDeviceLifeTimeEstB | Life-time estimate for memory type B (see enum below) |\n| 05h–24h | VendorPropInfo | 32 bytes vendor-specific health info |\n| 25h–28h | dRefreshTotalCount | Total number of refresh operations completed |\n| 29h–2Ch | dRefreshProgress | P"
+      },
+      {
+        "title": "UFS Flags",
+        "file": "entities/flags.md",
+        "excerpt": "---\ntype: entity\ntitle: \"UFS Flags\"\ntags: [flags, query, attribute, idn]\nsources: [spec]\ncreated: 2026-06-21\nupdated: 2026-06-21\n---\n\n# UFS Flags\n\nFlags are single-bit boolean values on the UFS device, accessed via QUERY REQUEST UPIU. Each flag has an IDN (Index Number) and supports specific OPCODE operations.\n\n## Access OPCODEs\n\n| OPCODE | Value | Description |\n|--------|-------|-------------|\n| READ FLAG | 05h | Read current flag value (0 or 1) |\n| SET FLAG | 06h | Set flag to 1 |\n| CLEAR FLAG | 07h | Clear flag to 0 |\n| TOGGLE FLAG | 08h | Toggle current flag value |\n\nThe flag value is returned in **byte 23** of the QUERY RESPONSE UPIU (Flag Value field).\n\nNot all flags support all OPCODEs — see the Access column below.\n\n## Flag Table\n\n| IDN | Name | Access | Default | Description |\n|-----|------|--------|---------|-------------|\n| 01h | fDeviceInit | Set only | 0 | Device sets this to 1 during initialization; host polls until cleared to 0 before sending normal commands |\n| 02h | fPermanentWPEn | Write once | 0 | Enables permanent write protection on LUs with bLUWriteProtect=02h; irreversible |\n| 03h | fPowerOnWPEn | Power-on-reset | 0 | Enables power-on write protection on LUs "
+      },
+      {
+        "title": "Inhibition Timeout",
+        "file": "entities/inhibition-timeout.md",
+        "excerpt": "---\ntype: entity\ntitle: \"Inhibition Timeout\"\ntags: [power-management, hwsetting, timing, background-operations, gc]\nsources: [spec, script, modeldefault]\ncreated: 2026-06-21\nupdated: 2026-06-21\naliases: [inhibition_time, INHIBITION_TIME, inhibition time]\n---\n\n# Inhibition Timeout\n\nThe duration (in seconds) a UFS device waits in idle before entering inhibition mode. During the inhibition window, background (BG) tasks — including Garbage Collection, Media Scan, Read Disturb scans, HIR, HID, and Refresh — are blocked from executing. Once the window expires, blocked tasks resume normally.\n\nConfigured via `HwSettingField.INHIBITION_TIME` and persists across power cycles.\n\n## Attribute\n\n- **Field:** `api.HwSettingField.INHIBITION_TIME`\n- **Type:** Integer (seconds)\n- **FW register:** `gInhibitMgr.lock` — returns `1` when inhibition is active, `0` when inactive\n- **Read method:** `get_hwsetting_inhibition_time()` — reads configured value from HwSetting\n\n## Valid Values\n\n| Value | Meaning |\n|-------|---------|\n| `0` | Immediate inhibition on idle (zero-timeout special case; `gInhibitMgr.lock` already `0` after power cycle) |\n| `30–255` | Wait N seconds before inhibition window closes |\n| `"
+      },
+      {
+        "title": "LUN — Logical Unit Number",
+        "file": "entities/lun.md",
+        "excerpt": "---\ntype: entity\ntitle: \"LUN — Logical Unit Number\"\ntags: [lun, storage, configuration, encoding, well-known-lun]\nsources: [spec, customerreq, userprompt, modeldefault]\ncreated: 2026-06-21\nupdated: 2026-06-21\naliases: [LUN, logical unit, LogicalUnit, W-LUN, Well-Known LUN]\n---\n\n# LUN — Logical Unit Number\n\nA logical storage partition within a UFS device. Multiple LUNs can coexist on one device, each with its own capacity, memory type, provisioning behavior, and access permissions.\n\n## LUN Types\n\n| Type | W-LUN | LUN Field in UPIU | Commands Supported |\n|------|-------|-------------------|--------------------|\n| Normal LU (0–31) | — | 00h–1Fh | All UCS commands when bLUEnable=01h |\n| REPORT LUNS | 01h | 81h | INQUIRY, REQUEST SENSE, TEST UNIT READY, REPORT LUNS |\n| UFS Device | 50h | D0h | INQUIRY, REQUEST SENSE, TEST UNIT READY, START STOP UNIT, FORMAT UNIT |\n| Boot | 30h | B0h | INQUIRY, REQUEST SENSE, TEST UNIT READY, READ (6), READ (10), READ (16), READ BUFFER |\n| RPMB | 44h | C4h | INQUIRY, REQUEST SENSE, TEST UNIT READY, SECURITY PROTOCOL IN, SECURITY PROTOCOL OUT |\n\n## LUN Field Encoding (Spec)\n\nThe LUN field in a UPIU is 8-bit and encoded as follows:\n\n| Bit(s) | Name | Meani"
+      },
+      {
+        "title": "PSA State",
+        "file": "entities/psa-state.md",
+        "excerpt": "---\ntype: entity\ntitle: \"PSA State\"\ntags: [psa, attribute, state-machine, bPSAState, pre-soldering]\nsources: [spec, script, modeldefault]\ncreated: 2026-06-21\nupdated: 2026-06-21\naliases: [bPSAState, PSAState, psa_state]\n---\n\n# PSA State\n\nThe `bPSAState` attribute (IDN 15h) tracks the current phase of the Production State Awareness (PSA) flow. Transitions are one-directional and irreversible once the device is soldered. PSA enables secure pre-loading of data before the device is physically soldered to the host board.\n\n**Spec reference**: JEDEC Standard No. 220G §13.6 (Chapter 67)\n\n## Attribute\n\n| Field | Value |\n|-------|-------|\n| Attribute IDN | 15h (`api.AttributeIDN.PSA_STATE`) |\n| Access | Persistent (read/write with state-transition restrictions) |\n| Size | 1 byte |\n| Default (factory) | 00h (Off) or 01h (Pre-soldering), device-specific |\n| QUERY OPCODE | READ ATTRIBUTE (03h) / WRITE ATTRIBUTE (04h) |\n\n## State Definitions\n\n| State | Value | Description |\n|-------|-------|-------------|\n| Off | 00h | PSA not active; normal operation or PSA reset |\n| Pre-soldering | 01h | PSA data loading phase; device uses special internal write operations for pre-loaded data |\n| Loading Compl"
+      },
+      {
+        "title": "RPMB — Replay Protected Memory Block",
+        "file": "entities/rpmb.md",
+        "excerpt": "---\ntype: entity\ntitle: \"RPMB — Replay Protected Memory Block\"\ntags: [rpmb, security, authentication, mac, write-counter, region]\nsources: [spec]\ncreated: 2026-06-21\nupdated: 2026-06-21\naliases: [RPMB, Replay Protected Memory Block, rpmb_region]\n---\n\n# RPMB — Replay Protected Memory Block\n\nRPMB is a secure storage partition in UFS devices that uses HMAC-SHA-256 authentication to prevent unauthorized writes. It supports up to 4 regions, each with its own dedicated key, write counter, and result register. Supported if `bSecurityLU (Device Descriptor 0Dh) = 01h`.\n\n## Regions\n\nEach RPMB region is independently keyed and addressed.\n\n| Region | Protocol Specific | Descriptor Field | Notes |\n|--------|------------------|-----------------|-------|\n| Region 0 | 00h 01h | bRPMBRegion0Size | Always enabled; only region that supports Secure WP Config Block |\n| Region 1 | 01h 01h | bRPMBRegion1Size | Optional |\n| Region 2 | 02h 01h | bRPMBRegion2Size | Optional |\n| Region 3 | 03h 01h | bRPMBRegion3Size | Optional |\n\n- `bRPMBRegionEnable`: bits[0–3] = region 0–3 enabled; bit[4] = Advanced RPMB mode\n- Region size unit: **128 KB** (0 = disabled); range: 128 KB – 16 MB\n- `bRPMBLifeTimeEst`: 00h = n"
+      },
+      {
+        "title": "UFS SCSI Commands (UCS)",
+        "file": "entities/scsi-commands.md",
+        "excerpt": "---\ntype: entity\ntitle: \"UFS SCSI Commands (UCS)\"\ntags: [scsi, commands, ucs, cdb, read, write, inquiry, unmap]\nsources: [spec]\ncreated: 2026-06-21\nupdated: 2026-06-21\n---\n\n# UFS SCSI Commands (UCS)\n\nThe UFS Command Set (UCS) is a subset of SCSI commands transported via COMMAND UPIU. All CDBs are fixed-length (maximum 16 bytes). The CONTROL byte in every CDB is always 00h.\n\n## Support Levels\n\n- **M** = Mandatory — all UFS devices must implement\n- **O** = Optional\n\n## Command Table\n\n| Command | Opcode | Support | Notes |\n|---------|--------|---------|-------|\n| TEST UNIT READY | 00h | M | No data transfer; checks if device is ready to process commands |\n| REQUEST SENSE | 03h | M | Returns 18-byte fixed-format sense data (Response Code=70h) |\n| FORMAT UNIT | 04h | M | Formats medium; when sent to Device W-LUN (D0h), formats all LUs except RPMB |\n| READ (6) | 08h | M | 6-byte CDB; LBA and transfer length limited to small ranges |\n| WRITE (6) | 0Ah | M | 6-byte CDB write |\n| INQUIRY | 12h | M | EVPD=0: Standard 36-byte response; EVPD=1: VPD pages |\n| MODE SELECT (10) | 55h | M | Sets mode pages (e.g., caching policy, error recovery) |\n| START STOP UNIT | 1Bh | M | POWER CONDITIONS fiel"
+      },
+      {
+        "title": "Thermal Protection Mode",
+        "file": "entities/thermal-protection-mode.md",
+        "excerpt": "---\ntype: entity\ntitle: \"Thermal Protection Mode\"\ntags: [thermal, hwsetting, protection, stuck, VU, temperature, shipping-mode]\nsources: [spec, script, modeldefault]\ncreated: 2026-06-21\nupdated: 2026-06-21\naliases: [ThermalProtectionMode, thermal_protection_mode, TP, thermal stuck]\n---\n\n# Thermal Protection Mode\n\nConfigures how the UFS device responds to temperature extremes. When thermal thresholds are exceeded, the device enters a \"stuck\" state — it stops responding to write commands until reset. The three protection modes correspond to which direction of temperature violation triggers a stuck state.\n\n## Modes\n\n| Mode | Value | Behavior |\n|------|-------|----------|\n| `HOT_COLD` | Default | Triggers stuck on both overheating AND extreme cold |\n| `HOT_ONLY` | — | Triggers stuck on overheating only |\n| `COLD_ONLY` | — | Triggers stuck on extreme cold only |\n| `DISABLE` | — | No thermal protection (use only in controlled environments) |\n\n## Default Value\n\n`thermal_protection = HOT_COLD` — from [[modeldefault]].\n\n## Thresholds (ModelDefault)\n\n```python\nTHERMAL_HOT_THRESHOLD  = 85   # °C — trigger throttling / stuck\nTHERMAL_COLD_THRESHOLD = 0    # °C — lower bound\nTHERMAL_SAFE_OPERATI"
+      },
+      {
+        "title": "Unit Descriptor (IDN 02h)",
+        "file": "entities/unit-descriptor.md",
+        "excerpt": "---\ntype: entity\ntitle: \"Unit Descriptor (IDN 02h)\"\ntags: [descriptor, lun, unit, query, ufs, provisioning]\nsources: [spec]\ncreated: 2026-06-21\nupdated: 2026-06-21\naliases: [Unit Descriptor, IDN 02h, LU Descriptor, bDescriptorIDN 02h]\n---\n\n# Unit Descriptor (IDN 02h)\n\nThe Unit Descriptor describes the runtime parameters of a single Logical Unit. One Unit Descriptor exists per LU (Normal LU 0–31, RPMB, Boot). It is accessed via QUERY REQUEST using OPCODE=01h (READ DESCRIPTOR), with INDEX=LUN number.\n\n- **IDN**: 02h\n- **INDEX**: LUN number (00h–1Fh for Normal LUs; additional values for Well-Known LUs)\n- **Access**: Read only (OPCODE=01h); parameters are configured via [[configuration-descriptor]]\n\n## Field Table\n\n| Offset | Field | Value / Notes |\n|--------|-------|---------------|\n| 00h | bLength | Length of this descriptor |\n| 01h | bDescriptorIDN | 02h |\n| 02h | bUnitIndex | LUN index of this unit |\n| 03h | bLUEnable | 00h=disabled, 01h=enabled |\n| 04h | bBootLunID | 00h=not a boot LU, 01h=Boot LU A, 02h=Boot LU B |\n| 05h | bLUWriteProtect | 00h=not protected, 01h=power-on WP, 02h=permanent WP |\n| 06h | bLUQueueDepth | Per-LU queue depth (0=uses device shared queue) |\n| 07h | bPSA"
+      },
+      {
+        "title": "UPIU Types",
+        "file": "entities/upiu.md",
+        "excerpt": "---\ntype: entity\ntitle: \"UPIU Types\"\ntags: [upiu, protocol, query, scsi, transport, response-codes]\nsources: [spec]\ncreated: 2026-06-21\nupdated: 2026-06-21\n---\n\n# UPIU Types\n\nUPIU (UFS Protocol Information Unit) is the fundamental transport unit of the UFS Transport Protocol (UTP) layer. All host-device communication uses UPIUs.\n\n## General UPIU Format\n\n- **Minimum size**: 32 bytes (12-byte basic header + 20 bytes transaction-specific fields)\n- **Maximum size**: 65,600 bytes\n- **Optional**: Extended Header Segments (EHS) + Data Segment\n\n### Basic Header (Bytes 0–11)\n\n| Byte | Field | Notes |\n|------|-------|-------|\n| 0 | Transaction Type | bit[7]=HD, bit[6]=DD, bits[5:0]=Transaction Code |\n| 1 | Flags | Transaction-specific flags |\n| 2 | LUN | Logical Unit Number (or Well-Known LUN) |\n| 3 | Task Tag | Command identifier within initiator |\n| 4 | IID [bits 7:4] | Initiator ID (upper 4 bits) |\n| 5 | Command Set Type / EXT_IID / Query Function / TM Function | Role depends on transaction type |\n| 6 | Response | Device→Host response code |\n| 7 | EXT_IID (H→D) / Status (D→H) | SCSI status in Response UPIU |\n| 8–9 | Total EHS Length / Device Information | EHS length in 32-byte units (0–3)"
+      },
+      {
+        "title": "Write Booster",
+        "file": "entities/write-booster.md",
+        "excerpt": "---\ntype: entity\ntitle: \"Write Booster\"\ntags: [write-booster, performance, attribute, flag]\nsources: [spec, customerreq, modeldefault]\ncreated: 2026-06-21\nupdated: 2026-06-21\naliases: [WB, WriteBooster, WRITEBOOSTER]\n---\n\n# Write Booster\n\nA UFS performance feature that uses a portion of TLC/QLC NAND in SLC mode as a write buffer. Improves sustained write performance by absorbing bursts before data is migrated to TLC/QLC.\n\n## Key Attributes and Flags\n\n| Name | IDN | Type | Purpose |\n|------|-----|------|---------|\n| `WRITEBOOSTER_EN` | `api.FlagIDN.WRITEBOOSTER_EN` | Flag | Enable/disable WB |\n| `AVAILABLE_WRITEBOOSTER_BUFFER_SIZE` | `api.AttributeIDN.AVAILABLE_WRITEBOOSTER_BUFFER_SIZE` | Attribute (read) | Current available WB buffer |\n| `b16_write_booster_buffer_preserve_user_space_en` | Config Descriptor | Config | Preserve user space when WB enabled |\n| `l18_num_shared_write_booster_buffer_alloc_units` | Config Descriptor | Config | WB buffer size in allocation units |\n\n## Default Value\n\n`WRITEBOOSTER_ENABLED = True` — from [[modeldefault]].\n\n## LUN Constraint *(CustomerReq overrides Spec)*\n\n**CustomerReq rule (KEPT):** WB-related Attribute/Flag operations must target:\n- A **Nor"
+      },
+      {
+        "title": "Background Operations (BKOPS)",
+        "file": "concepts/background-operations.md",
+        "excerpt": "---\ntype: concept\ntitle: \"Background Operations (BKOPS)\"\ntags: [bkops, gc, wear-leveling, background]\nsources: [spec, modeldefault, pronoun]\ncreated: 2026-06-21\nupdated: 2026-06-21\n---\n\n# Background Operations (BKOPS)\n\nUFS maintenance tasks that run in the background while the device is idle or between commands. Includes Garbage Collection (GC), Wear Leveling (WL), and other firmware housekeeping.\n\n## Key Terms (from [[pronoun]])\n\n| Term | Meaning |\n|------|---------|\n| **BKOPS** | Background Operations umbrella term |\n| **GC** | Garbage Collection — reclaims invalid (erased) flash blocks |\n| **WL** | Wear Leveling — distributes writes to extend flash lifespan |\n\n## Attributes\n\n| Attribute | Purpose |\n|-----------|---------|\n| `BKOPS_STATUS` | Reports current background operation urgency level |\n| `BKOPS_ENABLE` | Flag to enable/disable BKOPS |\n\n## Defaults (ModelDefault)\n\n```python\nBKOPS_ENABLED      = True\nBKOPS_FLUSH_ENABLE = True\n```\n\n## Inhibition Interaction\n\n[[inhibition-timeout]] governs how long the device waits idle before the inhibition manager locks out certain operations. BKOPS may be inhibited during this window. Pattern `PSW_F_P3_InhibitionTime_0002_BG_Task_Inhibitio"
+      },
+      {
+        "title": "Exception Events",
+        "file": "concepts/exception-events.md",
+        "excerpt": "---\ntype: concept\ntitle: \"Exception Events\"\ntags: [exception-events, attributes, temperature, writebooster, health]\nsources: [spec]\ncreated: 2026-06-21\nupdated: 2026-06-21\n---\n\n# Exception Events\n\nException Events are an asynchronous notification mechanism allowing the device to alert the host to conditions requiring attention. The device signals an event by setting `EVENT_ALERT` in the RESPONSE UPIU Device Information field; the host then reads `wExceptionEventStatus` to determine which event(s) are active.\n\n## Signal Path\n\n1. **Device detects condition** → sets corresponding bit in `wExceptionEventStatus` (IDN 0Eh)\n2. **Device sets `EVENT_ALERT`** → `bit[0]` of Device Information field in the next RESPONSE UPIU\n3. **Host reads `EVENT_ALERT = 1`** → issues QUERY REQUEST to read `wExceptionEventStatus`\n4. **Device clears the bit** in `wExceptionEventStatus` when the status is read by the host\n5. **Host takes action** based on which bits are set\n\n## Control Attribute\n\n`wExceptionEventControl` (Attribute IDN 0Dh):\n- **Volatile** (resets on power cycle)\n- 2-byte register; bits 0–11 map to corresponding event enable/disable controls\n- Set a bit to **enable** the corresponding event not"
+      },
+      {
+        "title": "FFU — Field Firmware Update",
+        "file": "concepts/ffu.md",
+        "excerpt": "---\ntype: concept\ntitle: \"FFU — Field Firmware Update\"\ntags: [ffu, firmware, write-buffer, attributes, commands]\nsources: [spec]\ncreated: 2026-06-21\nupdated: 2026-06-21\n---\n\n# FFU — Field Firmware Update\n\nField Firmware Update (FFU) is the UFS mechanism for delivering new firmware to a device in the field without physical access to the flash. FFU is supported when `bUFSFeaturesSupport bit[0] = 1` in the Device Descriptor (offset 1Fh).\n\nExtended FFU support is indicated by `dExtendedUFSFeaturesSupport bit[2] = 1` (offset 4Fh–52h).\n\n## Mechanism\n\nFFU uses the **WRITE BUFFER command** (opcode 3Bh) with a specific MODE value. UFS supports only one FFU mode:\n\n| MODE field | Value | Description |\n|-----------|-------|-------------|\n| 0Eh | Download microcode with offsets, save, and defer active | The only valid FFU mode in UFS |\n\nAll other WRITE BUFFER modes (00h, 03h–0Dh, 0Fh, etc.) are not used for FFU.\n\n## WRITE BUFFER Command for FFU\n\nCDB format (opcode 3Bh):\n\n| Byte | Field | FFU Requirement |\n|------|-------|----------------|\n| 1[4:0] | MODE | Must be 0Eh |\n| 2 | BUFFER ID | Must be 00h |\n| 3–5 | BUFFER OFFSET | Should be 4 KB-aligned; increasing order across sequence |\n| 6–8 | PAR"
+      },
+      {
+        "title": "Pattern: APL System Rebuild Implementation Guide",
+        "file": "concepts/pattern-apl-rebuild.md",
+        "excerpt": "---\ntype: concept\ntitle: \"Pattern: APL System Rebuild Implementation Guide\"\ntags: [pattern, script, implementation, apl, rebuild, uecc, hecc, spor, system-table]\nsources: [script, spec, modeldefault]\ncreated: 2026-06-21\nupdated: 2026-06-21\n---\n\n# Pattern: APL System Rebuild (APL 系统重建) Implementation Guide\n\n## 概述\n\nAPL System Rebuild（Application Layer 系统重建）pattern 测试 UFS 固件在系统表块（BBT、Page Table、Index、List、Log、ISP、PTE）或用户数据块发生 UECC（不可纠正错误）或 HECC（硬 ECC 错误）后，经过 SPOR（Sudden Power Off and Recovery），固件能否正确重建这些结构并恢复数据完整性。\n\n该 pattern 包含 21 个测试文件和共享的 `mutual_fun.py`。\n\n---\n\n## 测试文件一览\n\n| 测试范围 | 目的 |\n|---------|------|\n| PSW_F_P3_APL_Rebuild_0001 | BBT（Bad Block Table）UECC 注入后 SPOR 重建 |\n| PSW_F_P3_APL_Rebuild_0002 | Page Table UECC 注入后 SPOR 重建 |\n| PSW_F_P3_APL_Rebuild_0003 | Index 块 UECC 注入后 SPOR 重建 |\n| PSW_F_P3_APL_Rebuild_0004 | List 块 UECC 注入后 SPOR 重建 |\n| PSW_F_P3_APL_Rebuild_0005 | Log 块 UECC 注入后 SPOR 重建 |\n| PSW_F_P3_APL_Rebuild_0006 | ISP 块 UECC 注入后 SPOR 重建 |\n| PSW_F_P3_APL_Rebuild_0007 | PTE（Page Table Entry）UECC 注入后 SPOR 重建 |\n| PSW_F_P3_APL_Rebuild_0008 | GC UECC 场景：GC 源 VB 发生 UECC |\n| PSW_F_P3_APL_Rebuild_0009–0017 | 各种 EM1/TLC UECC/HECC 重建场景 |\n| PSW_F_P3_APL_Rebuild_0018 | PSA 模式下的重建（PRE"
+      },
+      {
+        "title": "Pattern: Inhibition Time Implementation Guide",
+        "file": "concepts/pattern-inhibition-time.md",
+        "excerpt": "---\ntype: concept\ntitle: \"Pattern: Inhibition Time Implementation Guide\"\ntags: [pattern, script, implementation, inhibition-time, background-operations, bg-task]\nsources: [script, spec, modeldefault]\ncreated: 2026-06-21\nupdated: 2026-06-21\n---\n\n# Pattern: Inhibition Time (抑制时间) Implementation Guide\n\n## 概述\n\nInhibition Time pattern 测试 UFS 固件在\"抑制窗口\"（inhibition window）内正确阻塞后台（BG）任务的能力，并验证窗口到期后任务能恢复正常执行。抑制机制的目的是在主机密集写入期间（刚完成写入后的短暂窗口）阻止固件执行可能影响性能的后台操作。\n\n测试文件夹包含 11 个测试文件，使用共享的 `mutual_fun.py` 提供触发器、轮询和验证助手函数。\n\n---\n\n## 测试文件一览\n\n| 测试文件 | 目的 |\n|---------|------|\n| PSW_F_P3_InhibitionTime_0001 | Disable/Enable Timing：抑制定时器启动与到期行为验证 |\n| PSW_F_P3_InhibitionTime_0002 | BG Task Inhibition：GC 等后台任务在抑制窗口内被阻塞，`gInhibitMgr.lock == 1` 验证 |\n| PSW_F_P3_InhibitionTime_0003 | GC inhibition：GC 在抑制窗口内被阻塞 |\n| PSW_F_P3_InhibitionTime_0004 | MS/BF/RD scan inhibition：Media Scan、BFEA、Read Disturb 扫描被阻塞 |\n| PSW_F_P3_InhibitionTime_0005 | BBM scan inhibition：Bad Block Management 扫描被阻塞 |\n| PSW_F_P3_InhibitionTime_0006 | Read Back Open TLC inhibition：开放 TLC 块的 read-back 被阻塞 |\n| PSW_F_P3_InhibitionTime_0007 | HIR Read Back inhibition：HIR（高强度刷新）read-back 被阻塞 |\n| PSW_F_P3_InhibitionTime_0008 | Purge Read Back inhibition"
+      },
+      {
+        "title": "Pattern: PSA (Pre-Soldering Authentication) Implementation Guide",
+        "file": "concepts/pattern-psa.md",
+        "excerpt": "---\ntype: concept\ntitle: \"Pattern: PSA (Pre-Soldering Authentication) Implementation Guide\"\ntags: [pattern, script, implementation, psa, pre-soldering, authentication]\nsources: [script, spec, modeldefault]\ncreated: 2026-06-21\nupdated: 2026-06-21\n---\n\n# Pattern: PSA (Pre-Soldering Authentication) Implementation Guide\n\n## 概述\n\nPSA（Pre-Soldering Authentication，焊前认证）pattern 测试 UFS 设备在出厂前的完整生命周期：从初始 LUN 配置，经过 PRE_SOLDERING、LOADING_COMPLETE，最终到达 SOLDERED 状态。PSA 机制确保设备在焊接到主板之前已经完成认证数据写入，保护生产流程中的固件完整性。\n\n该 pattern 包含 6 个测试文件（PSA_0001 到 PSA_0006），覆盖完整流程、中断恢复、事件日志、VU 命令验证、Boot EM1 写入以及 HIR 交互场景。\n\n---\n\n## 测试文件一览\n\n| 测试文件 | 目的 |\n|---------|------|\n| PSW_F_P3_PSA_0001 | 完整 PSA 38 步骤生命周期验证，覆盖所有状态转换、数据写入和验证点 |\n| PSW_F_P3_PSA_0002 | SPOR 中断恢复：在 PRE_SOLDERING 状态下的 SPOR 行为，以及 HIR/HID 拒绝验证 |\n| PSW_F_P3_PSA_0003 | 事件日志：温度阈值越限和 EC 阈值越限事件在 PSA 模式下的正确记录 |\n| PSW_F_P3_PSA_0004 | VU 命令验证：VU 4050（剩余 buffer 大小）、VU 404F（迁移状态）、VU 405C（post-reflow 进度） |\n| PSW_F_P3_PSA_0005 | Boot LUN 编程：BootLUN A 和 B 的 EM1 数据写入，CE 计数处理和 BootLUN 分配验证 |\n| PSW_F_P3_PSA_0006 | HIR 交互：INHIBITION_TIME=240s 时 HIR 的行为，VB MLC trim 从 PSA_TRIM 转换为 POR_TRIM |\n\n---\n\n## PSA 状态机\n\n```\nOFF → PRE_SOLDERING → LOADING_COMPLETE → SOLDERED\n```\n\n状态通过写 UF"
+      },
+      {
+        "title": "Pattern: RPMB Implementation Guide",
+        "file": "concepts/pattern-rpmb.md",
+        "excerpt": "---\ntype: concept\ntitle: \"Pattern: RPMB Implementation Guide\"\ntags: [pattern, script, implementation, rpmb, authentication, security, write-counter]\nsources: [script, spec, modeldefault]\ncreated: 2026-06-21\nupdated: 2026-06-21\n---\n\n# Pattern: RPMB (Replay Protected Memory Block) Implementation Guide\n\n## 概述\n\nRPMB（Replay Protected Memory Block，重放保护存储块）pattern 测试 UFS 设备对 RPMB 认证机制的正确实现。RPMB 通过共享密钥（HMAC-SHA256）对写操作进行认证，并维护单调递增的写计数器（write counter）以防止重放攻击。\n\nRPMB 相关测试分散在多个 pattern 文件夹中：`custom_vu`（0009、0036）、PSA、RAIN、APL Rebuild 等均使用 RPMB 进行 APL 块创建或安全验证。\n\n---\n\n## RPMB 区域配置\n\n标准测试配置使用 4 个 RPMB 区域（Region 0–3）：\n\n```python\n# CustomVU_0009 配置\nconfig_region_num = 4\nregion1_size == region2_size == region3_size == 1  # 每个区域大小为 1\n```\n\n---\n\n## RPMB 初始化流程\n\n### 标准初始化：Clear Key → Program Key → Write Counter\n\n```\nStep 1: Clear RPMB Key（如果已有旧密钥）\n   VU D079: issue_D079_to_clear_rpmb_key(region)\n\nStep 2: Program RPMB Key\n   rpmb.rpmb_key_programming()\n\nStep 3: Read Write Counter（验证密钥编程成功）\n   counter = rpmb.rpmb_read_counter(region)\n   # counter 应为 0（新初始化设备）\n\nStep 4（可选）: Set Write Counter via VU D078\n   issue_D078_to_set_rpmb_write_counter(region, counter_val)\n```\n\n### CustomVU_0009 完整流程\n\n```python\n# 对 4 个"
+      },
+      {
+        "title": "Pattern: Thermal Protection Implementation Guide",
+        "file": "concepts/pattern-thermal-protection.md",
+        "excerpt": "---\ntype: concept\ntitle: \"Pattern: Thermal Protection Implementation Guide\"\ntags: [pattern, script, implementation, thermal-protection, temperature, stuck-state]\nsources: [script, spec, modeldefault]\ncreated: 2026-06-21\nupdated: 2026-06-21\n---\n\n# Pattern: Thermal Protection (热保护) Implementation Guide\n\n## 概述\n\nThermal Protection pattern 测试 UFS 固件在温度超出安全范围（过热或过冷）时，能否正确进入\"stuck/throttled\"卡住状态，以及能否通过 VU D0F3 命令解除该状态。测试还覆盖 ATS 定时器行为、ASIC-NAND 温度差以及 auto-standby 的交互。\n\n该 pattern 包含 7 个测试文件：0001–0006 和 0010（注意：0007–0009 文件不存在，编号不连续）。\n\n---\n\n## 测试文件一览\n\n| 测试文件 | 目的 |\n|---------|------|\n| PSW_F_P3_ThermalProtection_0001 | HOT_ONLY Stuck：设置热阈值，注入超阈值温度，验证 stuck 状态，D0F3 解除 |\n| PSW_F_P3_ThermalProtection_0002 | COLD_ONLY Stuck：同 0001 但为低温（低于阈值）场景 |\n| PSW_F_P3_ThermalProtection_0003 | HOT_COLD Stuck：同时测试热阈值和冷阈值 |\n| PSW_F_P3_ThermalProtection_0004 | Shipping Mode 切换：Shipping Mode 配置变更时的热保护行为 |\n| PSW_F_P3_ThermalProtection_0005 | Shipping Mode 切换（场景二） |\n| PSW_F_P3_ThermalProtection_0006 | Shipping Mode 切换（场景三） |\n| PSW_F_P3_ThermalProtection_0010 | Temperature Measurement Check：ATS 定时器、delta_asic_nand 温度差、auto-standby 交互 |\n\n**注意**：0007–0009 编号缺失，文件不存在于此 pattern 文件夹中。\n\n---\n\n## 温度编码规则\n\nUFS 固件使用偏移编码表示温度：\n"
+      },
+      {
+        "title": "Pattern: Wear Leveling Implementation Guide",
+        "file": "concepts/pattern-wear-leveling.md",
+        "excerpt": "---\ntype: concept\ntitle: \"Pattern: Wear Leveling Implementation Guide\"\ntags: [pattern, script, implementation, wear-leveling, erase-count, vb-version, gc]\nsources: [script, spec, modeldefault]\ncreated: 2026-06-21\nupdated: 2026-06-21\n---\n\n# Pattern: Wear Leveling (磨损均衡) Implementation Guide\n\n## 概述\n\nWear Leveling（WL，磨损均衡）pattern 测试 UFS 固件在所有 VB（Virtual Block）之间均匀分布写入操作的能力。固件通过跟踪擦除次数（EC）和版本值（VER），当 EC 差距或版本差距超过阈值时触发静态（Static WL）或动态（Dynamic WL）磨损均衡，将数据从高 EC 块迁移到低 EC 块。\n\n该 pattern 包含 4 个测试文件和共享的 `mutual_fun.py`。\n\n---\n\n## 测试文件一览\n\n| 测试文件 | 目的 |\n|---------|------|\n| PSW_F_P3_WearLeveling_0001 | WL 信息测试：VBListNum/OpenVBType、EC/版本设置与读回、健康报告交叉验证 |\n| PSW_F_P3_WearLeveling_0002 | 静态 WL 刷新测试：ICS/Static/Dynamic 池触发、cold/prior-round、TH1/TH2 阈值、booking queue 验证 |\n| PSW_F_P3_WearLeveling_0003 | 静态 WL GC 测试：USED_BLK_POOL_EM1/TLC/TLC_WB GC 触发，`totalSWLGCTriggerCount` 递增 |\n| PSW_F_P3_WearLeveling_0004 | 动态 WL 测试：在搜索范围内按最低 EC 选择 VB |\n\n---\n\n## mutual_fun.py 共享函数\n\n### VB Entry 解析（get_VB_group）\n\n每个 VB 条目为 4 字节，`get_VB_group()` 解析位域：\n\n```python\ndef get_VB_group(vb_entry: int) -> dict:\n    return {\n        'group':       (vb_entry >>  0) & 0x3F,   # bits 0–5\n        'access_mode': (vb_entry >>  6) & 0x03,   "
+      },
+      {
+        "title": "Power Management",
+        "file": "concepts/power-management.md",
+        "excerpt": "---\ntype: concept\ntitle: \"Power Management\"\ntags: [power, reset, hibernate, timing]\nsources: [spec, script, modeldefault]\ncreated: 2026-06-21\nupdated: 2026-06-21\n---\n\n# Power Management\n\nCovers power cycling, reset types, hibernate states, and timing defaults used across UFS Pattern Code.\n\n## Reset Types\n\n| Reset | Enum | powerdown | Use Case |\n|-------|------|-----------|----------|\n| HW_RESET (no power loss) | `Dcmd5ResetType.HW_RESET` | `False` | General reset, faster |\n| HW_RESET (with power loss) | `Dcmd5ResetType.HW_RESET` | `True` | Full power cycle, more stress |\n| SOFT_RESET | `Dcmd5ResetType.SOFT_RESET` | `False` | Warm reset, reset recovery testing |\n\n## Default power_cycle() Pattern\n\nScript patterns randomize between power-on and power-off reset to maximize stress coverage:\n\n```python\ndef power_cycle(self) -> None:\n    if random.randint(0, 1):\n        init_tester_to_unit_ready(resetmode=Dcmd5ResetType.HW_RESET, powerdown=False)\n    else:\n        init_tester_to_unit_ready(resetmode=Dcmd5ResetType.HW_RESET, powerdown=True)\n    access_vendor_mode()   # always restore after reset\n```\n\nFor deterministic tests (e.g., PSA flow step 27, 35), use explicit `powerdown=True`.\n\n## H"
+      },
+      {
+        "title": "PSA — Production State Awareness",
+        "file": "concepts/psa.md",
+        "excerpt": "---\ntype: concept\ntitle: \"PSA — Production State Awareness\"\ntags: [psa, manufacturing, state-machine, attributes]\nsources: [spec, script]\ncreated: 2026-06-21\nupdated: 2026-06-21\n---\n\n# PSA — Production State Awareness\n\n## Introduction (Spec 13.6.1)\n\nUFS devices can utilize knowledge about their production status and adjust internal operations accordingly. Content loaded into the storage device prior to device soldering might be corrupted at a higher probability than in regular mode. The UFS device uses \"special\" internal operations for loading content prior to device soldering which reduces production failures, and switches to \"regular\" operations post-soldering.\n\nThe sensitivity to device soldering is a property of the individual logical unit. Some logical units may be sensitive to device soldering while others may not. Before loading data, the host reads `bPSASensitive` to identify which LUs are sensitive.\n\nPre-loaded data is data written to the device **after** device configuration is completed (`bConfigDescrLock` is set and device has been reset), and **before** device soldering to the host platform.\n\nThe combined maximum amount of data which can be pre-loaded to all sensitive "
+      },
+      {
+        "title": "Refresh Operation",
+        "file": "concepts/refresh.md",
+        "excerpt": "---\ntype: concept\ntitle: \"Refresh Operation\"\ntags: [refresh, data-retention, background-operations, attributes, flags, hir]\nsources: [spec, script]\ncreated: 2026-06-21\nupdated: 2026-06-21\n---\n\n# Refresh Operation\n\nThe Refresh operation relocates data to mitigate NAND retention degradation. It is supported when `dExtendedUFSFeaturesSupport bit[3] = 1` (Device Descriptor offset 4Fh–52h) and `bUFSFeaturesSupport bit[3] = 1` (offset 1Fh).\n\nRefresh re-programs data stored in NAND cells to fresh locations, counteracting charge loss that causes read errors over time or across temperature extremes.\n\n## Trigger Methods\n\n### Manual Trigger\n\nHost sets `fRefreshEnable` (Flag IDN 07h) to 1. This is a write-only volatile flag — it is automatically cleared when the operation completes.\n\nPrecondition: command queues of all logical units must be empty before the flag can be set.\n\n### Automatic (HIR — Host-Initiated Refresh)\n\nTemperature-triggered refresh (XTEMP): when NAND temperature goes out of range (too hot or too cold), the device books VBs for refresh automatically. The host is notified via `wExceptionEventStatus bit[11]` (device-level exception event).\n\n### Booking Queue (Script)\n\nScript-lay"
+      },
+      {
+        "title": "Shipping Mode",
+        "file": "concepts/shipping-mode.md",
+        "excerpt": "---\ntype: concept\ntitle: \"Shipping Mode\"\ntags: [shipping-mode, power, thermal, hwsetting, lifecycle, psa]\nsources: [script, modeldefault]\ncreated: 2026-06-21\nupdated: 2026-06-21\naliases: [shipping mode, ShippingMode, shipping_mode]\n---\n\n# Shipping Mode\n\nShipping Mode is a low-power state that UFS devices can enter before they are shipped to end customers or system integrators. In this mode, the device draws minimal power, protecting the battery or power supply during transit and storage. The device must be explicitly woken up before normal use.\n\n## Purpose\n\n- Minimize power draw during shipping and storage\n- Prevent unintended writes or operations while in transit\n- Default thermal protection applies (`HOT_COLD`) to cover a wide range of storage temperatures\n\n## Entry Flow\n\n```\n1. Ensure device is in Active or Idle power mode\n2. Set thermal protection mode to default (HOT_COLD)\n3. Issue the shipping mode entry command via HwSetting or VU\n4. Power cycle (powerdown=True) to commit the shipping mode state\n```\n\nShipping mode is typically part of the manufacturing lifecycle flow, performed before the device leaves the factory or after PSA loading is complete.\n\n## Exit Flow\n\n```\n1. Apply"
+      },
+      {
+        "title": "WriteBooster",
+        "file": "concepts/write-booster.md",
+        "excerpt": "---\ntype: concept\ntitle: \"WriteBooster\"\ntags: [write-booster, performance, slc-cache, flags, attributes]\nsources: [spec]\ncreated: 2026-06-21\nupdated: 2026-06-21\n---\n\n# WriteBooster\n\nWriteBooster is an SLC-based write acceleration buffer defined in the UFS specification. It is supported when `dExtendedUFSFeaturesSupport bit[0] = 1` (Device Descriptor offset 4Fh–52h).\n\n## Overview\n\nThe WriteBooster feature allows the device to use an SLC buffer for incoming write data, converting writes to high-throughput SLC writes initially, then migrating data to TLC in the background. This provides burst write performance significantly above the device's sustained TLC write rate.\n\n## Flags\n\n| IDN | Name | Access | Default | Description |\n|-----|------|--------|---------|-------------|\n| 0Eh | `fWriteBoosterEn` | Volatile | 0 | Enable/disable WriteBooster; when cleared, WB buffer is not used |\n| 0Fh | `fWriteBoosterBufferFlushEn` | Volatile | 0 | Enables background flush of WB buffer to TLC |\n| 10h | `fWriteBoosterBufferFlushDuringHibernate` | Volatile | 0 | Allows WB buffer flush to continue during UniPro Hibernate state |\n| 13h | `fUnpinEn` | Volatile | 0 | Enables unpinning of Pinned data in Wr"
+      }
+    ],
+    "loop_6": [
+      {
+        "title": "UFS Attributes",
+        "file": "entities/attributes.md",
+        "excerpt": "---\ntype: entity\ntitle: \"UFS Attributes\"\ntags: [attributes, query, idn, power-mode, psa, writebooster]\nsources: [spec]\ncreated: 2026-06-21\nupdated: 2026-06-21\n---\n\n# UFS Attributes\n\nAttributes are multi-byte device parameters, accessed via QUERY REQUEST UPIU (OPCODE 03h READ ATTRIBUTE / 04h WRITE ATTRIBUTE). The value field is 64-bit big-endian right-justified in the QUERY RESPONSE.\n\n## Query OPCODEs\n\n| OPCODE | Value | Description |\n|--------|-------|-------------|\n| READ ATTRIBUTE | 03h | Read current attribute value |\n| WRITE ATTRIBUTE | 04h | Write new attribute value |\n\nThe IDN, INDEX, and SELECTOR fields address each attribute. Most attributes use INDEX=0 and SELECTOR=0; exceptions include wContextConf (INDEX=LUN, SELECTOR=ContextID).\n\n## Attribute Table\n\n| IDN | Name | Access | Size | MDV | Description / Enum |\n|-----|------|--------|------|-----|-------------------|\n| 00h | bBootLunEn | Persistent | 1B | 00h | 00h=Boot LU disabled, 01h=Boot LU A active, 02h=Boot LU B active |\n| 01h | Reserved | — | — | — | Reserved (HPB extension) |\n| 02h | bCurrentPowerMode | Read only | 1B | — | Current device power state — see enum below |\n| 03h | bActiveICCLevel | Volatile | 1B | — | Ac"
+      },
+      {
+        "title": "Configuration Descriptor (IDN 01h)",
+        "file": "entities/configuration-descriptor.md",
+        "excerpt": "---\ntype: entity\ntitle: \"Configuration Descriptor (IDN 01h)\"\ntags: [descriptor, configuration, query, ufs, lun]\nsources: [spec]\ncreated: 2026-06-21\nupdated: 2026-06-21\naliases: [Configuration Descriptor, IDN 01h, Config Descriptor, bDescriptorIDN 01h]\n---\n\n# Configuration Descriptor (IDN 01h)\n\nThe Configuration Descriptor defines how the UFS device is partitioned into Logical Units. It is writable before `bConfigDescrLock` is set, and contains per-LU provisioning parameters for up to 8 LUs per configuration block.\n\n- **IDN**: 01h\n- **INDEX**: 00h–03h (each index covers 8 LUs; total up to 32 LUs)\n- **Access**: Read (OPCODE=01h) / Write (OPCODE=02h) — write allowed only when `bConfigDescrLock = 0`\n\n## Configuration Descriptor Structure\n\nA Configuration Descriptor (one INDEX) consists of:\n1. **Header section** — device-level configuration fields\n2. **Unit Descriptor Parameter blocks** — one block per LU (up to 8 LUs per index)\n\n### Header Fields\n\n| Offset | Field | Value / Notes |\n|--------|-------|---------------|\n| 00h | bLength | Total length of this configuration descriptor |\n| 01h | bDescriptorIDN | 01h |\n| 02h | bConfDescContinue | 00h=this is the last config descriptor, 01h=mor"
+      },
+      {
+        "title": "Device Descriptor (IDN 00h)",
+        "file": "entities/device-descriptor.md",
+        "excerpt": "---\ntype: entity\ntitle: \"Device Descriptor (IDN 00h)\"\ntags: [descriptor, device, query, ufs]\nsources: [spec]\ncreated: 2026-06-21\nupdated: 2026-06-21\naliases: [Device Descriptor, IDN 00h, bDescriptorIDN 00h]\n---\n\n# Device Descriptor (IDN 00h)\n\nThe Device Descriptor is the top-level descriptor of a UFS device. It identifies the manufacturer, product, spec version, LU count, and device capabilities. It is read-only and accessed via QUERY REQUEST with OPCODE=01h (READ DESCRIPTOR).\n\n- **IDN**: 00h\n- **bLength**: 59h (89 bytes for UFS 4.1)\n- **Access**: Read only (OPCODE=01h); host queries INDEX=00h, SELECTOR=00h\n\n## Field Table\n\n| Offset | Field | Value / Notes |\n|--------|-------|---------------|\n| 00h | bLength | 59h |\n| 01h | bDescriptorIDN | 00h |\n| 02h | bDevice | Device class |\n| 03h | bDeviceClass | |\n| 04h | bDeviceSubClass | |\n| 05h | bProtocol | |\n| 06h | bNumberLU | Number of enabled LUs |\n| 07h | bNumberWLU | Number of Well-Known LUs |\n| 08h | bBootEnable | 00h=disabled, 01h=bootable, 02h=permanent-bootable |\n| 09h | bDescrAccessEn | |\n| 0Ah | bInitPowerMode | Power mode after init |\n| 0Bh | bHighPriorityLUN | 7Fh=equal priority; or specific LUN index |\n| 0Ch | bSecureRemova"
+      },
+      {
+        "title": "Device Health Descriptor (IDN 09h)",
+        "file": "entities/device-health-descriptor.md",
+        "excerpt": "---\ntype: entity\ntitle: \"Device Health Descriptor (IDN 09h)\"\ntags: [descriptor, health, eol, lifetime, query, ufs]\nsources: [spec]\ncreated: 2026-06-21\nupdated: 2026-06-21\naliases: [Device Health Descriptor, IDN 09h, Health Descriptor, bDescriptorIDN 09h]\n---\n\n# Device Health Descriptor (IDN 09h)\n\nThe Device Health Descriptor provides device wear and lifetime information. It is used to monitor the health of the UFS device's NAND flash, including End-of-Life (EOL) prediction, life-time estimate, and refresh progress tracking.\n\n- **IDN**: 09h\n- **bLength**: 2Dh (45 bytes)\n- **INDEX**: 00h, SELECTOR: 00h\n- **Access**: Read only (OPCODE=01h)\n\n## Field Table\n\n| Offset | Field | Value / Notes |\n|--------|-------|---------------|\n| 00h | bLength | 2Dh |\n| 01h | bDescriptorIDN | 09h |\n| 02h | bPreEOLInfo | Pre-EOL information (see enum below) |\n| 03h | bDeviceLifeTimeEstA | Life-time estimate for memory type A (see enum below) |\n| 04h | bDeviceLifeTimeEstB | Life-time estimate for memory type B (see enum below) |\n| 05h–24h | VendorPropInfo | 32 bytes vendor-specific health info |\n| 25h–28h | dRefreshTotalCount | Total number of refresh operations completed |\n| 29h–2Ch | dRefreshProgress | P"
+      },
+      {
+        "title": "UFS Flags",
+        "file": "entities/flags.md",
+        "excerpt": "---\ntype: entity\ntitle: \"UFS Flags\"\ntags: [flags, query, attribute, idn]\nsources: [spec]\ncreated: 2026-06-21\nupdated: 2026-06-21\n---\n\n# UFS Flags\n\nFlags are single-bit boolean values on the UFS device, accessed via QUERY REQUEST UPIU. Each flag has an IDN (Index Number) and supports specific OPCODE operations.\n\n## Access OPCODEs\n\n| OPCODE | Value | Description |\n|--------|-------|-------------|\n| READ FLAG | 05h | Read current flag value (0 or 1) |\n| SET FLAG | 06h | Set flag to 1 |\n| CLEAR FLAG | 07h | Clear flag to 0 |\n| TOGGLE FLAG | 08h | Toggle current flag value |\n\nThe flag value is returned in **byte 23** of the QUERY RESPONSE UPIU (Flag Value field).\n\nNot all flags support all OPCODEs — see the Access column below.\n\n## Flag Table\n\n| IDN | Name | Access | Default | Description |\n|-----|------|--------|---------|-------------|\n| 01h | fDeviceInit | Set only | 0 | Device sets this to 1 during initialization; host polls until cleared to 0 before sending normal commands |\n| 02h | fPermanentWPEn | Write once | 0 | Enables permanent write protection on LUs with bLUWriteProtect=02h; irreversible |\n| 03h | fPowerOnWPEn | Power-on-reset | 0 | Enables power-on write protection on LUs "
+      },
+      {
+        "title": "Inhibition Timeout",
+        "file": "entities/inhibition-timeout.md",
+        "excerpt": "---\ntype: entity\ntitle: \"Inhibition Timeout\"\ntags: [power-management, hwsetting, timing, background-operations, gc]\nsources: [spec, script, modeldefault]\ncreated: 2026-06-21\nupdated: 2026-06-21\naliases: [inhibition_time, INHIBITION_TIME, inhibition time]\n---\n\n# Inhibition Timeout\n\nThe duration (in seconds) a UFS device waits in idle before entering inhibition mode. During the inhibition window, background (BG) tasks — including Garbage Collection, Media Scan, Read Disturb scans, HIR, HID, and Refresh — are blocked from executing. Once the window expires, blocked tasks resume normally.\n\nConfigured via `HwSettingField.INHIBITION_TIME` and persists across power cycles.\n\n## Attribute\n\n- **Field:** `api.HwSettingField.INHIBITION_TIME`\n- **Type:** Integer (seconds)\n- **FW register:** `gInhibitMgr.lock` — returns `1` when inhibition is active, `0` when inactive\n- **Read method:** `get_hwsetting_inhibition_time()` — reads configured value from HwSetting\n\n## Valid Values\n\n| Value | Meaning |\n|-------|---------|\n| `0` | Immediate inhibition on idle (zero-timeout special case; `gInhibitMgr.lock` already `0` after power cycle) |\n| `30–255` | Wait N seconds before inhibition window closes |\n| `"
+      },
+      {
+        "title": "LUN — Logical Unit Number",
+        "file": "entities/lun.md",
+        "excerpt": "---\ntype: entity\ntitle: \"LUN — Logical Unit Number\"\ntags: [lun, storage, configuration, encoding, well-known-lun]\nsources: [spec, customerreq, userprompt, modeldefault]\ncreated: 2026-06-21\nupdated: 2026-06-21\naliases: [LUN, logical unit, LogicalUnit, W-LUN, Well-Known LUN]\n---\n\n# LUN — Logical Unit Number\n\nA logical storage partition within a UFS device. Multiple LUNs can coexist on one device, each with its own capacity, memory type, provisioning behavior, and access permissions.\n\n## LUN Types\n\n| Type | W-LUN | LUN Field in UPIU | Commands Supported |\n|------|-------|-------------------|--------------------|\n| Normal LU (0–31) | — | 00h–1Fh | All UCS commands when bLUEnable=01h |\n| REPORT LUNS | 01h | 81h | INQUIRY, REQUEST SENSE, TEST UNIT READY, REPORT LUNS |\n| UFS Device | 50h | D0h | INQUIRY, REQUEST SENSE, TEST UNIT READY, START STOP UNIT, FORMAT UNIT |\n| Boot | 30h | B0h | INQUIRY, REQUEST SENSE, TEST UNIT READY, READ (6), READ (10), READ (16), READ BUFFER |\n| RPMB | 44h | C4h | INQUIRY, REQUEST SENSE, TEST UNIT READY, SECURITY PROTOCOL IN, SECURITY PROTOCOL OUT |\n\n## LUN Field Encoding (Spec)\n\nThe LUN field in a UPIU is 8-bit and encoded as follows:\n\n| Bit(s) | Name | Meani"
+      },
+      {
+        "title": "PSA State",
+        "file": "entities/psa-state.md",
+        "excerpt": "---\ntype: entity\ntitle: \"PSA State\"\ntags: [psa, attribute, state-machine, bPSAState, pre-soldering]\nsources: [spec, script, modeldefault]\ncreated: 2026-06-21\nupdated: 2026-06-21\naliases: [bPSAState, PSAState, psa_state]\n---\n\n# PSA State\n\nThe `bPSAState` attribute (IDN 15h) tracks the current phase of the Production State Awareness (PSA) flow. Transitions are one-directional and irreversible once the device is soldered. PSA enables secure pre-loading of data before the device is physically soldered to the host board.\n\n**Spec reference**: JEDEC Standard No. 220G §13.6 (Chapter 67)\n\n## Attribute\n\n| Field | Value |\n|-------|-------|\n| Attribute IDN | 15h (`api.AttributeIDN.PSA_STATE`) |\n| Access | Persistent (read/write with state-transition restrictions) |\n| Size | 1 byte |\n| Default (factory) | 00h (Off) or 01h (Pre-soldering), device-specific |\n| QUERY OPCODE | READ ATTRIBUTE (03h) / WRITE ATTRIBUTE (04h) |\n\n## State Definitions\n\n| State | Value | Description |\n|-------|-------|-------------|\n| Off | 00h | PSA not active; normal operation or PSA reset |\n| Pre-soldering | 01h | PSA data loading phase; device uses special internal write operations for pre-loaded data |\n| Loading Compl"
+      },
+      {
+        "title": "RPMB — Replay Protected Memory Block",
+        "file": "entities/rpmb.md",
+        "excerpt": "---\ntype: entity\ntitle: \"RPMB — Replay Protected Memory Block\"\ntags: [rpmb, security, authentication, mac, write-counter, region]\nsources: [spec]\ncreated: 2026-06-21\nupdated: 2026-06-21\naliases: [RPMB, Replay Protected Memory Block, rpmb_region]\n---\n\n# RPMB — Replay Protected Memory Block\n\nRPMB is a secure storage partition in UFS devices that uses HMAC-SHA-256 authentication to prevent unauthorized writes. It supports up to 4 regions, each with its own dedicated key, write counter, and result register. Supported if `bSecurityLU (Device Descriptor 0Dh) = 01h`.\n\n## Regions\n\nEach RPMB region is independently keyed and addressed.\n\n| Region | Protocol Specific | Descriptor Field | Notes |\n|--------|------------------|-----------------|-------|\n| Region 0 | 00h 01h | bRPMBRegion0Size | Always enabled; only region that supports Secure WP Config Block |\n| Region 1 | 01h 01h | bRPMBRegion1Size | Optional |\n| Region 2 | 02h 01h | bRPMBRegion2Size | Optional |\n| Region 3 | 03h 01h | bRPMBRegion3Size | Optional |\n\n- `bRPMBRegionEnable`: bits[0–3] = region 0–3 enabled; bit[4] = Advanced RPMB mode\n- Region size unit: **128 KB** (0 = disabled); range: 128 KB – 16 MB\n- `bRPMBLifeTimeEst`: 00h = n"
+      },
+      {
+        "title": "UFS SCSI Commands (UCS)",
+        "file": "entities/scsi-commands.md",
+        "excerpt": "---\ntype: entity\ntitle: \"UFS SCSI Commands (UCS)\"\ntags: [scsi, commands, ucs, cdb, read, write, inquiry, unmap]\nsources: [spec]\ncreated: 2026-06-21\nupdated: 2026-06-21\n---\n\n# UFS SCSI Commands (UCS)\n\nThe UFS Command Set (UCS) is a subset of SCSI commands transported via COMMAND UPIU. All CDBs are fixed-length (maximum 16 bytes). The CONTROL byte in every CDB is always 00h.\n\n## Support Levels\n\n- **M** = Mandatory — all UFS devices must implement\n- **O** = Optional\n\n## Command Table\n\n| Command | Opcode | Support | Notes |\n|---------|--------|---------|-------|\n| TEST UNIT READY | 00h | M | No data transfer; checks if device is ready to process commands |\n| REQUEST SENSE | 03h | M | Returns 18-byte fixed-format sense data (Response Code=70h) |\n| FORMAT UNIT | 04h | M | Formats medium; when sent to Device W-LUN (D0h), formats all LUs except RPMB |\n| READ (6) | 08h | M | 6-byte CDB; LBA and transfer length limited to small ranges |\n| WRITE (6) | 0Ah | M | 6-byte CDB write |\n| INQUIRY | 12h | M | EVPD=0: Standard 36-byte response; EVPD=1: VPD pages |\n| MODE SELECT (10) | 55h | M | Sets mode pages (e.g., caching policy, error recovery) |\n| START STOP UNIT | 1Bh | M | POWER CONDITIONS fiel"
+      },
+      {
+        "title": "Thermal Protection Mode",
+        "file": "entities/thermal-protection-mode.md",
+        "excerpt": "---\ntype: entity\ntitle: \"Thermal Protection Mode\"\ntags: [thermal, hwsetting, protection, stuck, VU, temperature, shipping-mode]\nsources: [spec, script, modeldefault]\ncreated: 2026-06-21\nupdated: 2026-06-21\naliases: [ThermalProtectionMode, thermal_protection_mode, TP, thermal stuck]\n---\n\n# Thermal Protection Mode\n\nConfigures how the UFS device responds to temperature extremes. When thermal thresholds are exceeded, the device enters a \"stuck\" state — it stops responding to write commands until reset. The three protection modes correspond to which direction of temperature violation triggers a stuck state.\n\n## Modes\n\n| Mode | Value | Behavior |\n|------|-------|----------|\n| `HOT_COLD` | Default | Triggers stuck on both overheating AND extreme cold |\n| `HOT_ONLY` | — | Triggers stuck on overheating only |\n| `COLD_ONLY` | — | Triggers stuck on extreme cold only |\n| `DISABLE` | — | No thermal protection (use only in controlled environments) |\n\n## Default Value\n\n`thermal_protection = HOT_COLD` — from [[modeldefault]].\n\n## Thresholds (ModelDefault)\n\n```python\nTHERMAL_HOT_THRESHOLD  = 85   # °C — trigger throttling / stuck\nTHERMAL_COLD_THRESHOLD = 0    # °C — lower bound\nTHERMAL_SAFE_OPERATI"
+      },
+      {
+        "title": "Unit Descriptor (IDN 02h)",
+        "file": "entities/unit-descriptor.md",
+        "excerpt": "---\ntype: entity\ntitle: \"Unit Descriptor (IDN 02h)\"\ntags: [descriptor, lun, unit, query, ufs, provisioning]\nsources: [spec]\ncreated: 2026-06-21\nupdated: 2026-06-21\naliases: [Unit Descriptor, IDN 02h, LU Descriptor, bDescriptorIDN 02h]\n---\n\n# Unit Descriptor (IDN 02h)\n\nThe Unit Descriptor describes the runtime parameters of a single Logical Unit. One Unit Descriptor exists per LU (Normal LU 0–31, RPMB, Boot). It is accessed via QUERY REQUEST using OPCODE=01h (READ DESCRIPTOR), with INDEX=LUN number.\n\n- **IDN**: 02h\n- **INDEX**: LUN number (00h–1Fh for Normal LUs; additional values for Well-Known LUs)\n- **Access**: Read only (OPCODE=01h); parameters are configured via [[configuration-descriptor]]\n\n## Field Table\n\n| Offset | Field | Value / Notes |\n|--------|-------|---------------|\n| 00h | bLength | Length of this descriptor |\n| 01h | bDescriptorIDN | 02h |\n| 02h | bUnitIndex | LUN index of this unit |\n| 03h | bLUEnable | 00h=disabled, 01h=enabled |\n| 04h | bBootLunID | 00h=not a boot LU, 01h=Boot LU A, 02h=Boot LU B |\n| 05h | bLUWriteProtect | 00h=not protected, 01h=power-on WP, 02h=permanent WP |\n| 06h | bLUQueueDepth | Per-LU queue depth (0=uses device shared queue) |\n| 07h | bPSA"
+      },
+      {
+        "title": "UPIU Types",
+        "file": "entities/upiu.md",
+        "excerpt": "---\ntype: entity\ntitle: \"UPIU Types\"\ntags: [upiu, protocol, query, scsi, transport, response-codes]\nsources: [spec]\ncreated: 2026-06-21\nupdated: 2026-06-21\n---\n\n# UPIU Types\n\nUPIU (UFS Protocol Information Unit) is the fundamental transport unit of the UFS Transport Protocol (UTP) layer. All host-device communication uses UPIUs.\n\n## General UPIU Format\n\n- **Minimum size**: 32 bytes (12-byte basic header + 20 bytes transaction-specific fields)\n- **Maximum size**: 65,600 bytes\n- **Optional**: Extended Header Segments (EHS) + Data Segment\n\n### Basic Header (Bytes 0–11)\n\n| Byte | Field | Notes |\n|------|-------|-------|\n| 0 | Transaction Type | bit[7]=HD, bit[6]=DD, bits[5:0]=Transaction Code |\n| 1 | Flags | Transaction-specific flags |\n| 2 | LUN | Logical Unit Number (or Well-Known LUN) |\n| 3 | Task Tag | Command identifier within initiator |\n| 4 | IID [bits 7:4] | Initiator ID (upper 4 bits) |\n| 5 | Command Set Type / EXT_IID / Query Function / TM Function | Role depends on transaction type |\n| 6 | Response | Device→Host response code |\n| 7 | EXT_IID (H→D) / Status (D→H) | SCSI status in Response UPIU |\n| 8–9 | Total EHS Length / Device Information | EHS length in 32-byte units (0–3)"
+      },
+      {
+        "title": "Write Booster",
+        "file": "entities/write-booster.md",
+        "excerpt": "---\ntype: entity\ntitle: \"Write Booster\"\ntags: [write-booster, performance, attribute, flag]\nsources: [spec, customerreq, modeldefault]\ncreated: 2026-06-21\nupdated: 2026-06-21\naliases: [WB, WriteBooster, WRITEBOOSTER]\n---\n\n# Write Booster\n\nA UFS performance feature that uses a portion of TLC/QLC NAND in SLC mode as a write buffer. Improves sustained write performance by absorbing bursts before data is migrated to TLC/QLC.\n\n## Key Attributes and Flags\n\n| Name | IDN | Type | Purpose |\n|------|-----|------|---------|\n| `WRITEBOOSTER_EN` | `api.FlagIDN.WRITEBOOSTER_EN` | Flag | Enable/disable WB |\n| `AVAILABLE_WRITEBOOSTER_BUFFER_SIZE` | `api.AttributeIDN.AVAILABLE_WRITEBOOSTER_BUFFER_SIZE` | Attribute (read) | Current available WB buffer |\n| `b16_write_booster_buffer_preserve_user_space_en` | Config Descriptor | Config | Preserve user space when WB enabled |\n| `l18_num_shared_write_booster_buffer_alloc_units` | Config Descriptor | Config | WB buffer size in allocation units |\n\n## Default Value\n\n`WRITEBOOSTER_ENABLED = True` — from [[modeldefault]].\n\n## LUN Constraint *(CustomerReq overrides Spec)*\n\n**CustomerReq rule (KEPT):** WB-related Attribute/Flag operations must target:\n- A **Nor"
+      },
+      {
+        "title": "Background Operations (BKOPS)",
+        "file": "concepts/background-operations.md",
+        "excerpt": "---\ntype: concept\ntitle: \"Background Operations (BKOPS)\"\ntags: [bkops, gc, wear-leveling, background]\nsources: [spec, modeldefault, pronoun]\ncreated: 2026-06-21\nupdated: 2026-06-21\n---\n\n# Background Operations (BKOPS)\n\nUFS maintenance tasks that run in the background while the device is idle or between commands. Includes Garbage Collection (GC), Wear Leveling (WL), and other firmware housekeeping.\n\n## Key Terms (from [[pronoun]])\n\n| Term | Meaning |\n|------|---------|\n| **BKOPS** | Background Operations umbrella term |\n| **GC** | Garbage Collection — reclaims invalid (erased) flash blocks |\n| **WL** | Wear Leveling — distributes writes to extend flash lifespan |\n\n## Attributes\n\n| Attribute | Purpose |\n|-----------|---------|\n| `BKOPS_STATUS` | Reports current background operation urgency level |\n| `BKOPS_ENABLE` | Flag to enable/disable BKOPS |\n\n## Defaults (ModelDefault)\n\n```python\nBKOPS_ENABLED      = True\nBKOPS_FLUSH_ENABLE = True\n```\n\n## Inhibition Interaction\n\n[[inhibition-timeout]] governs how long the device waits idle before the inhibition manager locks out certain operations. BKOPS may be inhibited during this window. Pattern `PSW_F_P3_InhibitionTime_0002_BG_Task_Inhibitio"
+      },
+      {
+        "title": "Exception Events",
+        "file": "concepts/exception-events.md",
+        "excerpt": "---\ntype: concept\ntitle: \"Exception Events\"\ntags: [exception-events, attributes, temperature, writebooster, health]\nsources: [spec]\ncreated: 2026-06-21\nupdated: 2026-06-21\n---\n\n# Exception Events\n\nException Events are an asynchronous notification mechanism allowing the device to alert the host to conditions requiring attention. The device signals an event by setting `EVENT_ALERT` in the RESPONSE UPIU Device Information field; the host then reads `wExceptionEventStatus` to determine which event(s) are active.\n\n## Signal Path\n\n1. **Device detects condition** → sets corresponding bit in `wExceptionEventStatus` (IDN 0Eh)\n2. **Device sets `EVENT_ALERT`** → `bit[0]` of Device Information field in the next RESPONSE UPIU\n3. **Host reads `EVENT_ALERT = 1`** → issues QUERY REQUEST to read `wExceptionEventStatus`\n4. **Device clears the bit** in `wExceptionEventStatus` when the status is read by the host\n5. **Host takes action** based on which bits are set\n\n## Control Attribute\n\n`wExceptionEventControl` (Attribute IDN 0Dh):\n- **Volatile** (resets on power cycle)\n- 2-byte register; bits 0–11 map to corresponding event enable/disable controls\n- Set a bit to **enable** the corresponding event not"
+      },
+      {
+        "title": "FFU — Field Firmware Update",
+        "file": "concepts/ffu.md",
+        "excerpt": "---\ntype: concept\ntitle: \"FFU — Field Firmware Update\"\ntags: [ffu, firmware, write-buffer, attributes, commands]\nsources: [spec]\ncreated: 2026-06-21\nupdated: 2026-06-21\n---\n\n# FFU — Field Firmware Update\n\nField Firmware Update (FFU) is the UFS mechanism for delivering new firmware to a device in the field without physical access to the flash. FFU is supported when `bUFSFeaturesSupport bit[0] = 1` in the Device Descriptor (offset 1Fh).\n\nExtended FFU support is indicated by `dExtendedUFSFeaturesSupport bit[2] = 1` (offset 4Fh–52h).\n\n## Mechanism\n\nFFU uses the **WRITE BUFFER command** (opcode 3Bh) with a specific MODE value. UFS supports only one FFU mode:\n\n| MODE field | Value | Description |\n|-----------|-------|-------------|\n| 0Eh | Download microcode with offsets, save, and defer active | The only valid FFU mode in UFS |\n\nAll other WRITE BUFFER modes (00h, 03h–0Dh, 0Fh, etc.) are not used for FFU.\n\n## WRITE BUFFER Command for FFU\n\nCDB format (opcode 3Bh):\n\n| Byte | Field | FFU Requirement |\n|------|-------|----------------|\n| 1[4:0] | MODE | Must be 0Eh |\n| 2 | BUFFER ID | Must be 00h |\n| 3–5 | BUFFER OFFSET | Should be 4 KB-aligned; increasing order across sequence |\n| 6–8 | PAR"
+      },
+      {
+        "title": "Pattern: APL System Rebuild Implementation Guide",
+        "file": "concepts/pattern-apl-rebuild.md",
+        "excerpt": "---\ntype: concept\ntitle: \"Pattern: APL System Rebuild Implementation Guide\"\ntags: [pattern, script, implementation, apl, rebuild, uecc, hecc, spor, system-table]\nsources: [script, spec, modeldefault]\ncreated: 2026-06-21\nupdated: 2026-06-21\n---\n\n# Pattern: APL System Rebuild (APL 系统重建) Implementation Guide\n\n## 概述\n\nAPL System Rebuild（Application Layer 系统重建）pattern 测试 UFS 固件在系统表块（BBT、Page Table、Index、List、Log、ISP、PTE）或用户数据块发生 UECC（不可纠正错误）或 HECC（硬 ECC 错误）后，经过 SPOR（Sudden Power Off and Recovery），固件能否正确重建这些结构并恢复数据完整性。\n\n该 pattern 包含 21 个测试文件和共享的 `mutual_fun.py`。\n\n---\n\n## 测试文件一览\n\n| 测试范围 | 目的 |\n|---------|------|\n| PSW_F_P3_APL_Rebuild_0001 | BBT（Bad Block Table）UECC 注入后 SPOR 重建 |\n| PSW_F_P3_APL_Rebuild_0002 | Page Table UECC 注入后 SPOR 重建 |\n| PSW_F_P3_APL_Rebuild_0003 | Index 块 UECC 注入后 SPOR 重建 |\n| PSW_F_P3_APL_Rebuild_0004 | List 块 UECC 注入后 SPOR 重建 |\n| PSW_F_P3_APL_Rebuild_0005 | Log 块 UECC 注入后 SPOR 重建 |\n| PSW_F_P3_APL_Rebuild_0006 | ISP 块 UECC 注入后 SPOR 重建 |\n| PSW_F_P3_APL_Rebuild_0007 | PTE（Page Table Entry）UECC 注入后 SPOR 重建 |\n| PSW_F_P3_APL_Rebuild_0008 | GC UECC 场景：GC 源 VB 发生 UECC |\n| PSW_F_P3_APL_Rebuild_0009–0017 | 各种 EM1/TLC UECC/HECC 重建场景 |\n| PSW_F_P3_APL_Rebuild_0018 | PSA 模式下的重建（PRE"
+      },
+      {
+        "title": "Pattern: Inhibition Time Implementation Guide",
+        "file": "concepts/pattern-inhibition-time.md",
+        "excerpt": "---\ntype: concept\ntitle: \"Pattern: Inhibition Time Implementation Guide\"\ntags: [pattern, script, implementation, inhibition-time, background-operations, bg-task]\nsources: [script, spec, modeldefault]\ncreated: 2026-06-21\nupdated: 2026-06-21\n---\n\n# Pattern: Inhibition Time (抑制时间) Implementation Guide\n\n## 概述\n\nInhibition Time pattern 测试 UFS 固件在\"抑制窗口\"（inhibition window）内正确阻塞后台（BG）任务的能力，并验证窗口到期后任务能恢复正常执行。抑制机制的目的是在主机密集写入期间（刚完成写入后的短暂窗口）阻止固件执行可能影响性能的后台操作。\n\n测试文件夹包含 11 个测试文件，使用共享的 `mutual_fun.py` 提供触发器、轮询和验证助手函数。\n\n---\n\n## 测试文件一览\n\n| 测试文件 | 目的 |\n|---------|------|\n| PSW_F_P3_InhibitionTime_0001 | Disable/Enable Timing：抑制定时器启动与到期行为验证 |\n| PSW_F_P3_InhibitionTime_0002 | BG Task Inhibition：GC 等后台任务在抑制窗口内被阻塞，`gInhibitMgr.lock == 1` 验证 |\n| PSW_F_P3_InhibitionTime_0003 | GC inhibition：GC 在抑制窗口内被阻塞 |\n| PSW_F_P3_InhibitionTime_0004 | MS/BF/RD scan inhibition：Media Scan、BFEA、Read Disturb 扫描被阻塞 |\n| PSW_F_P3_InhibitionTime_0005 | BBM scan inhibition：Bad Block Management 扫描被阻塞 |\n| PSW_F_P3_InhibitionTime_0006 | Read Back Open TLC inhibition：开放 TLC 块的 read-back 被阻塞 |\n| PSW_F_P3_InhibitionTime_0007 | HIR Read Back inhibition：HIR（高强度刷新）read-back 被阻塞 |\n| PSW_F_P3_InhibitionTime_0008 | Purge Read Back inhibition"
+      },
+      {
+        "title": "Pattern: PSA (Pre-Soldering Authentication) Implementation Guide",
+        "file": "concepts/pattern-psa.md",
+        "excerpt": "---\ntype: concept\ntitle: \"Pattern: PSA (Pre-Soldering Authentication) Implementation Guide\"\ntags: [pattern, script, implementation, psa, pre-soldering, authentication]\nsources: [script, spec, modeldefault]\ncreated: 2026-06-21\nupdated: 2026-06-21\n---\n\n# Pattern: PSA (Pre-Soldering Authentication) Implementation Guide\n\n## 概述\n\nPSA（Pre-Soldering Authentication，焊前认证）pattern 测试 UFS 设备在出厂前的完整生命周期：从初始 LUN 配置，经过 PRE_SOLDERING、LOADING_COMPLETE，最终到达 SOLDERED 状态。PSA 机制确保设备在焊接到主板之前已经完成认证数据写入，保护生产流程中的固件完整性。\n\n该 pattern 包含 6 个测试文件（PSA_0001 到 PSA_0006），覆盖完整流程、中断恢复、事件日志、VU 命令验证、Boot EM1 写入以及 HIR 交互场景。\n\n---\n\n## 测试文件一览\n\n| 测试文件 | 目的 |\n|---------|------|\n| PSW_F_P3_PSA_0001 | 完整 PSA 38 步骤生命周期验证，覆盖所有状态转换、数据写入和验证点 |\n| PSW_F_P3_PSA_0002 | SPOR 中断恢复：在 PRE_SOLDERING 状态下的 SPOR 行为，以及 HIR/HID 拒绝验证 |\n| PSW_F_P3_PSA_0003 | 事件日志：温度阈值越限和 EC 阈值越限事件在 PSA 模式下的正确记录 |\n| PSW_F_P3_PSA_0004 | VU 命令验证：VU 4050（剩余 buffer 大小）、VU 404F（迁移状态）、VU 405C（post-reflow 进度） |\n| PSW_F_P3_PSA_0005 | Boot LUN 编程：BootLUN A 和 B 的 EM1 数据写入，CE 计数处理和 BootLUN 分配验证 |\n| PSW_F_P3_PSA_0006 | HIR 交互：INHIBITION_TIME=240s 时 HIR 的行为，VB MLC trim 从 PSA_TRIM 转换为 POR_TRIM |\n\n---\n\n## PSA 状态机\n\n```\nOFF → PRE_SOLDERING → LOADING_COMPLETE → SOLDERED\n```\n\n状态通过写 UF"
+      },
+      {
+        "title": "Pattern: RPMB Implementation Guide",
+        "file": "concepts/pattern-rpmb.md",
+        "excerpt": "---\ntype: concept\ntitle: \"Pattern: RPMB Implementation Guide\"\ntags: [pattern, script, implementation, rpmb, authentication, security, write-counter]\nsources: [script, spec, modeldefault]\ncreated: 2026-06-21\nupdated: 2026-06-21\n---\n\n# Pattern: RPMB (Replay Protected Memory Block) Implementation Guide\n\n## 概述\n\nRPMB（Replay Protected Memory Block，重放保护存储块）pattern 测试 UFS 设备对 RPMB 认证机制的正确实现。RPMB 通过共享密钥（HMAC-SHA256）对写操作进行认证，并维护单调递增的写计数器（write counter）以防止重放攻击。\n\nRPMB 相关测试分散在多个 pattern 文件夹中：`custom_vu`（0009、0036）、PSA、RAIN、APL Rebuild 等均使用 RPMB 进行 APL 块创建或安全验证。\n\n---\n\n## RPMB 区域配置\n\n标准测试配置使用 4 个 RPMB 区域（Region 0–3）：\n\n```python\n# CustomVU_0009 配置\nconfig_region_num = 4\nregion1_size == region2_size == region3_size == 1  # 每个区域大小为 1\n```\n\n---\n\n## RPMB 初始化流程\n\n### 标准初始化：Clear Key → Program Key → Write Counter\n\n```\nStep 1: Clear RPMB Key（如果已有旧密钥）\n   VU D079: issue_D079_to_clear_rpmb_key(region)\n\nStep 2: Program RPMB Key\n   rpmb.rpmb_key_programming()\n\nStep 3: Read Write Counter（验证密钥编程成功）\n   counter = rpmb.rpmb_read_counter(region)\n   # counter 应为 0（新初始化设备）\n\nStep 4（可选）: Set Write Counter via VU D078\n   issue_D078_to_set_rpmb_write_counter(region, counter_val)\n```\n\n### CustomVU_0009 完整流程\n\n```python\n# 对 4 个"
+      },
+      {
+        "title": "Pattern: Thermal Protection Implementation Guide",
+        "file": "concepts/pattern-thermal-protection.md",
+        "excerpt": "---\ntype: concept\ntitle: \"Pattern: Thermal Protection Implementation Guide\"\ntags: [pattern, script, implementation, thermal-protection, temperature, stuck-state]\nsources: [script, spec, modeldefault]\ncreated: 2026-06-21\nupdated: 2026-06-21\n---\n\n# Pattern: Thermal Protection (热保护) Implementation Guide\n\n## 概述\n\nThermal Protection pattern 测试 UFS 固件在温度超出安全范围（过热或过冷）时，能否正确进入\"stuck/throttled\"卡住状态，以及能否通过 VU D0F3 命令解除该状态。测试还覆盖 ATS 定时器行为、ASIC-NAND 温度差以及 auto-standby 的交互。\n\n该 pattern 包含 7 个测试文件：0001–0006 和 0010（注意：0007–0009 文件不存在，编号不连续）。\n\n---\n\n## 测试文件一览\n\n| 测试文件 | 目的 |\n|---------|------|\n| PSW_F_P3_ThermalProtection_0001 | HOT_ONLY Stuck：设置热阈值，注入超阈值温度，验证 stuck 状态，D0F3 解除 |\n| PSW_F_P3_ThermalProtection_0002 | COLD_ONLY Stuck：同 0001 但为低温（低于阈值）场景 |\n| PSW_F_P3_ThermalProtection_0003 | HOT_COLD Stuck：同时测试热阈值和冷阈值 |\n| PSW_F_P3_ThermalProtection_0004 | Shipping Mode 切换：Shipping Mode 配置变更时的热保护行为 |\n| PSW_F_P3_ThermalProtection_0005 | Shipping Mode 切换（场景二） |\n| PSW_F_P3_ThermalProtection_0006 | Shipping Mode 切换（场景三） |\n| PSW_F_P3_ThermalProtection_0010 | Temperature Measurement Check：ATS 定时器、delta_asic_nand 温度差、auto-standby 交互 |\n\n**注意**：0007–0009 编号缺失，文件不存在于此 pattern 文件夹中。\n\n---\n\n## 温度编码规则\n\nUFS 固件使用偏移编码表示温度：\n"
+      },
+      {
+        "title": "Pattern: Wear Leveling Implementation Guide",
+        "file": "concepts/pattern-wear-leveling.md",
+        "excerpt": "---\ntype: concept\ntitle: \"Pattern: Wear Leveling Implementation Guide\"\ntags: [pattern, script, implementation, wear-leveling, erase-count, vb-version, gc]\nsources: [script, spec, modeldefault]\ncreated: 2026-06-21\nupdated: 2026-06-21\n---\n\n# Pattern: Wear Leveling (磨损均衡) Implementation Guide\n\n## 概述\n\nWear Leveling（WL，磨损均衡）pattern 测试 UFS 固件在所有 VB（Virtual Block）之间均匀分布写入操作的能力。固件通过跟踪擦除次数（EC）和版本值（VER），当 EC 差距或版本差距超过阈值时触发静态（Static WL）或动态（Dynamic WL）磨损均衡，将数据从高 EC 块迁移到低 EC 块。\n\n该 pattern 包含 4 个测试文件和共享的 `mutual_fun.py`。\n\n---\n\n## 测试文件一览\n\n| 测试文件 | 目的 |\n|---------|------|\n| PSW_F_P3_WearLeveling_0001 | WL 信息测试：VBListNum/OpenVBType、EC/版本设置与读回、健康报告交叉验证 |\n| PSW_F_P3_WearLeveling_0002 | 静态 WL 刷新测试：ICS/Static/Dynamic 池触发、cold/prior-round、TH1/TH2 阈值、booking queue 验证 |\n| PSW_F_P3_WearLeveling_0003 | 静态 WL GC 测试：USED_BLK_POOL_EM1/TLC/TLC_WB GC 触发，`totalSWLGCTriggerCount` 递增 |\n| PSW_F_P3_WearLeveling_0004 | 动态 WL 测试：在搜索范围内按最低 EC 选择 VB |\n\n---\n\n## mutual_fun.py 共享函数\n\n### VB Entry 解析（get_VB_group）\n\n每个 VB 条目为 4 字节，`get_VB_group()` 解析位域：\n\n```python\ndef get_VB_group(vb_entry: int) -> dict:\n    return {\n        'group':       (vb_entry >>  0) & 0x3F,   # bits 0–5\n        'access_mode': (vb_entry >>  6) & 0x03,   "
+      },
+      {
+        "title": "PSA — Production State Awareness",
+        "file": "concepts/psa.md",
+        "excerpt": "---\ntype: concept\ntitle: \"PSA — Production State Awareness\"\ntags: [psa, manufacturing, state-machine, attributes]\nsources: [spec, script]\ncreated: 2026-06-21\nupdated: 2026-06-21\n---\n\n# PSA — Production State Awareness\n\n## Introduction (Spec 13.6.1)\n\nUFS devices can utilize knowledge about their production status and adjust internal operations accordingly. Content loaded into the storage device prior to device soldering might be corrupted at a higher probability than in regular mode. The UFS device uses \"special\" internal operations for loading content prior to device soldering which reduces production failures, and switches to \"regular\" operations post-soldering.\n\nThe sensitivity to device soldering is a property of the individual logical unit. Some logical units may be sensitive to device soldering while others may not. Before loading data, the host reads `bPSASensitive` to identify which LUs are sensitive.\n\nPre-loaded data is data written to the device **after** device configuration is completed (`bConfigDescrLock` is set and device has been reset), and **before** device soldering to the host platform.\n\nThe combined maximum amount of data which can be pre-loaded to all sensitive "
+      },
+      {
+        "title": "Refresh Operation",
+        "file": "concepts/refresh.md",
+        "excerpt": "---\ntype: concept\ntitle: \"Refresh Operation\"\ntags: [refresh, data-retention, background-operations, attributes, flags, hir]\nsources: [spec, script]\ncreated: 2026-06-21\nupdated: 2026-06-21\n---\n\n# Refresh Operation\n\nThe Refresh operation relocates data to mitigate NAND retention degradation. It is supported when `dExtendedUFSFeaturesSupport bit[3] = 1` (Device Descriptor offset 4Fh–52h) and `bUFSFeaturesSupport bit[3] = 1` (offset 1Fh).\n\nRefresh re-programs data stored in NAND cells to fresh locations, counteracting charge loss that causes read errors over time or across temperature extremes.\n\n## Trigger Methods\n\n### Manual Trigger\n\nHost sets `fRefreshEnable` (Flag IDN 07h) to 1. This is a write-only volatile flag — it is automatically cleared when the operation completes.\n\nPrecondition: command queues of all logical units must be empty before the flag can be set.\n\n### Automatic (HIR — Host-Initiated Refresh)\n\nTemperature-triggered refresh (XTEMP): when NAND temperature goes out of range (too hot or too cold), the device books VBs for refresh automatically. The host is notified via `wExceptionEventStatus bit[11]` (device-level exception event).\n\n### Booking Queue (Script)\n\nScript-lay"
+      },
+      {
+        "title": "Shipping Mode",
+        "file": "concepts/shipping-mode.md",
+        "excerpt": "---\ntype: concept\ntitle: \"Shipping Mode\"\ntags: [shipping-mode, power, thermal, hwsetting, lifecycle, psa]\nsources: [script, modeldefault]\ncreated: 2026-06-21\nupdated: 2026-06-21\naliases: [shipping mode, ShippingMode, shipping_mode]\n---\n\n# Shipping Mode\n\nShipping Mode is a low-power state that UFS devices can enter before they are shipped to end customers or system integrators. In this mode, the device draws minimal power, protecting the battery or power supply during transit and storage. The device must be explicitly woken up before normal use.\n\n## Purpose\n\n- Minimize power draw during shipping and storage\n- Prevent unintended writes or operations while in transit\n- Default thermal protection applies (`HOT_COLD`) to cover a wide range of storage temperatures\n\n## Entry Flow\n\n```\n1. Ensure device is in Active or Idle power mode\n2. Set thermal protection mode to default (HOT_COLD)\n3. Issue the shipping mode entry command via HwSetting or VU\n4. Power cycle (powerdown=True) to commit the shipping mode state\n```\n\nShipping mode is typically part of the manufacturing lifecycle flow, performed before the device leaves the factory or after PSA loading is complete.\n\n## Exit Flow\n\n```\n1. Apply"
+      },
+      {
+        "title": "WriteBooster",
+        "file": "concepts/write-booster.md",
+        "excerpt": "---\ntype: concept\ntitle: \"WriteBooster\"\ntags: [write-booster, performance, slc-cache, flags, attributes]\nsources: [spec]\ncreated: 2026-06-21\nupdated: 2026-06-21\n---\n\n# WriteBooster\n\nWriteBooster is an SLC-based write acceleration buffer defined in the UFS specification. It is supported when `dExtendedUFSFeaturesSupport bit[0] = 1` (Device Descriptor offset 4Fh–52h).\n\n## Overview\n\nThe WriteBooster feature allows the device to use an SLC buffer for incoming write data, converting writes to high-throughput SLC writes initially, then migrating data to TLC in the background. This provides burst write performance significantly above the device's sustained TLC write rate.\n\n## Flags\n\n| IDN | Name | Access | Default | Description |\n|-----|------|--------|---------|-------------|\n| 0Eh | `fWriteBoosterEn` | Volatile | 0 | Enable/disable WriteBooster; when cleared, WB buffer is not used |\n| 0Fh | `fWriteBoosterBufferFlushEn` | Volatile | 0 | Enables background flush of WB buffer to TLC |\n| 10h | `fWriteBoosterBufferFlushDuringHibernate` | Volatile | 0 | Allows WB buffer flush to continue during UniPro Hibernate state |\n| 13h | `fUnpinEn` | Volatile | 0 | Enables unpinning of Pinned data in Wr"
+      }
+    ],
+    "phase_F": [
+      {
+        "title": "UFS SCSI Commands (UCS)",
+        "file": "entities/scsi-commands.md",
+        "excerpt": "---\ntype: entity\ntitle: \"UFS SCSI Commands (UCS)\"\ntags: [scsi, commands, ucs, cdb, read, write, inquiry, unmap]\nsources: [spec]\ncreated: 2026-06-21\nupdated: 2026-06-21\n---\n\n# UFS SCSI Commands (UCS)\n\nThe UFS Command Set (UCS) is a subset of SCSI commands transported via COMMAND UPIU. All CDBs are fixed-length (maximum 16 bytes). The CONTROL byte in every CDB is always 00h.\n\n## Support Levels\n\n- **M** = Mandatory — all UFS devices must implement\n- **O** = Optional\n\n## Command Table\n\n| Command | Opcode | Support | Notes |\n|---------|--------|---------|-------|\n| TEST UNIT READY | 00h | M | No data transfer; checks if device is ready to process commands |\n| REQUEST SENSE | 03h | M | Returns 18-byte fixed-format sense data (Response Code=70h) |\n| FORMAT UNIT | 04h | M | Formats medium; when sent to Device W-LUN (D0h), formats all LUs except RPMB |\n| READ (6) | 08h | M | 6-byte CDB; LBA and transfer length limited to small ranges |\n| WRITE (6) | 0Ah | M | 6-byte CDB write |\n| INQUIRY | 12h | M | EVPD=0: Standard 36-byte response; EVPD=1: VPD pages |\n| MODE SELECT (10) | 55h | M | Sets mode pages (e.g., caching policy, error recovery) |\n| START STOP UNIT | 1Bh | M | POWER CONDITIONS fiel"
+      }
+    ],
+    "__conflicts__": [
+      {
+        "title": "Conflict-Resolved Overrides (CustomerReq>Spec, UserPrompt>ModelDefault)",
+        "file": "conflicts.md",
+        "excerpt": "---\ntype: conflict-log\nupdated: 2026-06-21\nsources: [spec, script, customerreq, userprompt, modeldefault, pronoun]\ntotal_conflicts: 2\n---\n\n# Conflict Log\n\nThis file records all detected conflicts between the six source documents. Each conflict identifies the two sources in tension, the applicable rule, the resolution decision, and the wiki pages affected.\n\n---\n\n## Conflict Resolution Rules\n\n| Rule | Sources | Winner | Action |\n|------|---------|--------|--------|\n| Rule 1 | CustomerReq vs Spec | CustomerReq WINS | Spec value DELETED; CustomerReq value KEPT |\n| Rule 2 | UserPrompt vs ModelDefault | UserPrompt WINS | ModelDefault value DELETED; UserPrompt value KEPT |\n| Default | Any other pair | KEEP BOTH | Both values retained; annotated for downstream consumers |\n\n---\n\n## Conflict #1 — WriteBooster LUN Restriction\n\n**Rule**: Rule 1 (CustomerReq vs Spec → CustomerReq WINS)\n\n### Source A: Spec (`wiki/sources/spec.md`)\n\nThe UFS 4.1 Specification places no restriction on which LUNs may receive WriteBooster-related Attribute/Flag operations. Section 2.3 (WriteBooster) defines fWriteBoosterEn, fWriteBoosterBufferFlushEn, bWriteBoosterBufferType, etc. without any constraint on LUN number"
+      }
+    ]
+  }
+}

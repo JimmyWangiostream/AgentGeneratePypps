@@ -1,0 +1,14 @@
+{
+  "file": "54_12233_purge_operation.md",
+  "title": "12.2.3.3 Purge Operation",
+  "description": "本章節詳細說明UFS儲存裝置中的清除操作(Purge Operation)實作機制，包括fPurgeEnable旗標和bPurgeStatus屬性的運作方式、狀態機轉換，以及裝置抹除(Wipe Device)和安全模式配置等相關功能。此章節可回答關於UFS清除操作的控制流程、錯誤處理機制、以及安全資料移除相關的技術問題。",
+  "keywords": [
+    "purge operation",
+    "UFS",
+    "fPurgeEnable",
+    "bPurgeStatus",
+    "wipe device",
+    "provisioning type"
+  ],
+  "page_range": "293-295"
+}

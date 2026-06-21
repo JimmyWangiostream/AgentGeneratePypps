@@ -1,0 +1,14 @@
+{
+  "file": "61_12472_response_type_message_delivery.md",
+  "title": "12.4.7.2 Response Type Message Delivery",
+  "description": "本章節說明JEDEC標準中RPMB（Replay Protected Memory Block）回應型訊息的傳遞機制，包括如何使用SECURITY_PROTOCOL_IN命令來請求和接收來自RPMB區域的資料。涵蓋了不同RPMB操作類型的預期資料傳輸長度規格、Normal RPMB與Advanced RPMB模式的差異，以及完整的訊息傳遞流程和資料結構定義。",
+  "keywords": [
+    "RPMB",
+    "SECURITY_PROTOCOL_IN",
+    "response message",
+    "data transfer",
+    "authentication",
+    "JEDEC"
+  ],
+  "page_range": "323-324"
+}

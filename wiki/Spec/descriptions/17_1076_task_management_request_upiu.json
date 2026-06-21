@@ -1,0 +1,14 @@
+{
+  "file": "17_1076_task_management_request_upiu.md",
+  "title": "10.7.6 TASK MANAGEMENT REQUEST UPIU",
+  "description": "此章節詳細說明UFS規格中的任務管理請求UPIU（TASK MANAGEMENT REQUEST UPIU）格式和功能。涵蓋任務管理請求的基本標頭結構、各種任務管理功能（如中止任務、重置邏輯單元等）、以及輸入參數的定義和使用方式，可回答關於UFS任務管理協議實作的相關問題。",
+  "keywords": [
+    "TASK MANAGEMENT REQUEST UPIU",
+    "SCSI Architecture Model",
+    "Task Management Functions",
+    "Basic Header",
+    "Input Parameters",
+    "UFS protocol"
+  ],
+  "page_range": "133-135"
+}

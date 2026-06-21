@@ -1,0 +1,14 @@
+{
+  "file": "65_132_logical_unit_management.md",
+  "title": "13.2 Logical Unit Management",
+  "description": "本章節涵蓋UFS設備中邏輯單元管理的詳細內容，包括邏輯單元的配置參數、內存類型、寫入保護機制等功能。該章節可回答關於如何配置邏輯單元數量、大小、內存類型以及RPMB區域設定等技術問題。",
+  "keywords": [
+    "logical unit management",
+    "UFS configuration",
+    "memory organization",
+    "boot logical unit",
+    "RPMB",
+    "write protection"
+  ],
+  "page_range": "382-391"
+}

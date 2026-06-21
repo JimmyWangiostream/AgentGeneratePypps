@@ -1,0 +1,14 @@
+{
+  "file": "18_1077_task_management_response_upiu.md",
+  "title": "10.7.7 TASK MANAGEMENT RESPONSE UPIU",
+  "description": "本章節詳述了TASK MANAGEMENT RESPONSE UPIU的規範，這是目標設備回應任務管理請求的協議單元。涵蓋了回應UPIU的結構格式、基本標頭欄位定義，以及任務管理服務回應代碼的詳細說明。此章節可協助解答關於UFS任務管理回應機制、UPIU封包格式及各種任務管理功能完成狀態的問題。",
+  "keywords": [
+    "task management",
+    "response UPIU",
+    "UFS protocol",
+    "SCSI architecture",
+    "task abort",
+    "service response codes"
+  ],
+  "page_range": "136-138"
+}

@@ -1,0 +1,14 @@
+{
+  "file": "70_143_attributes.md",
+  "title": "14.3 Attributes",
+  "description": "本章節詳細說明屬性(Attributes)的定義與使用方式，屬性是代表特定數值範圍的可讀寫參數，例如最大數據封包大小。內容涵蓋屬性的存取特性、各種屬性的詳細定義表格、以及屬性在UFS設備中的配置和管理方式。",
+  "keywords": [
+    "attributes",
+    "access properties",
+    "UFS device",
+    "parameters",
+    "read write",
+    "configuration"
+  ],
+  "page_range": "492-520"
+}

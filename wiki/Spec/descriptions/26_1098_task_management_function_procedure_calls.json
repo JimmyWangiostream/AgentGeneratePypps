@@ -1,0 +1,14 @@
+{
+  "file": "26_1098_task_management_function_procedure_calls.md",
+  "title": "10.9.8  Task Management Function Procedure Calls",
+  "description": "本章詳細說明SCSI任務管理功能程序呼叫的實作方式，包括中止任務、中止任務集合、清除任務集合、邏輯單元重置、查詢任務等六種任務管理功能。章節涵蓋各種任務管理功能的具體操作程序、服務回應類型、以及相關的SCSI傳輸協定服務請求與確認機制。",
+  "keywords": [
+    "task management",
+    "SCSI transport protocol",
+    "abort task",
+    "logical unit reset",
+    "query task",
+    "nexus"
+  ],
+  "page_range": "194-199"
+}

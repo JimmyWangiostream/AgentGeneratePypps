@@ -1,0 +1,14 @@
+{
+  "file": "04_4_introduction.md",
+  "title": "4 Introduction",
+  "description": "此章節介紹通用快閃記憶體存儲(UFS)標準的基本概念和特性，包括設備的一般特性、介面規格和功能特性。涵蓋UFS的分層架構(UCS/UTP/UIC)、目標應用裝置、電源供應規格、訊號傳輸方式，以及NAND管理功能如開機操作、寫入保護和安全操作等核心功能。",
+  "keywords": [
+    "UFS",
+    "Universal Flash Storage",
+    "MIPI M-PHY",
+    "SCSI",
+    "NAND management",
+    "mobile storage"
+  ],
+  "page_range": "27-28"
+}

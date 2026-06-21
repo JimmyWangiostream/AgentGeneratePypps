@@ -1,0 +1,14 @@
+{
+  "file": "21_10710_reject_upiu.md",
+  "title": "10.7.10 REJECT UPIU",
+  "description": "此章節詳細說明REJECT UPIU的格式與使用規則，包括基本標頭結構、各欄位定義以及設備何時應發送REJECT UPIU。主要涵蓋無效交易類型的處理機制、UPIU封包的錯誤回應格式，以及不同錯誤情況下的適當回應類型選擇。",
+  "keywords": [
+    "REJECT UPIU",
+    "Transaction Type",
+    "Basic Header",
+    "Error Handling",
+    "UPIU Format",
+    "E2E Status"
+  ],
+  "page_range": "164-166"
+}

@@ -1,0 +1,32 @@
+import struct
+from Script.api.struct_helper import *
+from Script.project_api.structs import micron_vendor_cmd
+class random_read_statistics_info(PacketParserComposerABC):
+    def __init__(self, payload:bytearray = bytearray(104), start_offset:int = AUTO_OFFSET, end_offset:int = AUTO_OFFSET) -> None:
+        super().__init__(payload = payload, start_offset = start_offset, end_offset = end_offset)
+        self.PTE_PMD_extension_enter_counter = self.add_field(0,3)
+        self.PTE_PMD_extension_exit_counter = self.add_field(4,7)
+        self.Random_Read_exit_cause = self.add_field(8,11)
+        self.Sequential_Read_enter_counter = self.add_field(12,15)
+        self.Sequential_Read_exit_counter = self.add_field(16,19)
+        self.Sequential_Read_exit_cause = self.add_field(20,23)
+        self.Random_Write_enter_counter = self.add_field(24,27)
+        self.Random_Write_exit_counter = self.add_field(28,31)
+        self.Random_Write_exit_cause = self.add_field(32,35)
+        self.Sequential_Write_enter_counter = self.add_field(36,39)
+        self.Sequential_Write_exit_counter = self.add_field(40,43)
+        self.Sequential_Write_exit_cause = self.add_field(44,47)
+        self.Small_chunk_RR_enter_counter = self.add_field(48,51)
+        self.Small_chunk_RR_exit_counter = self.add_field(52,55)
+        self.Large_chunk_RR_enter_counter = self.add_field(56,59)
+        self.Large_chunk_RR_exit_counter = self.add_field(60,63)
+        self.Small_chunk_RW_enter_counter = self.add_field(64,67)
+        self.Large_chunk_RW_enter_counter = self.add_field(68,71)
+        self.reserved1 = self.add_field(72,75)
+        self.random_read_count_threshold = self.add_field(76,79)
+        self.random_read_max_chunk_size = self.add_field(80,83)
+        self.Current_power_pattern = self.add_field(84,87)
+        self.reserved2 = self.add_field(88,91)
+        self.reserved3 = self.add_field(92,95)
+        self.reserved4 = self.add_field(96,99)
+        self.reserved5 = self.add_field(100,103)

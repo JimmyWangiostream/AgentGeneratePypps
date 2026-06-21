@@ -1,0 +1,14 @@
+{
+  "file": "28_11_ufs_application_uap_layer_scsi_commands.md",
+  "title": "11 UFS Application (UAP) Layer – SCSI Commands",
+  "description": "本章節定義了UFS應用層(UAP)的SCSI命令集，包括通用命令層(UCL)架構、命令描述符區塊(CDB)格式，以及UFS設備必須支援的強制性SCSI命令清單。涵蓋UFS原生命令集與SCSI命令集的區別，詳細說明各種讀寫、容量查詢、安全協定等命令的操作碼和支援要求。",
+  "keywords": [
+    "UFS",
+    "SCSI commands",
+    "command descriptor block",
+    "CDB",
+    "operation code",
+    "UAP layer"
+  ],
+  "page_range": "203-204"
+}

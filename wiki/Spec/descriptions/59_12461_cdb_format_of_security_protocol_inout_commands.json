@@ -1,0 +1,14 @@
+{
+  "file": "59_12461_cdb_format_of_security_protocol_inout_commands.md",
+  "title": "12.4.6.1 CDB Format of SECURITY PROTOCOL IN/OUT Commands",
+  "description": "本章節定義了SECURITY PROTOCOL IN/OUT命令的命令描述符塊(CDB)格式，用於RPMB(Replay Protected Memory Block)操作。詳細說明了各個位元組欄位的設置，包括操作代碼、安全協定欄位值(00h和ECh)、RPMB協定ID對應的區域映射，以及支援的安全協定清單和憑證資料的參數格式。",
+  "keywords": [
+    "CDB format",
+    "SECURITY PROTOCOL",
+    "RPMB",
+    "UFS",
+    "command descriptor block",
+    "security protocol"
+  ],
+  "page_range": "316-320"
+}

@@ -1,0 +1,14 @@
+{
+  "file": "20_1079_query_response_upiu.md",
+  "title": "10.7.9 QUERY RESPONSE UPIU",
+  "description": "此章節詳細說明了QUERY RESPONSE UPIU的格式和功能，它是UFS協議中Target設備回應Initiator設備QUERY REQUEST的通信單元。涵蓋各種操作碼的回應格式，包括讀寫描述符、屬性和標誌的操作，以及相應的錯誤碼和交易特定欄位定義。",
+  "keywords": [
+    "QUERY RESPONSE UPIU",
+    "UFS protocol",
+    "descriptor operations",
+    "attribute operations",
+    "flag operations",
+    "transaction specific fields"
+  ],
+  "page_range": "152-163"
+}

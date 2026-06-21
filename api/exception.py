@@ -1,0 +1,208 @@
+from Script.lib import sdk_lib
+
+class ApiErrorBase(sdk_lib.CommonLibErrorBase): pass
+
+# -------------------------------
+# cmd_seq._cycle_tracker
+# -------------------------------
+class PATTERN_ASSERT_CYCLE_TRACKER_FAIL_TASKTAG_SHALL_BE_NONE(ApiErrorBase): pass
+class PATTERN_ASSERT_CYCLE_TRACKER_FAIL_TASKTAG_SHALL_NOT_BE_NONE(ApiErrorBase): pass
+class PATTERN_ASSERT_CYCLE_TRACKER_FAIL_INVALID_TASKTAG_VALUE(ApiErrorBase): pass
+
+# -------------------------------
+# cmd_seq._buffer_manager
+# -------------------------------
+class PATTERN_ASSERT_BUFFER_MANAGER_FAIL_BUF_SIZE_NOT_ALIGN_512(ApiErrorBase): pass
+class PATTERN_ASSERT_BUFFER_MANAGER_FAIL_EHS_BUF_SIZE_EXCEEDS_LIMIT(ApiErrorBase): pass
+class PATTERN_ASSERT_BUFFER_MANAGER_FAIL_BUF_IS_FULL(ApiErrorBase): pass
+class PATTERN_ASSERT_BUFFER_MANAGER_FAIL_PAYLOAD_SIZE_EXCEEDS_EXPECTATION(ApiErrorBase): pass
+class PATTERN_ASSERT_BUFFER_MANAGER_FAIL_ENTRY_SIZE_NOT_ALIGN_72(ApiErrorBase): pass
+class PATTERN_ASSERT_BUFFER_MANAGER_FAIL_PUSH_CMD_BEFORE_SET_DATA_BEGIN_OFFSET(ApiErrorBase): pass
+class PATTERN_ASSERT_BUFFER_MANAGER_FAIL_CYCLE_INDICATOR_NOT_FOUND(ApiErrorBase): pass
+
+# -------------------------------
+# cmd_seq.executor
+# -------------------------------
+class PATTERN_ASSERT_CMD_LIST_NOT_CLEAR(ApiErrorBase): pass
+class PATTERN_ASSERT_EXECUTOR_CMD_LIST_IS_FULL(ApiErrorBase): pass
+class PATTERN_ASSERT_EXECUTOR_HW_CMP_SHALL_NOT_ENABLE_WITH_MANUAL_MODE(ApiErrorBase): pass
+class PATTERN_ASSERT_EXECUTOR_HW_CMP_SHALL_NOT_ENABLE_WITH_READ_BUFFER(ApiErrorBase): pass
+class PATTERN_ASSERT_EXECUTOR_HW_CMP_SHALL_NOT_ENABLE_WITH_HPB_READ(ApiErrorBase): pass
+class PATTERN_ASSERT_EXECUTOR_MANUAL_RW_DATA_SHALL_ALIGN_4KB(ApiErrorBase): pass
+class PATTERN_ASSERT_EXECUTOR_AUTO_MODE_AND_MANUAL_MODE_MIX_IN_SAME_PACKAGE(ApiErrorBase): pass
+class PATTERN_ASSERT_EXECUTOR_PATTERN_MODE_SHALL_BE_ALL_SAME_IN_THE_PACKAGE(ApiErrorBase): pass
+class PATTERN_ASSERT_EXECUTOR_EHS_FEATURE_NOT_SUPPORT(ApiErrorBase): pass
+class PATTERN_ASSERT_EXECUTOR_UNIDENTIFIED_RESPONSE(ApiErrorBase): pass
+class PATTERN_ASSERT_EXECUTOR_NO_RESULT_INFO_BUF(ApiErrorBase): pass
+class PATTERN_ASSERT_EXECUTOR_RESPONSE_LENGTH_EXCEED_LIMIT(ApiErrorBase): pass
+class PATTERN_ASSERT_EXECUTOR_EHS_PAYLOAD_LENGTH_SHALL_EQUAL_TO_TOTAL_EHS_LEN(ApiErrorBase): pass
+class PATTERN_ASSERT_EXECUTOR_UNIFORM_TIMEOUT_VALUE_EXCEEDS_MAX(ApiErrorBase): pass
+class PATTERN_ASSERT_EXECUTOR_SHALL_SET_QD_LIMIT(ApiErrorBase): pass
+
+# -------------------------------
+# upiu.py
+# -------------------------------
+class PATTERN_ASSERT_VALUE_SHALL_NOT_BE_NAGTIVE(ApiErrorBase): pass
+class PATTERN_ASSERT_VALUE_EXCEEDS_FIELD_MAX_VALUE(ApiErrorBase): pass
+
+# -------------------------------
+# cmds.py
+# -------------------------------
+class PATTERN_ASSERT_ILLEGAL_PARAM_HW_COMPARE_MIX_WITH_MANUAL_MODE(ApiErrorBase): pass
+class PATTERN_ASSERT_ILLEGAL_PARAM_BAD_REF_CLK(ApiErrorBase): pass
+class PATTERN_ASSERT_ILLEGAL_PARAM_BAD_DIVM(ApiErrorBase): pass
+
+# -------------------------------
+# SPEC_ASSERT
+# -------------------------------
+class SPEC_ASSERT_SECURITY_PROTOCOL_OUT_FAIL(ApiErrorBase): pass
+class SPEC_ASSERT_SECURITY_PROTOCOL_IN_FAIL(ApiErrorBase): pass
+class SPEC_ASSERT_RPMB_WRITE_COUNTER_EXPIRED(ApiErrorBase): pass
+class SPEC_ASSERT_RPMB_KEY_NOT_PROGRAMMED_YET(ApiErrorBase): pass
+class SPEC_ASSERT_RPMB_KEY_PROGRAMMING_FAIL(ApiErrorBase): pass
+class SPEC_ASSERT_RPMB_KEY_NOT_CLEARED(ApiErrorBase): pass
+class SPEC_ASSERT_RPMB_GENERAL_FAILURE(ApiErrorBase): pass
+class SPEC_ASSERT_RPMB_WRITE_COUNTER_READ_FAIL(ApiErrorBase): pass
+class SPEC_ASSERT_RPMB_NONCE_MISMATCH(ApiErrorBase): pass
+class SPEC_ASSERT_RPMB_MAC_MISMATCH(ApiErrorBase): pass
+class SPEC_ASSERT_TASK_MANAG_RSP_SHALL_SUCCEEDED(ApiErrorBase): pass
+class SPEC_ASSERT_TASK_MANAG_RSP_SHALL_NOT_SUPPORT(ApiErrorBase): pass
+class SPEC_ASSERT_TASK_MANAG_RSP_SHALL_FUNCTION_FAILED(ApiErrorBase): pass
+class SPEC_ASSERT_TASK_MANAG_RSP_SHALL_INCORRECT_LUN(ApiErrorBase): pass
+class SPEC_ASSERT_TASK_MANAG_RSP_SHALL_COMPLETE(ApiErrorBase): pass
+class SPEC_ASSERT_TASK_MANAG_RSP_STATUS_NOT_SET_FULL_OR_NOT_BUSY(ApiErrorBase): pass
+class SPEC_ASSERT_TASK_MANAG_SHALL_ABORT_SUCCESSFULLY(ApiErrorBase): pass
+class SPEC_ASSERT_GEOMETRY_DESC_UNKNOWN_MAX_NUMBER_LUN(ApiErrorBase): pass
+class SPEC_ASSERT_UFS_RSP_SHALL_STANDARD_WRITE(ApiErrorBase): pass
+class SPEC_ASSERT_UFS_RSP_OP_SHALL_WRITE_ATTRIBUTE(ApiErrorBase): pass
+class SPEC_ASSERT_UFS_RSP_IDN_NOT_MATCH(ApiErrorBase): pass
+class SPEC_ASSERT_UFS_RSP_IDX_NOT_MATCH(ApiErrorBase): pass
+class SPEC_ASSERT_UFS_RSP_SELECTOR_NOT_MATCH(ApiErrorBase): pass
+class SPEC_ASSERT_UFS_RSP_VALUE_NOT_MATCH(ApiErrorBase): pass
+
+# -------------------------------
+# SIGHTING_FAIL
+# -------------------------------
+class SIGHTING_FAIL_DATA_COMPARE_FAIL(ApiErrorBase): pass
+class SIGHTING_FAIL_WRONG_CE_NUMBER_VALUE(ApiErrorBase): pass
+class SIGHTING_FFU_STATUS_UNEXPECTED(ApiErrorBase): pass
+class SIGHTING_RESPONSE_UNEXPECTED(ApiErrorBase): pass
+class SIGHTING_PBA_UNEXPECTED(ApiErrorBase): pass
+class SIGHTING_FAIL_CLEAN_WRITE_ONCE_ATTRIBUTE_FLAG(ApiErrorBase): pass
+# -------------------------------
+# TESTER_ASSERT
+# -------------------------------
+class TESTER_ASSERT_MONITOR_RESP_NOT_ALIGN_WITH_RESULT_BUF(ApiErrorBase): pass
+class TESTER_ASSERT_SET_LINKSTARTUP_MODE_FAILED(ApiErrorBase): pass
+
+# -------------------------------
+# OPERATION_ASSERT
+# -------------------------------
+
+# -------------------------------
+# ENVIRONMENT_ASSERT
+# -------------------------------
+class ENVIRONMENT_ASSERT_FFU_RESOURCE_FAIL(ApiErrorBase): pass
+class ENVIRONMENT_RE_TEST_SPEED_CHANGE_1_LANE_FAIL(ApiErrorBase): pass
+# -------------------------------
+# NAND_ISSUE
+# -------------------------------
+
+# -------------------------------
+# PATTERN_ASSERT
+# -------------------------------
+class PATTERN_ASSERT_UFS_WRONG_PARAMETER_LBA_SIZE_CHECK_ERROR(ApiErrorBase): pass
+class PATTERN_ASSERT_UFS_WRONG_PARAMETER_LUN_CHECK_ERROR(ApiErrorBase): pass
+class PATTERN_ASSERT_UFS_WRONG_PARAMETER_CMD_CNT_CHECK_ERROR(ApiErrorBase): pass
+class PATTERN_ASSERT_STUCK_WHILE_TIMEOUT(ApiErrorBase): pass
+class PATTERN_ASSERT_NOT_IMPLEMENTED(ApiErrorBase): pass
+class PATTERN_ASSERT_UNEXPECTED_CONDITION(ApiErrorBase): pass
+class PATTERN_ASSERT_TASK_MANAG_INVALID_TARGET(ApiErrorBase): pass
+class PATTERN_ASSERT_INDEX_NOT_FOUND_IN_CMD_LIST(ApiErrorBase): pass
+class PATTERN_ASSERT_MODULE_NOT_FOUND(ApiErrorBase): pass
+class PATTERN_ASSERT_ATTR_NOT_FOUND(ApiErrorBase): pass
+class PATTERN_ASSERT_SHALL_NOT_CHANGE_SPEED_TO_SLOW_MODE_IN_HSLSS(ApiErrorBase): pass
+class PATTERN_ASSERT_DIFF_BETWEEN_TX_RX_HS_GEAR_TOO_LARGE(ApiErrorBase): pass
+class PATTERN_ASSERT_HOST_INFO_PARAM_CHACHE_REQUIRED(ApiErrorBase): pass
+class PATTERN_ASSERT_RPMB_MAC_OR_KEY_SHALL_BE_32B(ApiErrorBase): pass
+
+# -------------------------------
+# misc
+# -------------------------------
+class UFS_NON_SUPPORT(ApiErrorBase): pass
+class DEVICE_NOT_FOUND_ERROR(ApiErrorBase): pass
+class TESTER_FW_NOT_FOUND_ERROR(ApiErrorBase): pass
+class TESTER_FW_ISP_SPIN_LOCK_WAIT_TOO_LONG(ApiErrorBase): pass
+class EXECUTE_TESTER_FW_ISP_TIMEOUT(ApiErrorBase): pass
+class EXECUTE_TESTER_FW_ISP_EXCEPTION_OCCUR(ApiErrorBase): pass
+class EXECUTE_TESTER_FW_ISP_HAS_STDERR_MSG(ApiErrorBase): pass
+class TESTER_PORT_NOT_FOUND_AFTER_EXECUTE_TESTER_FW_ISP(ApiErrorBase): pass
+class EXECUTE_TESTER_FW_ISP_FAILED(ApiErrorBase): pass
+class MP_TOOL_EXE_NOT_FOUND(ApiErrorBase): pass
+class MP_TOOL_EXECUTION_RESULT_NOT_FOUND(ApiErrorBase): pass
+class MP_TOOL_EXECUTION_RESULT_FAILED(ApiErrorBase): pass
+class EXECUTE_MP_TOOL_EXE_FAILED(ApiErrorBase): pass
+class MP_PARAM_INI_NOT_FOUND(ApiErrorBase): pass
+
+# -------------------------------
+# Debug Cmd
+# -------------------------------
+class DCMD5_SSU_POWERDOWN_FAIL(ApiErrorBase): pass
+class DCMD5_LINK_STARTUP_FAIL(ApiErrorBase): pass
+class DCMD5_SET_REFERENCE_CLOCK_FAIL(ApiErrorBase): pass
+class DCMD5_SPEED_CHANGE_FAIL_AFTER_LINK(ApiErrorBase): pass
+class DCMD5_NOP_OUT_FAIL(ApiErrorBase): pass
+class DCMD5_READ_BOOT_DATA_FAIL(ApiErrorBase): pass
+class DCMD5_SET_INITIAL_FLAG_FAIL(ApiErrorBase): pass
+class DCMD5_READ_INITIAL_FLAG_FAIL(ApiErrorBase): pass
+class DCMD5_READ_INITIAL_FLAG_TIMEOUT(ApiErrorBase): pass
+class DCMD5_SPEED_CHANGE_FAIL_AFTER_INIT(ApiErrorBase): pass
+class DCMD5_NOP_OUT_FAIL_AFTER_POWER_CHANGE(ApiErrorBase): pass
+class DCMD5_SSU_ACTIVE_FAIL(ApiErrorBase): pass
+class DCMD5_READ_DATA_FAIL(ApiErrorBase): pass
+class DCMD5_SPOR_BEFORE_HW_RESET(ApiErrorBase): pass
+class DCMD5_SPOR_BEFORE_ENDPOINT_RESET(ApiErrorBase): pass
+class DCMD5_READ_ATTR_FAIL_BEFORE_SPEED_CHANGE_AFTER_INIT(ApiErrorBase): pass
+class DCMD5_UNEXPECTED_STATUS(ApiErrorBase): pass
+DCMD5_EXCEPTIONS = (
+    DCMD5_SSU_POWERDOWN_FAIL,
+    DCMD5_LINK_STARTUP_FAIL,
+    DCMD5_SET_REFERENCE_CLOCK_FAIL,
+    DCMD5_SPEED_CHANGE_FAIL_AFTER_LINK,
+    DCMD5_NOP_OUT_FAIL,
+    DCMD5_READ_BOOT_DATA_FAIL,
+    DCMD5_SET_INITIAL_FLAG_FAIL,
+    DCMD5_READ_INITIAL_FLAG_FAIL,
+    DCMD5_READ_INITIAL_FLAG_TIMEOUT,
+    DCMD5_SPEED_CHANGE_FAIL_AFTER_INIT,
+    DCMD5_NOP_OUT_FAIL_AFTER_POWER_CHANGE,
+    DCMD5_SSU_ACTIVE_FAIL,
+    DCMD5_READ_DATA_FAIL,
+    DCMD5_SPOR_BEFORE_HW_RESET,
+    DCMD5_SPOR_BEFORE_ENDPOINT_RESET,
+    DCMD5_READ_ATTR_FAIL_BEFORE_SPEED_CHANGE_AFTER_INIT,
+    DCMD5_UNEXPECTED_STATUS,
+)
+
+class DCMD7_FAIL(ApiErrorBase): pass
+
+class DCMD9_SKIP_SPOR_DUE_TO_READ_ATTRIBUTE_ERROR(ApiErrorBase): pass
+class DCMD9_SKIP_SPOR_DUE_TO_PURGE_STATUS_GREATER_EQUAL_2(ApiErrorBase): pass
+class DCMD9_SKIP_SPOR_DUE_TO_IDLE(ApiErrorBase):pass
+class DCMD9_END_POINT_RESET_OR_UNIPRO_RESET_FAIL(ApiErrorBase):pass
+class DCMD9_TIMEOUT(ApiErrorBase):pass
+class DCMD9_SET_PURGE_FLAG_FAIL(ApiErrorBase): pass
+
+
+TIMEOUT_EXCEPTIONS = (
+    sdk_lib.CMD_R1B_TIMEOUT,
+    sdk_lib.CMD1_TIMEOUT,
+    sdk_lib.DLL_WAIT_PURGE_STATUS_IDLE_TIMEOUT,
+    sdk_lib.DLL_TIMEOUT,
+    sdk_lib.G_TIMEOUT_ALL,
+    sdk_lib.FW_TIMEOUT_FAIL,
+    sdk_lib.CMD_LEVEL_TIMEOUT,
+    sdk_lib.FW_TIMEOUT,
+    sdk_lib.PERFORMANCE_IDLE_TIMEOUT,
+)
+

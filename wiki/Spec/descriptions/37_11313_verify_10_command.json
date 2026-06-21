@@ -1,0 +1,14 @@
+{
+  "file": "37_11313_verify_10_command.md",
+  "title": "11.3.13 VERIFY (10) Command",
+  "description": "本章節詳細說明UFS裝置中VERIFY (10)命令的實作規格，包括命令描述區塊(CDB)格式、參數定義以及狀態回應機制。涵蓋邏輯區塊位址驗證、驗證長度設定、快取寫入要求，以及各種錯誤狀況的處理方式，可回答關於UFS存儲媒體驗證操作的技術問題。",
+  "keywords": [
+    "VERIFY command",
+    "UFS device",
+    "logical block verification",
+    "CDB format",
+    "medium verification",
+    "status response"
+  ],
+  "page_range": "231-232"
+}

@@ -1,0 +1,14 @@
+{
+  "file": "25_1097_data_transfer_scsi_transport_protocol_services.md",
+  "title": "10.9.7 Data Transfer SCSI Transport Protocol Services",
+  "description": "本章節詳細說明UFS（Universal Flash Storage）系統中SCSI傳輸協議的資料傳輸服務機制。涵蓋了讀取和寫入操作中的資料傳輸協議服務，包括Send Data-In、Data-In Delivered、Receive Data-Out和Data-Out Received等四種核心服務的實作規格和參數定義。此章節可回答關於UFS裝置與主機間資料傳輸協議、I_T_L_Q連接管理、以及SCSI命令執行過程中資料緩衝區處理的相關問題。",
+  "keywords": [
+    "SCSI transport protocol",
+    "UFS data transfer",
+    "Data-In service",
+    "Data-Out service",
+    "I_T_L_Q nexus",
+    "UniPro delivery"
+  ],
+  "page_range": "190-193"
+}

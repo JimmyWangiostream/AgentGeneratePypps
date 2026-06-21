@@ -1,0 +1,57 @@
+{
+  "_about": "Per-method grounding. code = understand-anything knowledge graph (graph_query.py -> file:line, then real source). wiki = llm-wiki INGESTED pages (conflicts.md + entities/concepts), conflict-resolved (CustomerReq>Spec, UserPrompt>ModelDefault). 'none relevant found' = source consulted, nothing there. step9 = burn-in loop; step10 = phase_F.",
+  "step1": {
+    "code": "none relevant found",
+    "wiki": [{"claim": "IC=8329 / NAND=BICS8 required; PS8363 KIC no MIX mode", "ref": "TC Step 0.1"}],
+    "todo": "exact IC/NAND query API"
+  },
+  "step2": {
+    "code": [{"claim": "TEST UNIT READY", "ref": "graph: api/cmd_seq/cmds.py:943 (CmdSeqTestUnitReady)"}],
+    "wiki": "none relevant found"
+  },
+  "step3": {
+    "code": "none relevant found",
+    "wiki": [{"claim": "dLUNumWriteBoosterBufferAllocUnits is R/O; set WB via Config Descriptor", "ref": "wiki/entities/configuration-descriptor.md"}],
+    "todo": "WRITE DESCRIPTOR Configuration Descriptor API (Shared type + MAX units)"
+  },
+  "step4": {
+    "code": [
+      {"claim": "UNMAP", "ref": "graph: api/cmd_seq/cmds.py:310 (Unmap)"},
+      {"claim": "SET FLAG fPurgeEnable", "ref": "graph: api/ufs_api/attr_flag_functions.py:115 (set_flag) + FlagIDN.PURGE_EN=0x06 enum_define.py:139"},
+      {"claim": "verify bPurgeStatus==0", "ref": "graph: api/ufs_api/attr_flag_functions.py:64 (read_attribute)"}
+    ],
+    "wiki": [{"claim": "fPurgeEnable (06h) Write-only volatile; auto-cleared when done", "ref": "wiki/entities/flags.md"}]
+  },
+  "step5": {
+    "code": [{"claim": "READ CAPACITY(10)", "ref": "graph: api/cmd_seq/cmds.py:184 (ReadCapacity10)"}],
+    "wiki": [{"claim": "default LUN = MaxCapacity Enabled LUN (NOT lun 0)", "ref": "wiki/entities/lun.md + conflicts.md #2 (UserPrompt>ModelDefault, Rule 2)"}],
+    "todo": "parse TOTAL_LBA from ReadCapacity10 response; verify shared.param field names"
+  },
+  "step6": {
+    "code": [{"claim": "SET FLAG fWriteBoosterEn", "ref": "graph: api/ufs_api/attr_flag_functions.py:115 + FlagIDN.WRITEBOOSTER_EN=0x0E enum_define.py:144"}],
+    "wiki": [{"claim": "WB Attr/Flag LUN must be Normal non-Boot index 0-7 else invalid INDEX (FCh)", "ref": "wiki/entities/lun.md + conflicts.md #1 (CustomerReq>Spec, Rule 1)"}]
+  },
+  "step7": {
+    "code": [{"claim": "sequential write FUA=1 fill on default LUN", "ref": "graph: api/ufs_api/rw_functions.py:300 (sequential_write)"}],
+    "wiki": [{"claim": "WriteBooster MIX mode fills SLC L2 buffer", "ref": "wiki/concepts/write-booster.md"}]
+  },
+  "step8": {
+    "code": [{"claim": "CLEAR FLAG fWriteBoosterEn", "ref": "graph: api/ufs_api/attr_flag_functions.py:133 (clear_flag)"}],
+    "wiki": "none relevant found"
+  },
+  "step9": {
+    "code": [
+      {"claim": "non-FUA random write on default LUN", "ref": "graph: api/ufs_api/rw_functions.py:105 (random_write)"},
+      {"claim": "read-compare", "ref": "graph: api/ufs_api/rw_functions.py:44 (read_compare)"},
+      {"claim": "Sync Cache flush", "ref": "graph: api/cmd_seq/cmds.py:277 (SyncCache10)"},
+      {"claim": "START STOP UNIT flush", "ref": "graph: api/cmd_seq/cmds.py:266 (StartStopUnit)"},
+      {"claim": "reset+power cycle", "ref": "graph: api/ufs_api/debug_cmd/dcmd_enum.py:51 (Dcmd5ResetType) + initial_device.py:71 (init_tester_to_unit_ready)"}
+    ],
+    "wiki": [{"claim": "5 flush paths; TLC L1/L2 split by chunk size; non-FUA data must survive flush", "ref": "TC Phase 2/3 + wiki/concepts/power-management.md"}],
+    "todo": "Auto Standby flush; SPOR/Hibernate power cases not fully grounded"
+  },
+  "step10": {
+    "code": [{"claim": "final read-compare all", "ref": "graph: api/ufs_api/rw_functions.py:44 (read_compare)"}],
+    "wiki": "none relevant found"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "file": "64_13_ufs_functional_descriptions.md",
+  "title": "13 UFS Functional Descriptions",
+  "description": "本章節詳細說明UFS的啟動功能，包含啟動配置、初始化程序、和啟動代碼下載過程。涵蓋雙啟動邏輯單元(Boot LU A/B)配置、系統啟動時的分階段初始化流程、以及相關描述符和屬性設定。此文件可回答關於UFS設備啟動機制、啟動邏輯單元管理、以及系統初始化序列的技術問題。",
+  "keywords": [
+    "UFS boot",
+    "boot configuration",
+    "logical units",
+    "initialization process",
+    "boot code download",
+    "device descriptors"
+  ],
+  "page_range": "374-381"
+}

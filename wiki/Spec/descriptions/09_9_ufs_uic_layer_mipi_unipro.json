@@ -1,0 +1,14 @@
+{
+  "file": "09_9_ufs_uic_layer_mipi_unipro.md",
+  "title": "9 UFS UIC Layer: MIPI Unipro",
+  "description": "本章節描述了UFS UIC層中MIPI UniPro協議的實作規範，包括UniPro與UFS傳輸協議層之間的資料平面和控制平面介面定義。涵蓋了UniPro架構模型、服務原語、地址映射機制、以及UFS專用的UniPro選項和參數配置要求。",
+  "keywords": [
+    "MIPI UniPro",
+    "UIC Layer",
+    "Transport Protocol Interface",
+    "Device Management Entity",
+    "CPort",
+    "Service Primitives"
+  ],
+  "page_range": "81-89"
+}

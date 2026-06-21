@@ -1,0 +1,13 @@
+{
+  "phases": [
+    {"phase_id": "phase_0", "inputs": [], "outputs": ["total_lba", "wb_max_units"]},
+    {"phase_id": "phase_1", "inputs": ["total_lba", "wb_max_units"], "outputs": []},
+    {"phase_id": "loop_6", "inputs": ["total_lba"], "outputs": ["write_records"]},
+    {"phase_id": "phase_F", "inputs": ["total_lba", "write_records"], "outputs": []}
+  ],
+  "edges": [
+    {"from": "phase_0", "to": "phase_1", "type": "sequential", "data_flow": ["total_lba", "wb_max_units"]},
+    {"from": "phase_1", "to": "loop_6", "type": "sequential", "data_flow": ["total_lba"]},
+    {"from": "loop_6", "to": "phase_F", "type": "sequential", "data_flow": ["total_lba", "write_records"]}
+  ]
+}

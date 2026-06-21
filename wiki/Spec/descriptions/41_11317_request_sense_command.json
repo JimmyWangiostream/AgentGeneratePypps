@@ -1,0 +1,14 @@
+{
+  "file": "41_11317_request_sense_command.md",
+  "title": "11.3.17 REQUEST SENSE Command",
+  "description": "本章節詳細說明了REQUEST SENSE命令的規格，該命令用於從UFS設備伺服器獲取感測資料，包含錯誤或異常狀況資訊以及設備當前操作狀態。章節涵蓋了命令格式、三層錯誤代碼結構（Sense Key、ASC、ASCQ）、資料回應格式，以及各種狀態回應處理方式。",
+  "keywords": [
+    "REQUEST SENSE",
+    "UFS command",
+    "sense data",
+    "error handling",
+    "device status",
+    "SCSI protocol"
+  ],
+  "page_range": "241-242"
+}

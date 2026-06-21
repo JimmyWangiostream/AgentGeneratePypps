@@ -1,0 +1,14 @@
+{
+  "file": "24_10713_data_out_transfer_rules.md",
+  "title": "10.7.13 Data Out Transfer Rules",
+  "description": "本章節詳細規範了 UFS 裝置中資料輸出傳輸的 RTT (Ready To Transfer) 規則，包含三項主要規則：主機對每個 RTT 請求只能傳送一個 DATA OUT UPIU、裝置不得產生超過主機能力的待處理 RTT 數量，以及資料傳輸必須按照 RTT 順序進行。此外還介紹了無序資料傳輸機制、邏輯單元定義與定址方式，協助解答 UFS 裝置間資料傳輸協定、效能最佳化、錯誤處理機制等相關問題。",
+  "keywords": [
+    "UFS",
+    "RTT",
+    "data transfer",
+    "UPIU",
+    "logical units",
+    "out of order transfer"
+  ],
+  "page_range": "171-189"
+}

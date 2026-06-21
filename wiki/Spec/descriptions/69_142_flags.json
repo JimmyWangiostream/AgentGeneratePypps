@@ -1,0 +1,15 @@
+{
+  "file": "69_142_flags.md",
+  "title": "14.2 Flags",
+  "description": "此章節涵蓋了UFS設備中標誌（Flags）的定義和規範，包含標誌的存取屬性（讀取、寫入、持續性、揮發性等）以及各種系統標誌的詳細說明。本章節可回答關於UFS標誌類型、存取控制、設備初始化、寫入保護、背景操作、韌體更新控制、WriteBooster功能等相關問題。",
+  "keywords": [
+    "flags",
+    "access properties",
+    "device initialization",
+    "write protection",
+    "background operations",
+    "WriteBooster",
+    "UFS"
+  ],
+  "page_range": "487-491"
+}

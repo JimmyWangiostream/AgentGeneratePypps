@@ -1,0 +1,47 @@
+{
+  "_about": "Per-step grounding provenance. code = understand-anything (graph + real source). wiki = llm-wiki. 'none relevant found' means the source was queried but had nothing (distinct from a missing key, which would mean the step was not checked).",
+  "step1": {
+    "code": [{"claim": "TEST UNIT READY command sequence", "ref": "api/cmd_seq/cmds.py:943 (CmdSeqTestUnitReady)"}],
+    "wiki": "none relevant found"
+  },
+  "step2": {
+    "code": [{"claim": "read Device Descriptor", "ref": "api/ufs_api/descriptors/device_desc/functions.py:22 (get_device_descriptor)"}],
+    "wiki": [{"claim": "Device Descriptor describes device-level params", "ref": "wiki/entities/device-descriptor.md"}]
+  },
+  "step3": {
+    "code": [
+      {"claim": "read attribute", "ref": "api/ufs_api/attr_flag_functions.py:64 (read_attribute)"},
+      {"claim": "bBootLunEn IDN = 0x00", "ref": "api/ufs_api/defines/enum_define.py:149 (AttributeIDN.BOOT_LUN_EN)"}
+    ],
+    "wiki": [{"claim": "bBootLunEn is a 1B persistent attribute, MDV 00h", "ref": "wiki/entities/attributes.md"}]
+  },
+  "step4": {
+    "code": [
+      {"claim": "write attribute", "ref": "api/ufs_api/attr_flag_functions.py:82 (write_attribute)"},
+      {"claim": "bBootLunEn IDN = 0x00", "ref": "api/ufs_api/defines/enum_define.py:149"}
+    ],
+    "wiki": [{"claim": "val 0x01 = Boot LU A active (00h=disabled, 02h=Boot LU B active)", "ref": "wiki/entities/attributes.md"}]
+  },
+  "step5": {
+    "code": [{"claim": "re-read bBootLunEn to confirm enabled", "ref": "api/ufs_api/attr_flag_functions.py:64"}],
+    "wiki": [{"claim": "fail if bBootLunEn stays 00h (disabled) -> abort", "ref": "wiki/entities/attributes.md"}]
+  },
+  "step6": {
+    "code": [{"claim": "read Unit Descriptor for boot LU", "ref": "api/ufs_api/descriptors/unit_desc/functions.py:16 (get_unit_descriptor)"}],
+    "wiki": [{"claim": "01h=Boot LU A, 02h=Boot LU B selected by bBootLunEn", "ref": "wiki/entities/unit-descriptor.md"}],
+    "todo": "extract bBootLunID field from descriptor return (currently hardcoded 1)"
+  },
+  "step7": {
+    "code": [{"claim": "write boot LU data + read-back compare", "ref": "api/ufs_api/rw_functions.py:300 (sequential_write, need_compare=True)"}],
+    "wiki": "none relevant found"
+  },
+  "step8": {
+    "code": [
+      {"claim": "reset types enum", "ref": "api/ufs_api/debug_cmd/dcmd_enum.py:51-56 (Dcmd5ResetType)"},
+      {"claim": "reset to unit-ready", "ref": "api/ufs_api/initial_device.py:71 (init_tester_to_unit_ready)"},
+      {"claim": "START STOP UNIT to Active", "ref": "api/cmd_seq/cmds.py:266 (StartStopUnit)"},
+      {"claim": "read-compare boot data", "ref": "api/ufs_api/rw_functions.py:300"}
+    ],
+    "wiki": [{"claim": "TC 'RST_N' maps to enum RESET_N; reset types HW/RESET_N/ENDPOINT/UNIPRO", "ref": "wiki/sources/spec.md"}]
+  }
+}

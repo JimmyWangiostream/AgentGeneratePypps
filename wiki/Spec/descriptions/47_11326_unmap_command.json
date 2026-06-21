@@ -1,0 +1,14 @@
+{
+  "file": "47_11326_unmap_command.md",
+  "title": "11.3.26 UNMAP Command",
+  "description": "本章節詳細說明UFS儲存裝置中UNMAP指令的規格與實作，該指令用於將邏輯區塊位址(LBA)進行解除映射(去配置)操作。涵蓋UNMAP指令格式、參數列表結構、區塊描述符定義，以及指令傳輸流程和狀態回應機制，主要適用於支援精簡佈建(Thin Provisioning)的邏輯單元。",
+  "keywords": [
+    "UNMAP command",
+    "thin provisioning",
+    "LBA deallocation",
+    "block descriptor",
+    "parameter list",
+    "UFS storage"
+  ],
+  "page_range": "258-261"
+}

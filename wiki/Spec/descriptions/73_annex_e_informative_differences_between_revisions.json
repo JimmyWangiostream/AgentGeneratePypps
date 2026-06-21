@@ -1,0 +1,14 @@
+{
+  "file": "73_annex_e_informative_differences_between_revisions.md",
+  "title": "Annex E (Informative) Differences Between Revisions",
+  "description": "本章節為附錄E，詳細記錄了JESD220G標準與其前版本之間的差異比較，包括從JESD220F到JESD220G的新增功能（如設備級異常事件、主機發起的碎片整理、WriteBooster緩衝區調整等）、規範引用更新，以及對已定義功能的修改。此章節同時追溯了歷史版本間的變化，涵蓋電氣特性、協議改進、安全功能增強等技術規格演進。",
+  "keywords": [
+    "revision differences",
+    "JESD220G",
+    "UFS standard",
+    "version changes",
+    "feature additions",
+    "specification updates"
+  ],
+  "page_range": "529-542"
+}

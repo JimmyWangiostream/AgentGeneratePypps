@@ -1,0 +1,1 @@
+請將VendorCmdDll.ini放置於PPS ini 資料夾內

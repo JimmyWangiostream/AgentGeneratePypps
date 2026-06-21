@@ -1,0 +1,15 @@
+{
+  "file": "06_6_ufs_electrical_clock_reset_signals_and_supplies.md",
+  "title": "6 UFS Electrical: Clock, Reset, Signals And Supplies",
+  "description": "本章節涵蓋UFS（通用快閃記憶體儲存）設備的電氣特性規範，包括電源供應(VCC、VCCQ、VCCQ2)、重置信號(RST_n)、參考時鐘(REF_CLK)、差分資料信號(DIN/DOUT)等訊號定義與電氣參數。詳細說明各種訊號的電壓範圍、時序要求、ESD規範、電源啟動時序，以及參考時鐘在不同HS-Gear模式下的頻率配置與閘控管理。",
+  "keywords": [
+    "UFS",
+    "electrical",
+    "power supplies",
+    "reset signal",
+    "reference clock",
+    "differential signals",
+    "ESD"
+  ],
+  "page_range": "40-53"
+}

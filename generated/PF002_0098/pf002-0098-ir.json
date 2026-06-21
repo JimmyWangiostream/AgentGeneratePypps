@@ -1,0 +1,244 @@
+{
+  "pattern_id": "PF002_0098",
+  "title": "PF002_0098_Boot_Stress-Normalized-TestFlow",
+  "description": "PF002_0098 Boot Stress Test — 配置 Boot LU 後寫入資料，在隨機 Reset",
+  "tags": [
+    "test-flow",
+    "ufs",
+    "pf002_0098",
+    "scsi-cmd",
+    "boot-lun",
+    "reset",
+    "stress"
+  ],
+  "phases": [
+    {
+      "phase_id": "phase_0",
+      "name": "Boot LU 配置與啟用",
+      "type": "sequential",
+      "loop_type": null,
+      "loop_count": null,
+      "loop_condition": null,
+      "steps": [
+        {
+          "step_id": "step_0_1",
+          "name": "確認裝置就緒",
+          "scsi_cmd": "TEST UNIT READY (00h)",
+          "ufs_query": null,
+          "opcode": "0x00",
+          "query_opcode": null,
+          "idn": null,
+          "expected": "`GOOD Status`",
+          "fail_condition": null,
+          "on_fail": null,
+          "raw_content": "**SCSI CMD**: `TEST UNIT READY (00h)`\n\n**目的**: 確認 UFS Device 已上電且可接受命令。\n\n| Field | Value |\n|-------|-------|\n| Opcode | 0x00 |\n\n**Expected**: `GOOD Status`。\n\n**UFS SPEC Reference**: JESD220H Section 10.7.2\n\n---"
+        },
+        {
+          "step_id": "step_0_2",
+          "name": "讀取 Device Descriptor（確認 Boot 支援）",
+          "scsi_cmd": null,
+          "ufs_query": "READ DESCRIPTOR (Device Descriptor)",
+          "opcode": null,
+          "query_opcode": "0x07 (READ DESCRIPTOR)",
+          "idn": "0x00 (Device Descriptor)",
+          "expected": "`QUERY RESPONSE Success`，回傳完整 Device Descriptor，確認 `bBootEnable` 欄位存在",
+          "fail_condition": null,
+          "on_fail": null,
+          "raw_content": "**UFS QUERY**: `READ DESCRIPTOR (Device Descriptor)`\n\n**目的**: 讀取 Device Descriptor 確認 `bBootEnable` 欄位支援 Boot 功能。\n\n| Field | Value |\n|-------|-------|\n| Query Opcode | 0x07 (READ DESCRIPTOR) |\n| IDN | 0x00 (Device Descriptor) |\n| Index | 0x00 |\n| Selector | 0x00 |\n| Length | 0x40 (sufficient for full descriptor) |\n\n**Expected**: `QUERY RESPONSE Success`，回傳完整 Device Descriptor，確認 `bBootEnable` 欄位存在。\n\n**UFS SPEC Reference**: JESD220H Section 14.1.4.2 (Device Descriptor)\n\n---"
+        },
+        {
+          "step_id": "step_0_3",
+          "name": "讀取 bBootLunEn 目前狀態",
+          "scsi_cmd": null,
+          "ufs_query": "READ ATTRIBUTE (bBootLunEn)",
+          "opcode": null,
+          "query_opcode": "0x03 (READ ATTRIBUTE)",
+          "idn": "0x00 (bBootLunEn)",
+          "expected": "`QUERY RESPONSE Success`",
+          "fail_condition": null,
+          "on_fail": null,
+          "raw_content": "**UFS QUERY**: `READ ATTRIBUTE (bBootLunEn)`\n\n**目的**: 讀取目前 Boot LU Enable 狀態。\n\n| Field | Value |\n|-------|-------|\n| Query Opcode | 0x03 (READ ATTRIBUTE) |\n| IDN | 0x00 (bBootLunEn) |\n| Index | 0x00 |\n| Selector | 0x00 |\n\n**Expected**: `QUERY RESPONSE Success`。\n\n**UFS SPEC Reference**: JESD220H Section 14.3.1 (bBootLunEn, IDN 0x00)\n\n---"
+        },
+        {
+          "step_id": "step_0_4",
+          "name": "啟用 Boot LU",
+          "scsi_cmd": null,
+          "ufs_query": "WRITE ATTRIBUTE (bBootLunEn)",
+          "opcode": null,
+          "query_opcode": "0x04 (WRITE ATTRIBUTE)",
+          "idn": "0x00 (bBootLunEn)",
+          "expected": "`QUERY RESPONSE Success`",
+          "fail_condition": null,
+          "on_fail": null,
+          "raw_content": "**UFS QUERY**: `WRITE ATTRIBUTE (bBootLunEn)`\n\n**目的**: 設定 bBootLunEn 啟用對應的 Boot LUN。\n\n| Field | Value |\n|-------|-------|\n| Query Opcode | 0x04 (WRITE ATTRIBUTE) |\n| IDN | 0x00 (bBootLunEn) |\n| Index | 0x00 |\n| Selector | 0x00 |\n| Value | 依所需 Boot LU 設定 bit mask |\n\n**Expected**: `QUERY RESPONSE Success`。\n\n**UFS SPEC Reference**: JESD220H Section 14.3.1 (bBootLunEn), Section 13.4.4 (Boot)\n\n---"
+        },
+        {
+          "step_id": "step_0_5",
+          "name": "確認 Boot LU 已啟用",
+          "scsi_cmd": null,
+          "ufs_query": "READ ATTRIBUTE (bBootLunEn)",
+          "opcode": null,
+          "query_opcode": "0x03 (READ ATTRIBUTE)",
+          "idn": "0x00 (bBootLunEn)",
+          "expected": "`QUERY RESPONSE Success`，`bBootLunEn != 0x00`（至少一個 Boot LU 已啟用）",
+          "fail_condition": "NOT (`QUERY RESPONSE Success`，`bBootLunEn != 0x00`（至少一個 Boot LU 已啟用）)",
+          "on_fail": "abort",
+          "raw_content": "**UFS QUERY**: `READ ATTRIBUTE (bBootLunEn)`\n\n**目的**: 回讀確認 bBootLunEn 已確實啟用。\n\n| Field | Value |\n|-------|-------|\n| Query Opcode | 0x03 (READ ATTRIBUTE) |\n| IDN | 0x00 (bBootLunEn) |\n| Index | 0x00 |\n| Selector | 0x00 |\n\n**Expected**: `QUERY RESPONSE Success`，`bBootLunEn != 0x00`（至少一個 Boot LU 已啟用）。\n\n**UFS SPEC Reference**: JESD220H Section 14.3.1\n\n---"
+        },
+        {
+          "step_id": "step_0_6",
+          "name": "取得 Boot LU 之 LUN Number",
+          "scsi_cmd": null,
+          "ufs_query": "READ DESCRIPTOR (Unit Descriptor)",
+          "opcode": null,
+          "query_opcode": "0x07 (READ DESCRIPTOR)",
+          "idn": "0x02 (Unit Descriptor)",
+          "expected": "`QUERY RESPONSE Success`，回傳 `bBootLunID` 欄位值（對應 LUN number）",
+          "fail_condition": null,
+          "on_fail": null,
+          "raw_content": "**UFS QUERY**: `READ DESCRIPTOR (Unit Descriptor)`\n\n**目的**: 讀取 Unit Descriptor 以獲取 Boot LU 對應的 `bLUN` 編號。\n\n| Field | Value |\n|-------|-------|\n| Query Opcode | 0x07 (READ DESCRIPTOR) |\n| IDN | 0x02 (Unit Descriptor) |\n| Index | Boot LU index (依 bBootLunEn bit) |\n| Selector | 0x00 |\n| Length | 0x20 |\n\n**Expected**: `QUERY RESPONSE Success`，回傳 `bBootLunID` 欄位值（對應 LUN number）。\n\n**UFS SPEC Reference**: JESD220H Section 14.1.4.3 (Unit Descriptor)\n\n---"
+        }
+      ],
+      "inputs": [],
+      "outputs": [
+        "boot_lun_id",
+        "boot_lun_enabled"
+      ]
+    },
+    {
+      "phase_id": "phase_1",
+      "name": "寫入 Boot LU 測試資料",
+      "type": "sequential",
+      "loop_type": null,
+      "loop_count": null,
+      "loop_condition": null,
+      "steps": [
+        {
+          "step_id": "step_1_1",
+          "name": "寫入測試資料至 Boot LU",
+          "scsi_cmd": "WRITE(10) (2Ah)",
+          "ufs_query": null,
+          "opcode": "0x2A",
+          "query_opcode": null,
+          "idn": null,
+          "expected": "`GOOD Status`",
+          "fail_condition": null,
+          "on_fail": null,
+          "raw_content": "**SCSI CMD**: `WRITE(10) (2Ah)`\n\n**目的**: 將已知測試 Pattern 寫入 Boot LU。\n\n| Field | Value |\n|-------|-------|\n| Opcode | 0x2A |\n| LUN | Boot LU (from Step 0.6) |\n| Logical Block Address | 0x00000000 |\n| Transfer Length | Boot LU 可用空間 |\n| Data | Known Test Pattern |\n\n**Expected**: `GOOD Status`。\n\n**UFS SPEC Reference**: JESD220H Section 10.7.2, SBC-4 5.43\n\n---"
+        },
+        {
+          "step_id": "step_1_2",
+          "name": "讀取比對確認寫入",
+          "scsi_cmd": "READ(10) (28h)",
+          "ufs_query": null,
+          "opcode": "0x28",
+          "query_opcode": null,
+          "idn": null,
+          "expected": "`GOOD Status` + `Data Match`",
+          "fail_condition": "NOT (`GOOD Status` + `Data Match`)",
+          "on_fail": "abort",
+          "raw_content": "**SCSI CMD**: `READ(10) (28h)`\n\n**目的**: 讀回 Step 1.1 寫入的資料，確認寫入成功。\n\n| Field | Value |\n|-------|-------|\n| Opcode | 0x28 |\n| LUN | Boot LU |\n| Logical Block Address | 0x00000000 |\n| Transfer Length | Step 1.1 寫入大小 |\n\n**Expected**: `GOOD Status` + `Data Match`。\n\n**UFS SPEC Reference**: JESD220H Section 10.7.2, SBC-4 5.18\n\n---"
+        }
+      ],
+      "inputs": [
+        "boot_lun_id"
+      ],
+      "outputs": [
+        "boot_lun_id",
+        "write_pattern",
+        "write_lba_range"
+      ]
+    },
+    {
+      "phase_id": "loop_5",
+      "name": "Reset + Reboot Stress (100 次)",
+      "type": "loop",
+      "loop_type": "count",
+      "loop_count": 100,
+      "loop_condition": null,
+      "steps": [
+        {
+          "step_id": "step_L_1",
+          "name": "Random Reset",
+          "scsi_cmd": null,
+          "ufs_query": null,
+          "opcode": null,
+          "query_opcode": null,
+          "idn": null,
+          "expected": "Device 完成 Link Startup，`fDeviceInit == 1`",
+          "fail_condition": null,
+          "on_fail": null,
+          "raw_content": "**目的**: 隨機選取一種 Reset 類型，模擬 Boot 過程中斷電/Reset 情境。\n\n| Reset Type | 說明 |\n|:---|:---|\n| HW_RESET | RST_n signal hardware reset |\n| RST_n | Reset signal toggle |\n| EndPoint Reset | DME EndPointReset command |\n| UniPro Reset | UniPro layer reset |\n\n**Expected**: Device 完成 Link Startup，`fDeviceInit == 1`。\n\n**UFS SPEC Reference**: JESD220H Section 10.4 (UFS Reset)\n\n---"
+        },
+        {
+          "step_id": "step_L_2",
+          "name": "確認 Device 就緒",
+          "scsi_cmd": "TEST UNIT READY (00h)",
+          "ufs_query": null,
+          "opcode": "0x00",
+          "query_opcode": null,
+          "idn": null,
+          "expected": "`GOOD Status`",
+          "fail_condition": null,
+          "on_fail": null,
+          "raw_content": "**SCSI CMD**: `TEST UNIT READY (00h)`\n\n**目的**: Reset 後確認 Device 可操作。\n\n| Field | Value |\n|-------|-------|\n| Opcode | 0x00 |\n\n**Expected**: `GOOD Status`。\n\n**UFS SPEC Reference**: JESD220H Section 10.7.2\n\n---"
+        },
+        {
+          "step_id": "step_L_3",
+          "name": "確認 LUN 進入 Active State",
+          "scsi_cmd": "START STOP UNIT (1Bh)",
+          "ufs_query": null,
+          "opcode": "0x1B",
+          "query_opcode": null,
+          "idn": null,
+          "expected": "`GOOD Status`，Boot LU 可進行 READ/WRITE",
+          "fail_condition": null,
+          "on_fail": null,
+          "raw_content": "**SCSI CMD**: `START STOP UNIT (1Bh)`\n\n**目的**: 確保 Boot LU 已進入 Active Power Condition 可進行 I/O。\n\n| Field | Value |\n|-------|-------|\n| Opcode | 0x1B |\n| START bit | 1 (Start) |\n| Power Condition | 0x0 (Active) |\n\n**Expected**: `GOOD Status`，Boot LU 可進行 READ/WRITE。\n\n**UFS SPEC Reference**: JESD220H Section 10.7.2, SBC-4 5.25\n\n---"
+        },
+        {
+          "step_id": "step_L_4",
+          "name": "Read Compare Boot Data",
+          "scsi_cmd": "READ(10) (28h)",
+          "ufs_query": null,
+          "opcode": "0x28",
+          "query_opcode": null,
+          "idn": null,
+          "expected": "`GOOD Status` + `Data Match`",
+          "fail_condition": "NOT (`GOOD Status` + `Data Match`)",
+          "on_fail": "abort",
+          "raw_content": "**SCSI CMD**: `READ(10) (28h)`\n\n**目的**: 讀取 Boot LU 資料並與 Step 1.1 寫入的 Test Pattern 進行比對。\n\n| Field | Value |\n|-------|-------|\n| Opcode | 0x28 |\n| LUN | Boot LU |\n| Logical Block Address | 0x00000000 |\n| Transfer Length | Step 1.1 寫入大小 |\n\n**Expected**: `GOOD Status` + `Data Match`。\n\n**UFS SPEC Reference**: JESD220H Section 10.7.2, SBC-4 5.18\n\n---"
+        }
+      ],
+      "inputs": [],
+      "outputs": []
+    }
+  ],
+  "dependency_graph": {
+    "nodes": [
+      "phase_0",
+      "phase_1",
+      "loop_5"
+    ],
+    "edges": [
+      {
+        "from": "phase_0",
+        "to": "phase_1",
+        "type": "sequential",
+        "data_flow": [
+          "boot_lun_id"
+        ]
+      },
+      {
+        "from": "phase_1",
+        "to": "loop_stress",
+        "type": "sequential",
+        "data_flow": [
+          "boot_lun_id",
+          "write_pattern",
+          "write_lba_range"
+        ]
+      }
+    ]
+  }
+}

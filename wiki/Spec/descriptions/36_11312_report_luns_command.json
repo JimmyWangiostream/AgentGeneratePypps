@@ -1,0 +1,14 @@
+{
+  "file": "36_11312_report_luns_command.md",
+  "title": "11.3.12 REPORT LUNS Command",
+  "description": "本章節說明REPORT LUNS命令的詳細規格，包括命令結構、參數設定、資料回應格式和LUN定址方法。涵蓋標準邏輯單元和知名邏輯單元(W-LUN)的定址格式，以及UFS中不同類型LUN的識別方式。",
+  "keywords": [
+    "REPORT LUNS",
+    "logical unit",
+    "W-LUN",
+    "addressing format",
+    "UFS",
+    "SCSI command"
+  ],
+  "page_range": "226-230"
+}

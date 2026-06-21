@@ -1,0 +1,14 @@
+{
+  "file": "72_annex_d_informative_board_design_guideline.md",
+  "title": "Annex D (Informative) Board Design Guideline",
+  "description": "本章節提供UFS 4.0系統板設計指南，包括電源域(VCC/VCCQ/VCCQ2)的阻抗規格、電容配置建議，以及Buck型與LDO型PMIC的噪聲預算分配。內容涵蓋系統板PCB模擬所需的輸入參數、最大允許阻抗值、頻率響應特性和電壓噪聲餘量建議，可協助工程師進行UFS系統板的電源完整性設計。",
+  "keywords": [
+    "UFS 4.0",
+    "PCB design",
+    "power integrity",
+    "impedance specification",
+    "PMIC",
+    "noise budget"
+  ],
+  "page_range": "525-528"
+}

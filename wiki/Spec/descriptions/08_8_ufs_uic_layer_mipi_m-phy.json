@@ -1,0 +1,14 @@
+{
+  "file": "08_8_ufs_uic_layer_mipi_m-phy.md",
+  "title": "8 UFS UIC Layer: MIPI M-PHY",
+  "description": "本章節介紹UFS UIC層中MIPI M-PHY的技術規格，包含終端設置、驅動電平、PHY狀態機、HS/PWM突發模式、適應序列和PHY屬性配置。此章節回答有關UFS物理層實作、M-TX/M-RX配置參數、支援的傳輸速率檔位以及電氣特性的技術問題。",
+  "keywords": [
+    "MIPI M-PHY",
+    "UFS physical layer",
+    "termination",
+    "HS-GEAR",
+    "PWM-GEAR",
+    "PHY attributes"
+  ],
+  "page_range": "77-80"
+}

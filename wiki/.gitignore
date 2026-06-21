@@ -1,0 +1,12 @@
+﻿# Wiki generated files
+conflicts.md
+.conflicts-cache/
+
+# Index cache
+index.json.cache
+
+# System files
+.DS_Store
+Thumbs.db
+__pycache__/
+*.pyc

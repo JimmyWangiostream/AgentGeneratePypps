@@ -1,0 +1,14 @@
+{
+  "file": "19_1078_query_request_upiu.md",
+  "title": "10.7.8 QUERY REQUEST UPIU",
+  "description": "本章節詳細說明 QUERY REQUEST UPIU 的結構與功能，這是用於在主機和目標裝置之間傳輸非標準用戶資料的協議。章節涵蓋了查詢功能的各種操作碼，包括讀取和寫入描述符、屬性和旗標的具體實作方式。此文件可回答關於 UPIU 封包格式、交易特定欄位定義、以及各種查詢操作的參數設定等技術問題。",
+  "keywords": [
+    "QUERY REQUEST UPIU",
+    "descriptors",
+    "attributes",
+    "flags",
+    "opcode",
+    "transaction specific fields"
+  ],
+  "page_range": "139-151"
+}

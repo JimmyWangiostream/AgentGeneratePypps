@@ -1,0 +1,14 @@
+{
+  "file": "68_14_ufs_descriptors_flags_and_attributes.md",
+  "title": "14 UFS Descriptors, Flags And Attributes",
+  "description": "本章節詳細說明UFS（通用快閃記憶體存儲）中的描述符、標誌和屬性的規格定義，包括各種描述符類型（設備、配置、單元等）的格式、存取方式和參數設定。此文件回答了有關UFS描述符結構、查詢請求機制、配置管理和設備參數設定等技術問題。",
+  "keywords": [
+    "UFS descriptors",
+    "query request",
+    "UPIU",
+    "device configuration",
+    "logical units",
+    "SCSI"
+  ],
+  "page_range": "442-486"
+}

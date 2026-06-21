@@ -1,0 +1,14 @@
+{
+  "file": "40_11316_write_16_command.md",
+  "title": "11.3.16 WRITE (16) Command",
+  "description": "本章節詳細說明UFS存儲規範中的WRITE(16)命令，包含命令描述符塊(CDB)的格式定義、各個參數欄位的功能說明，以及資料傳輸流程和狀態回應機制。此章節能回答關於WRITE(16)命令結構、參數配置、執行流程和錯誤處理等技術問題。",
+  "keywords": [
+    "WRITE command",
+    "UFS",
+    "CDB",
+    "data transfer",
+    "logical block",
+    "UPIU"
+  ],
+  "page_range": "238-240"
+}

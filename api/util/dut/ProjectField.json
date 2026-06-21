@@ -1,0 +1,648 @@
+{
+    "Projects": [
+        {
+            "Name": "Common_SPEC_List",
+            "UID": "SYSTCUFS-1592",
+            "CompareProperty": {}
+        },
+        {
+            "Name": "PS8317_BiCS5_KIC_UFS3.1-20.10.03.01",
+            "UID": "U383171001-3061",
+            "CompareProperty": {
+                "M1": 20,
+                "M2": 10,
+                "M3": 3,
+                "M4": 1,
+                "VendorID": 10,
+                "UFS_Version": 784
+            }
+        },
+        {
+            "Name": "PS8318_BiCS5_OPPO_UFS3.1-21.10.03.01",
+            "UID": "U383180302-1540",
+            "CompareProperty": {
+                "M1": 21,
+                "M2": 10,
+                "M3": 3,
+                "M4": 1,
+                "VendorID": 42,
+                "UFS_Version": 784
+            }
+        },
+        {
+            "Name": "PS8317_B47R_VIVO_UFS2.2-20.15.04.01",
+            "UID": "U283171909-380",
+            "CompareProperty": {
+                "M1": 20,
+                "M2": 15,
+                "M3": 4,
+                "M4": 1,
+                "UFS_Version": 544
+            }
+        },
+        {
+            "Name": "PS8317_JGS_YMTC-20.9.4.1",
+            "UID": "U383172301-108",
+            "CompareProperty": {
+                "M1": 20,
+                "M2": 9,
+                "M3": 4,
+                "M4": 1,
+                "VendorID": 29,
+                "UFS_Version": 544
+            }
+        },
+        {
+            "Name": "PS8317_B47R_UFS2.2-20.15.04.01",
+            "UID": "U283171909-381",
+            "CompareProperty": {
+                "M1": 20,
+                "M2": 15,
+                "M3": 4,
+                "M4": 1,
+                "VendorID": 19,
+                "UFS_Version": 544
+            }
+        },
+        {
+            "Name": "PS8317_BICS5_4P-20.10.01.01_UFS2.1",
+            "UID": "U283173508-98",
+            "CompareProperty": {
+                "M1": 20,
+                "M2": 10,
+                "M3": 1,
+                "M4": 1,
+                "VendorID": 35,
+                "UFS_Version": 528
+            }
+        },
+        {
+            "Name": "PS8317_BICS5_4P-20.10.04.01_UFS2.2",
+            "UID": "U283173507-553",
+            "CompareProperty": {
+                "M1": 20,
+                "M2": 10,
+                "M3": 4,
+                "M4": 1,
+                "VendorID": 35,
+                "UFS_Version": 544
+            }
+        },
+        {
+            "Name": "PS8317_BICS5_4P-20.10.02.01_UFS3.0",
+            "UID": "U383173507-109",
+            "CompareProperty": {
+                "M1": 20,
+                "M2": 10,
+                "M3": 2,
+                "M4": 1,
+                "VendorID": 35,
+                "UFS_Version": 768
+            }
+        },
+        {
+            "Name": "PS8317_BICS5_4P-20.10.03.01_UFS3.1",
+            "UID": "U383173506-48",
+            "CompareProperty": {
+                "M1": 20,
+                "M2": 10,
+                "M3": 3,
+                "M4": 1,
+                "VendorID": 35,
+                "UFS_Version": 784
+            }
+        },
+        {
+            "Name": "PS8317_BICS5_gTLC_PHISON_UFS2.1",
+            "UID": "U283171910-193",
+            "CompareProperty": {
+                "M1": 20,
+                "M2": 21,
+                "M3": 1,
+                "M4": 2,
+                "VendorID": 49,
+                "UFS_Version": 528
+            }
+        },
+        {
+            "Name": "PS8317_BICS5_gTLC_PHISON_UFS3.1",
+            "UID": "U383171907-1357",
+            "CompareProperty": {
+                "M1": 20,
+                "M2": 21,
+                "M3": 3,
+                "M4": 2,
+                "VendorID": 49,
+                "UFS_Version": 784
+            }
+        },
+        {
+            "Name": "PS8318_B47R_UFS3.1-21.15.03.01",
+            "UID": "U383180301-1631",
+            "CompareProperty": {
+                "M1": 21,
+                "M2": 15,
+                "M3": 3,
+                "M4": 1,
+                "VendorID": 19,
+                "UFS_Version": 784
+            }
+        },
+        {
+            "Name": "PS8317_B47T_3.1-20.13.03.02",
+            "UID": "U383171906-243",
+            "CompareProperty": {
+                "M1": 20,
+                "M2": 13,
+                "M3": 3,
+                "M4": 2,
+                "VendorID": 43,
+                "UFS_Version": 784
+            }
+        },
+        {
+            "Name": "PS8317_B47T_UFS_2.2-20.13.04.02",
+            "UID": "U283171907-755",
+            "CompareProperty": {
+                "M1": 20,
+                "M2": 13,
+                "M3": 4,
+                "M4": 2,
+                "VendorID": 43,
+                "UFS_Version": 544
+            }
+        },
+        {
+            "Name": "PS8317_B47T_UFS2.1-20.13.01.02",
+            "UID": "U283171908-184",
+            "CompareProperty": {
+                "M1": 20,
+                "M2": 13,
+                "M3": 1,
+                "M4": 2,
+                "VendorID": 43,
+                "UFS_Version": 528
+            }
+        },
+        {
+            "Name": "PS8325_N58R_Micron_UFS3.1-24.18.03.01",
+            "UID": "U383252901-2198",
+            "CompareProperty": {
+                "M1": 24,
+                "M2": 18,
+                "M3": 3,
+                "M4": 1,
+                "VendorID": 2,
+                "UFS_Version": 784
+            }
+        },
+        {
+            "Name": "PS8317_BICS5_KSI_UFS_2.2-20.10.04.01",
+            "UID": "U283170306-11",
+            "CompareProperty": {
+                "M1": 20,
+                "M2": 10,
+                "M3": 4,
+                "M4": 1,
+                "VendorID": 3,
+                "UFS_Version": 544
+            }
+        },
+        {
+            "Name": "PS8317_BICS5_KSI_UFS_2.1-20.10.01.01",
+            "UID": "U283170306-302",
+            "CompareProperty": {
+                "M1": 20,
+                "M2": 10,
+                "M3": 1,
+                "M4": 1,
+                "VendorID": 3,
+                "UFS_Version": 528
+            }
+        },
+        {
+            "Name": "PS8325_WDS_HG_UFS3.1",
+            "UID": "U383253701-72",
+            "CompareProperty": {
+                "M1": 24,
+                "M2": 20,
+                "M3": 3,
+                "M4": 1,
+                "VendorID": 37,
+                "UFS_Version": 784
+            }
+        },
+        {
+            "Name": "PS8327_WT_HG_UFS2.2",
+            "UID": "U383273701-73",
+            "CompareProperty": {
+                "M1": 27,
+                "M2": 25,
+                "M3": 4,
+                "M4": 1,
+                "VendorID": 37,
+                "UFS_Version": 544
+            }
+        },
+        {
+            "Name": "PS8325_BiCS6_ZF_UFS3.1-24.22.3.01",
+            "UID": "UF83255001-276",
+            "CompareProperty": {
+                "M1": 24,
+                "M2": 22,
+                "M3": 3,
+                "M4": 1,
+                "VendorID": 50,
+                "UFS_Version": 784
+            }
+        },
+        {
+            "Name": "PS8325_BiCS6_UFS3.1_Commercial-24.22.3.01",
+            "UID": "U383253501-148",
+            "CompareProperty": {
+                "M1": 24,
+                "M2": 22,
+                "M3": 3,
+                "M4": 1,
+                "VendorID": 35,
+                "UFS_Version": 784
+            }
+        },
+        {
+            "Name": "PS8361_B58R-25.17.05.01",
+            "UID": "D612-6633",
+            "CompareProperty": {
+                "M1": 25,
+                "M2": 17,
+                "M3": 5,
+                "M4": 1,
+                "VendorID": 48,
+                "UFS_Version": 1024
+            }
+        },
+        {
+            "Name": "PS8317_WTS_UFS2.2-20.24.04.01",
+            "UID": "U283172302-382",
+            "CompareProperty": {
+                "M1": 20,
+                "M2": 24,
+                "M3": 4,
+                "M4": 1,
+                "VendorID": 29,
+                "UFS_Version": 544
+            }
+        },
+        {
+            "Name": "PS8317_WTS_UFS3.1",
+            "UID": "U383172303-2",
+            "CompareProperty": {
+                "M1": 20,
+                "M2": 24,
+                "M3": 3,
+                "M4": 1,
+                "VendorID": 29,
+                "UFS_Version": 784
+            }
+        },
+        {
+            "Name": "PS8317_WTS_UFS2.1",
+            "UID": "U283172304-24",
+            "CompareProperty": {
+                "M1": 20,
+                "M2": 24,
+                "M3": 1,
+                "M4": 1,
+                "VendorID": 29,
+                "UFS_Version": 528
+            }
+        },
+        {
+            "Name": "PS8329_BiCS8_KIC_UFS3.1",
+            "PyppsProjectSN": "P0",
+            "UID": "U383291001-1336",
+            "CompareProperty": {
+                "M1": 26,
+                "M2": 23,
+                "M3": 3,
+                "M4": 1,
+                "VendorID": 10,
+                "UFS_Version": 784
+            }
+        },
+        {
+            "Name": "PS8361_WD_HG_UFS4.0",
+            "UID": "U483613701-26",
+            "CompareProperty": {
+                "M1": 25,
+                "M2": 20,
+                "M3": 5,
+                "M4": 1,
+                "VendorID": 37,
+                "UFS_Version": 1040
+            }
+        },
+        {
+            "Name": "PS8361_WDS_OPPO_UFS4.0",
+            "PyppsProjectSN": "P1",
+            "UID": "U483615202-419",
+            "CompareProperty": {
+                "M1": 25,
+                "M2": 20,
+                "M3": 5,
+                "M4": 1,
+                "VendorID": 52,
+                "UFS_Version": 1024
+            }
+        },
+        {
+            "Name": "PS8327_WTS_Client_UFS2.2",
+            "UID": "U283272301-67",
+            "CompareProperty": {
+                "M1": 27,
+                "M2": 24,
+                "M3": 4,
+                "M4": 1,
+                "VendorID": 29,
+                "UFS_Version": 544
+            }
+        },
+        {
+            "Name": "PS8317_WYS_UFS3.1",
+            "UID": "U383171908-125",
+            "CompareProperty": {
+                "M1": 20,
+                "M2": 29,
+                "M3": 3,
+                "M4": 2,
+                "VendorID": 55,
+                "UFS_Version": 784
+            }
+        },
+        {
+            "Name": "PS8329_BiCS8_Normal_UFS3.1",
+            "UID": "U383291001-4535",
+            "CompareProperty": {
+                "M1": 26,
+                "M2": 23,
+                "M3": 3,
+                "M4": 1,
+                "VendorID": 35,
+                "UFS_Version": 784
+            }
+        },
+        {
+            "Name": "PS8361_WD_Phison_UFS4.0",
+            "UID": "U483613701-2098",
+            "CompareProperty": {
+                "M1": 25,
+                "M2": 16,
+                "M3": 5,
+                "M4": 1,
+                "VendorID": 29,
+                "UFS_Version": 1024
+            }
+        },
+        {
+            "Name": "PS8325_WDS_Client_UFS3.1",
+            "UID": "U383253701-2488",
+            "CompareProperty": {
+                "M1": 24,
+                "M2": 16,
+                "M3": 3,
+                "M4": 1,
+                "VendorID": 29,
+                "UFS_Version": 784
+            }
+        },
+        {
+            "Name": "PS8317_WYS_UFS2.2_TS",
+            "UID": "UFS8317003-229",
+            "CompareProperty": {
+                "M1": 20,
+                "M2": 19,
+                "M3": 4,
+                "M4": 1,
+                "VendorID": 37,
+                "UFS_Version": 544
+            }
+        },
+        {
+            "Name": "PS8317_WD_BiCS5_UFS2.2_TS",
+            "UID": "UFS8317004-2332",
+            "CompareProperty": {
+                "M1": 20,
+                "M2": 26,
+                "M3": 4,
+                "M4": 1,
+                "VendorID": 53,
+                "UFS_Version": 544
+            }
+        },
+        {
+            "Name": "PS8325_B58R_UFS3.1_mTLC",
+            "UID": "U383251901-3264",
+            "CompareProperty": {
+                "M1": 24,
+                "M2": 17,
+                "M3": 3,
+                "M4": 1,
+                "VendorID": 48,
+                "UFS_Version": 784
+            }
+        },
+        {
+            "Name": "PS8329_BiCS8_QLC_UFS2.2",
+            "UID": "U283293501-312",
+            "CompareProperty": {
+                "M1": 26,
+                "M2": 28,
+                "M3": 6,
+                "M4": 1,
+                "VendorID": 35,
+                "UFS_Version": 544
+            }
+        },
+        {
+            "Name": "PS8329_BiCS8_QLC_UFS3.1",
+            "UID": "U383293503-439",
+            "CompareProperty": {
+                "M1": 26,
+                "M2": 28,
+                "M3": 7,
+                "M4": 1,
+                "VendorID": 35,
+                "UFS_Version": 784
+            }
+        },
+        {
+            "Name": "PS8329_N58R_QLC_UFS2.2",
+            "UID": "U283291906-309",
+            "CompareProperty": {
+                "M1": 26,
+                "M2": 18,
+                "M3": 6,
+                "M4": 1,
+                "VendorID": 19,
+                "UFS_Version": 544
+            }
+        },
+        {
+            "Name": "PS8329_BiCS8_Normal_UFS2.2",
+            "UID": "U283293502-3",
+            "CompareProperty": {
+                "M1": 26,
+                "M2": 23,
+                "M3": 4,
+                "M4": 1,
+                "VendorID": 35,
+                "UFS_Version": 544
+            }
+        },
+        {
+            "Name": "PS8329_WD_BiCS8_HG_UFS2.2",
+            "UID": "D612-7908",
+            "CompareProperty": {
+                "M1": 26,
+                "M2": 31,
+                "M3": 4,
+                "M4": 1,
+                "VendorID": 53,
+                "UFS_Version": 544
+            }
+        },
+        {
+            "Name": "PS8363_BiCS8_KIC_UFS4.1",
+            "PyppsProjectSN": "P2",
+            "UID": "U483631001-1139",
+            "CompareProperty": {
+                "M1": 28,
+                "M2": 33,
+                "M3": 8,
+                "M4": 1,
+                "VendorID": 10,
+                "UFS_Version": 1040
+            }
+        },
+		{
+            "Name": "PS8317_BICS5_cTLC_PHISON_AUTO_UFS2.1",
+            "UID": "U283174901-3",
+            "CompareProperty": {
+                "M1": 20,
+                "M2": 11,
+                "M3": 1,
+                "M4": 2,
+                "VendorID": 49,
+                "UFS_Version": 528
+            }
+        },
+		{
+            "Name": "PS8317_BICS5_cTLC_PHISON_AUTO_UFS3.1",
+            "UID": "U383174901-51",
+            "CompareProperty": {
+                "M1": 20,
+                "M2": 11,
+                "M3": 3,
+                "M4": 2,
+                "VendorID": 49,
+                "UFS_Version": 784
+            }
+        },
+		{
+            "Name": "PS8317AA_cTLC_BiCS5_2P_UFS2.2",
+            "UID": "U283173509-162",
+            "CompareProperty": {
+                "M1": 20,
+                "M2": 11,
+                "M3": 4,
+                "M4": 1,
+                "VendorID": 35,
+                "UFS_Version": 544
+            }
+        },
+		{
+            "Name": "PS8329_BiCS8_Dell_Special_UFS3.1",
+            "UID": "U383293504-365",
+            "CompareProperty": {
+                "M1": 26,
+                "M2": 40,
+                "M3": 3,
+                "M4": 1,
+                "VendorID": 56,
+                "UFS_Version": 784
+            }
+        },
+        {
+            "Name": "PS8329_BiCS8_Dell_UFS3.1",
+            "UID": "U383293504-3",
+            "CompareProperty": {
+                "M1": 26,
+                "M2": 23,
+                "M3": 3,
+                "M4": 1,
+                "VendorID": 56,
+                "UFS_Version": 784
+            }
+        },
+        {
+            "Name": "PS8329_B86s_Cygnus_UFS3.1",
+            "PyppsProjectSN": "P3",
+            "UID": "CYGNUS-37",
+            "CompareProperty": {
+                "M1": 26,
+                "M2": 36,
+                "M3": 3,
+                "M4": 2,
+                "VendorID": 2,
+                "UFS_Version": 784
+            }
+        },
+       	{
+            "Name": "PS8363_PTS_LV_UFS4.1",
+            "UID": "U483635401-585",
+            "CompareProperty": {
+                "M1": 28,
+                "M2": 30,
+                "M3": 9,
+                "M4": 1,
+                "VendorID": 54,
+                "UFS_Version": 1040
+            }
+        },
+        {
+            "Name": "PS8363_SQS_LV_UFS4.1",
+            "UID": "U483635404-183",
+            "CompareProperty": {
+                "M1": 28,
+                "M2": 35,
+                "M3": 8,
+                "M4": 1,
+                "VendorID": 54,
+                "UFS_Version": 1040
+            }
+        },
+		{
+            "Name": "PS8363AA_BiCS8_cTLC_PHISON_AUTO_UFS4.1",
+            "UID": "UF83634901-181",
+            "CompareProperty": {
+                "M1": 28,
+                "M2": 23,
+                "M3": 8,
+                "M4": 2,
+                "VendorID": 49,
+                "UFS_Version": 1040
+            }
+        },
+        {
+            "Name": "PS8363AA_BiCS8_cTLC_PHISON_AUTO_UFS3.1",
+            "UID": "UF83634901-241",
+            "CompareProperty": {
+                "M1": 28,
+                "M2": 23,
+                "M3": 3,
+                "M4": 2,
+                "VendorID": 49,
+                "UFS_Version": 784
+            }
+        }
+    ]
+}

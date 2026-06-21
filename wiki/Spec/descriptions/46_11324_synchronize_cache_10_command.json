@@ -1,0 +1,14 @@
+{
+  "file": "46_11324_synchronize_cache_10_command.md",
+  "title": "11.3.24 SYNCHRONIZE CACHE (10) Command",
+  "description": "本章節詳細介紹 SYNCHRONIZE CACHE (10) 和 SYNCHRONIZE CACHE (16) 命令的技術規格，包括命令格式、參數定義、資料傳輸行為及狀態回應。這些命令用於確保指定的邏輯區塊將最新資料值記錄到儲存媒體上，涵蓋了 IMMED 位元、邏輯區塊位址、區塊數量等關鍵參數的使用方式和錯誤處理機制。",
+  "keywords": [
+    "SYNCHRONIZE CACHE",
+    "logical blocks",
+    "IMMED",
+    "command parameters",
+    "status response",
+    "UFS device"
+  ],
+  "page_range": "254-257"
+}

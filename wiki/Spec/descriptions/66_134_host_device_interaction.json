@@ -1,0 +1,14 @@
+{
+  "file": "66_134_host_device_interaction.md",
+  "title": "13.4 Host Device Interaction",
+  "description": "本章節說明UFS裝置與主機之間的互動機制，涵蓋效能與可靠性改善功能。內容包括邏輯單元間的優先權管理、背景操作模式、電源管理、動態容量調整等關鍵特性。此章節可回答有關UFS裝置佇列優先權設定、背景操作狀態監控、電源關閉通知機制，以及動態容量管理實作等相關問題。",
+  "keywords": [
+    "UFS",
+    "host device interaction",
+    "command queue priority",
+    "background operations",
+    "power management",
+    "dynamic capacity"
+  ],
+  "page_range": "392-437"
+}

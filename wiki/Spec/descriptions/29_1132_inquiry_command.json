@@ -1,0 +1,14 @@
+{
+  "file": "29_1132_inquiry_command.md",
+  "title": "11.3.2 INQUIRY Command",
+  "description": "本章節描述UFS裝置中INQUIRY命令的實作規範，包含命令資料塊格式、重要產品資料(VPD)和標準INQUIRY資料的處理方式。內容涵蓋INQUIRY命令的資料回應格式、各欄位定義以及UFS裝置必須支援的特定參數設定。",
+  "keywords": [
+    "INQUIRY command",
+    "SCSI commands",
+    "UFS device",
+    "vital product data",
+    "standard inquiry data",
+    "command data block"
+  ],
+  "page_range": "205-207"
+}
