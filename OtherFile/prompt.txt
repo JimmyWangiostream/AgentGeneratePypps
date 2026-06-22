@@ -1,0 +1,8 @@
+依照 README.md 的 pipeline，為 TC/pf010-0310-normalized-test-flow.md 產生 Python test pattern。
+
+執行順序：steps 1 → 2（LLM）→ 3 → 4 → 5（LLM，per phase）→ 5c → 6。
+
+Step 5 每個 phase prompt 檔的要求：
+- 對每個要用的 function/class，先執行 `python graph_query.py <symbol>`，把指令和回傳結果逐行寫進 === GROUNDING LOG ===
+- graph_query 回傳 [NO MATCH] 的 symbol 一律加 # TODO human-confirm，不能直接使用
+- 每個 phase 的所有 step 都必須有對應的 method body，即使無法 ground 也要產出骨架 + warning，不可跳過整個 phase
